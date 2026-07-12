@@ -97,13 +97,13 @@
                 </Grid>
             </Border>
 
-            <!-- ══════════════════════ ORIGINAL ZAPRET LEGEND ══════════════════════ -->
+            <!-- ══════════════════════ FLOWSEAL LEGEND ══════════════════════ -->
             <StackPanel Spacing="14">
                 <TextBlock
-                    Text="Сердце проекта — zapret"
+                    Text="Сердце проекта — Flowseal"
                     Style="{StaticResource MirrlyTextLargeStyle}" />
                 <TextBlock
-                    Text="Этот инструмент не существовал бы без легендарной утилиты zapret от bolvan."
+                    Text="Этот инструмент не существовал бы без легендарного Flowseal и его zapret-discord-youtube."
                     Style="{StaticResource MirrlyTextMediumStyle}"
                     Opacity="0.65"
                     TextWrapping="WrapWholeWords" />
@@ -133,7 +133,7 @@
                             <StackPanel Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <TextBlock
-                                        Text="bolvan / zapret"
+                                        Text="Flowseal / zapret-discord-youtube"
                                         Style="{StaticResource MirrlyTextMediumStyle}"
                                         FontWeight="SemiBold" />
                                     <Border
@@ -142,7 +142,7 @@
                                         CornerRadius="4"
                                         Padding="6,2">
                                         <TextBlock
-                                            Text="Оригинальный движок"
+                                            Text="Легенда"
                                             Style="{StaticResource MirrlyTextSmallStyle}"
                                             FontSize="10"
                                             Foreground="{StaticResource BrandElectricBrush}"
@@ -150,20 +150,124 @@
                                     </Border>
                                 </StackPanel>
                                 <TextBlock
-                                    Text="bolvan — разработчик оригинального ПО zapret для обхода систем DPI на уровне пакетов. Проект включает утилиту winws для Windows, которая перехватывает пакеты с помощью драйвера WinDivert и модифицирует их для преодоления ограничений провайдеров."
+                                    Text="Flowseal — человек, который сделал обход блокировок доступным каждому. Его zapret-discord-youtube — это готовое решение «из коробки»: скачал, запустил, работает. Discord, YouTube — без VPN, без серверов, без регистрации. Именно на его сборке работает Zapret Mirrly GUI."
                                     Style="{StaticResource MirrlyTextSmallStyle}"
                                     Opacity="0.75"
                                     TextWrapping="WrapWholeWords" />
+
+                                <!-- Suspended notice -->
+                                <Border
+                                    Background="#1AFF8C00"
+                                    BorderBrush="#40FF8C00"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="12,8"
+                                    Margin="0,4,0,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <FontIcon
+                                            Glyph="&#xE7BA;"
+                                            FontSize="14"
+                                            Foreground="#FF8C00"
+                                            VerticalAlignment="Center" />
+                                        <TextBlock
+                                            Text="Аккаунт Flowseal на GitHub временно заморожен с 10 июля 2026 — сработали автоматические системы безопасности GitHub. Сам разработчик подтвердил: это временная приостановка, апелляция подана. Репозиторий вернётся. Не скачивай зеркала из непроверенных источников."
+                                            Style="{StaticResource MirrlyTextSmallStyle}"
+                                            Foreground="#FF8C00"
+                                            TextWrapping="WrapWholeWords"
+                                            VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Spacing="14">
                                 <HyperlinkButton
-                                    Content="github.com/bolvan/zapret"
-                                    NavigateUri="https://github.com/bolvan/zapret"
+                                    Content="github.com/Flowseal"
+                                    NavigateUri="https://github.com/Flowseal"
+                                    Padding="0" />
+                                <HyperlinkButton
+                                    Content="zapret-discord-youtube"
+                                    NavigateUri="https://github.com/Flowseal/zapret-discord-youtube"
+                                    Padding="0" />
+                                <HyperlinkButton
+                                    Content="t.me/FlowsealObhod"
+                                    NavigateUri="https://t.me/FlowsealObhod"
                                     Padding="0" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>
+                </Border>
+
+                <!-- tg-ws-proxy card -->
+                <Border Style="{StaticResource GlassCardStyle}" Padding="20">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border
+                            Width="56" Height="56"
+                            CornerRadius="14"
+                            BorderThickness="1"
+                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                            Background="Transparent">
+                            <FontIcon
+                                Glyph="&#xE704;"
+                                FontSize="24"
+                                Foreground="{StaticResource BrandElectricBrush}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Spacing="12">
+                            <StackPanel Spacing="4">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock
+                                        Text="Flowseal / tg-ws-proxy"
+                                        Style="{StaticResource MirrlyTextMediumStyle}"
+                                        FontWeight="SemiBold" />
+                                    <Border
+                                        BorderBrush="{StaticResource BrandElectricBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="6,2">
+                                        <TextBlock
+                                            Text="Разработка Flowseal"
+                                            Style="{StaticResource MirrlyTextSmallStyle}"
+                                            FontSize="10"
+                                            Foreground="{StaticResource BrandElectricBrush}"
+                                            FontWeight="SemiBold" />
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock
+                                    Text="Отдельный проект Flowseal — локальный MTProto-прокси для Telegram. Перенаправляет трафик через WebSocket, обходя ограничения провайдеров без сторонних серверов и VPN. Zapret Mirrly GUI не гарантирует обход Telegram — для этого используй tg-ws-proxy напрямую."
+                                    Style="{StaticResource MirrlyTextSmallStyle}"
+                                    Opacity="0.7"
+                                    TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="14">
+                                <HyperlinkButton
+                                    Content="github.com/Flowseal/tg-ws-proxy"
+                                    NavigateUri="https://github.com/Flowseal/tg-ws-proxy"
+                                    Padding="0" />
+                                <HyperlinkButton
+                                    Content="t.me/FlowsealObhod"
+                                    NavigateUri="https://t.me/FlowsealObhod"
+                                    Padding="0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- bolvan brief mention -->
+                <Border Style="{StaticResource GlassCardStyle}" Padding="16">
+                    <StackPanel Orientation="Horizontal" Spacing="14">
+                        <FontIcon Glyph="&#xE8D7;" FontSize="14" Foreground="{StaticResource BrandElectricBrush}" VerticalAlignment="Center" />
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock Text="bolvan / zapret — оригинальный движок" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Opacity="0.85" />
+                            <HyperlinkButton Content="github.com/bolvan/zapret" NavigateUri="https://github.com/bolvan/zapret" Padding="0" />
+                        </StackPanel>
+                    </StackPanel>
                 </Border>
             </StackPanel>
 
