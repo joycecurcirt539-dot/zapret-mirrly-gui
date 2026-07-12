@@ -1,0 +1,131 @@
+<Window
+    x:Class="ZapretMirrlyGUI.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Zapret Mirrly GUI"
+    mc:Ignorable="d">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop Kind="BaseAlt" />
+    </Window.SystemBackdrop>
+
+    <Grid>
+        <NavigationView
+            x:Name="RootNavigationView"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            IsPaneToggleButtonVisible="False"
+            CompactPaneLength="64"
+            PaneDisplayMode="LeftCompact"
+            ItemInvoked="RootNavigationView_ItemInvoked"
+            SelectionChanged="RootNavigationView_SelectionChanged">
+
+            <NavigationView.MenuItems>
+                <!-- Title Header Item -->
+                <NavigationViewItem
+                    x:Name="PaneToggleItem"
+                    Content="Zapret Mirrly"
+                    Tag="paneToggle"
+                    Margin="0,8,0,8"
+                    SelectsOnInvoked="False"
+                    ToolTipService.ToolTip="Развернуть/свернуть меню">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon x:Name="SidebarLogo" Width="40" Height="40" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                
+                <!-- Main Control Panel -->
+                <NavigationViewItem
+                    x:Name="DashboardItem"
+                    Content="Хаб"
+                    Tag="dashboard"
+                    ToolTipService.ToolTip="Панель запуска">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE768;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <!-- Lists Editor -->
+                <NavigationViewItem
+                    x:Name="ListsItem"
+                    Content="Списки обхода"
+                    Tag="lists"
+                    ToolTipService.ToolTip="Редактирование списков">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8C7;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                
+                <!-- Logs Console -->
+                <NavigationViewItem
+                    x:Name="LogsItem"
+                    Content="Журнал логов"
+                    Tag="logs"
+                    ToolTipService.ToolTip="Логи в реальном времени">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE9D9;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <!-- Diagnostics & Conflict Checker -->
+                <NavigationViewItem
+                    x:Name="DiagnosticsItem"
+                    Content="Диагностика"
+                    Tag="diagnostics"
+                    ToolTipService.ToolTip="Тестирование и проблемы">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE9D2;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <NavigationView.FooterMenuItems>
+                <!-- Support / About -->
+                <NavigationViewItem
+                    x:Name="SupportItem"
+                    Content="Поддержать"
+                    Tag="support"
+                    ToolTipService.ToolTip="Поддержать автора">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xEB51;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <!-- Guide / Help -->
+                <NavigationViewItem
+                    x:Name="GuideItem"
+                    Content="Инструкция"
+                    Tag="guide"
+                    ToolTipService.ToolTip="Справка и обновления">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE897;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <!-- General Settings -->
+                <NavigationViewItem
+                    x:Name="SettingsItem"
+                    Content="Настройки"
+                    Tag="settings"
+                    ToolTipService.ToolTip="Настройки обхода">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+
+            <Frame x:Name="RootFrame" CacheSize="10" />
+        </NavigationView>
+
+        <!-- Custom TitleBar area for hit testing -->
+        <Grid VerticalAlignment="Top" Height="48" Background="Transparent">
+            <Border
+                x:Name="AppTitleBar"
+                Margin="64,0,0,0"
+                Background="Transparent"
+                IsHitTestVisible="True" />
+        </Grid>
+    </Grid>
+</Window>

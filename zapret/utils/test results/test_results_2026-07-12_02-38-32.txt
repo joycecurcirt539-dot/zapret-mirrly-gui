@@ -1,0 +1,23 @@
+﻿
+Config: general (ALT).bat (Type: standard)
+  DiscordMain : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 74 ms
+  DiscordGateway : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 73 ms
+  DiscordCDN : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 73 ms
+  DiscordUpdates : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 73 ms
+  YouTubeWeb : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 110 ms
+  YouTubeShort : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 71 ms
+  YouTubeImage : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 72 ms
+  YouTubeVideoRedirect : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 84 ms
+  GoogleMain : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 71 ms
+  GoogleGstatic : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 102 ms
+  CloudflareWeb : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 85 ms
+  CloudflareCDN : HTTP:OK    TLS1.2:OK    TLS1.3:OK    | Ping: 66 ms
+  CloudflareDNS1111 :  | Ping: 73 ms
+  CloudflareDNS1001 :  | Ping: 66 ms
+  GoogleDNS8888 :  | Ping: 72 ms
+  GoogleDNS8844 :  | Ping: 73 ms
+  Quad9DNS9999 :  | Ping: 88 ms
+
+=== ANALYTICS ===
+general (ALT).bat : HTTP OK: 36, ERR: 0, UNSUP: 0, Ping OK: 17, Fail: 0
+Best strategy: general (ALT).bat

@@ -1,0 +1,76 @@
+﻿<Page
+    x:Class="ZapretMirrlyGUI.Pages.LogsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <Grid Padding="{StaticResource PagePadding}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <TextBlock Text="Журнал логов" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
+            <TextBlock Text="Просмотр и фильтрация системного вывода процессов обхода DPI" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
+        </StackPanel>
+
+        <!-- 1. Tool deck Card -->
+        <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="16" Margin="0,0,0,16">
+            <Grid ColumnSpacing="12" ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto">
+                <!-- Search Box -->
+                <TextBox Grid.Column="0" x:Name="SearchTextBox" PlaceholderText="Поиск по строкам лога..." TextChanged="FilterInputs_Changed" Height="36" />
+
+                <!-- Filter Dropdown -->
+                <ComboBox Grid.Column="1" x:Name="LevelFilterComboBox" Width="200" SelectionChanged="FilterInputs_Changed" Height="36">
+                    <ComboBoxItem Content="Все уровни логов" Tag="all" IsSelected="True" />
+                    <ComboBoxItem Content="Только ошибки" Tag="errors" />
+                    <ComboBoxItem Content="Только запуск/службы" Tag="service" />
+                    <ComboBoxItem Content="Прямой вывод winws" Tag="winws" />
+                </ComboBox>
+
+                <!-- Action Button: Copy -->
+                <Button Grid.Column="2" x:Name="CopyLogsButton" Click="CopyLogsButton_Click" Height="36" ToolTipService.ToolTip="Копировать отфильтрованный лог">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE8C8;" FontSize="13" />
+                        <TextBlock Text="Копировать" />
+                    </StackPanel>
+                </Button>
+
+                <!-- Action Button: Open in Notepad -->
+                <Button Grid.Column="3" x:Name="OpenInNotepadButton" Click="OpenInNotepadButton_Click" Height="36" ToolTipService.ToolTip="Открыть весь лог во внешнем Блокноте">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE7C3;" FontSize="13" />
+                        <TextBlock Text="В Блокноте" />
+                    </StackPanel>
+                </Button>
+
+                <!-- Action Button: Export -->
+                <Button Grid.Column="4" x:Name="ExportButton" Click="ExportButton_Click" Height="36" ToolTipService.ToolTip="Экспортировать логи в текстовый файл">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE105;" FontSize="13" />
+                        <TextBlock Text="Экспорт..." />
+                    </StackPanel>
+                </Button>
+
+                <!-- Action Button: Clear -->
+                <Button Grid.Column="5" x:Name="ClearLogsButton" Click="ClearLogsButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" ToolTipService.ToolTip="Очистить буфер логов">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE74D;" FontSize="13" />
+                        <TextBlock Text="Очистить" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- 2. Dark Terminal Viewport -->
+        <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Padding="6" Background="#0C0C0C" BorderBrush="#1F1F1F">
+            <TextBox x:Name="LogTextBox" AcceptsReturn="True" IsReadOnly="True" TextWrapping="NoWrap" FontFamily="Consolas" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" Foreground="#F3EFE6" />
+        </Border>
+    </Grid>
+</Page>

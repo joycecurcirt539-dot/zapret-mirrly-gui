@@ -1,0 +1,186 @@
+﻿<Page
+    x:Class="ZapretMirrlyGUI.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <Grid Padding="{StaticResource PagePadding}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="360" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- LEFT COLUMN: Monitor + Log                             -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="0" Margin="0,0,24,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,24">
+                <TextBlock Text="Хаб управления" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
+                <TextBlock Text="Запуск локального обхода DPI и мониторинг состояния соединения" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
+            </StackPanel>
+
+            <!-- ─── CONNECTION MONITOR ─── -->
+            <Border Grid.Row="1" x:Name="MonitorCard" Style="{StaticResource GlassCardStyle}" Padding="0" Margin="0,0,0,16" CornerRadius="12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Top band: Status -->
+                    <Grid Grid.Row="0" Padding="24,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Pulsing status orb -->
+                        <Border Grid.Column="0" x:Name="StatusOrbOuter" Width="52" Height="52" CornerRadius="26" Margin="0,0,20,0" VerticalAlignment="Center">
+                            <Border.Background>
+                                <SolidColorBrush x:Name="StatusOrbBg" Color="#1F2A1F" />
+                            </Border.Background>
+                            <Border x:Name="StatusOrbInner" Width="34" Height="34" CornerRadius="17" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Border.Background>
+                                    <SolidColorBrush x:Name="StatusOrbInnerBg" Color="#2F2F2F" />
+                                </Border.Background>
+                                <FontIcon x:Name="StatusIndicatorIcon" Glyph="&#xE71A;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <FontIcon.Foreground>
+                                        <SolidColorBrush x:Name="StatusIconFg" Color="#8D8577" />
+                                    </FontIcon.Foreground>
+                                </FontIcon>
+                            </Border>
+                        </Border>
+
+                        <!-- Status text -->
+                        <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="МОНИТОР ПОДКЛЮЧЕНИЯ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                                <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Главный переключатель обхода блокировок DPI. Запущен: Трафик к заблокированным сайтам перехватывается и модифицируется. Остановлен: Программа не влияет на пакеты." VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock x:Name="StatusText" Text="Обход DPI не запущен" Style="{StaticResource MirrlyTextLargeStyle}" FontSize="17" FontWeight="Bold" />
+                            <TextBlock x:Name="ServiceStatusText" Text="Автозапуск через службу: не настроен" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
+                        </StackPanel>
+
+                        <!-- Refresh -->
+                        <Button Grid.Column="2" x:Name="RefreshStatusButton" Click="RefreshStatusButton_Click" VerticalAlignment="Top" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Обновить статус">
+                            <FontIcon Glyph="&#xE72C;" FontSize="13" />
+                        </Button>
+                    </Grid>
+
+                    <!-- Bottom band: Launch button -->
+                    <Grid Grid.Row="1" x:Name="MonitorActionBar" Padding="24,0,24,20">
+                        <Button x:Name="ActionBypassButton" Click="ActionBypassButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <FontIcon Grid.Column="0" x:Name="ActionBypassIcon" Glyph="&#xE768;" FontSize="16" Margin="0,0,10,0" />
+                                <TextBlock Grid.Column="1" x:Name="ActionBypassText" Text="Запустить обход" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                            </Grid>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ─── LAUNCH LOG ─── -->
+            <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Background="#09090B" BorderBrush="#1A1A1A" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Log header -->
+                    <Grid Grid.Row="0" Padding="16,12" Background="#0D0D0F" BorderBrush="#1F1F1F">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE9F5;" FontSize="12" Foreground="#A79A83" />
+                            <TextBlock Text="ЖУРНАЛ ЗАПУСКА" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                            <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Окно вывода логов утилиты winws.exe. Показывает сообщения о старте, загрузке списков сайтов, перехвате пакетов и ошибках." VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                            <Button x:Name="CopyLogButton" Click="CopyLogButton_Click" Padding="6" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
+                                <FontIcon Glyph="&#xE8C8;" FontSize="11" />
+                            </Button>
+                            <Button x:Name="ClearLogButton" Click="ClearLogButton_Click" Padding="8,4" Height="26" FontSize="11">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE74D;" FontSize="11" />
+                                    <TextBlock Text="Очистить" FontSize="11" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Log output -->
+                    <ScrollViewer Grid.Row="1" x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
+                        <TextBlock x:Name="LaunchLogTextBlock" FontFamily="Consolas" FontSize="11" Foreground="#C0B89A" TextWrapping="Wrap" />
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- RIGHT COLUMN: Strategy Config                          -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="1" Margin="0,80,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="20" Margin="0,0,0,16">
+                <StackPanel Spacing="14">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="КОНФИГУРАЦИЯ СТРАТЕГИИ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                        <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Выбор сценария (.bat файла) для обхода DPI. Различные провайдеры используют разные алгоритмы фильтрации. Выберите тактику обхода. Рекомендуется запустить тест всех пресетов во вкладке 'Тестирование параметров DPI' — программа проверит все пресеты на вашей сети и выявит лучший!" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Активная стратегия:" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
+                        <ComboBox x:Name="PresetComboBox" HorizontalAlignment="Stretch" SelectionChanged="PresetComboBox_SelectionChanged" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Arguments display card -->
+            <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="0" Background="#09090B">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Args header -->
+                    <Border Grid.Row="0" Background="#0D0D0F" BorderBrush="#1F1F1F" Padding="14,10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xE756;" FontSize="12" Foreground="#A79A83" />
+                                <TextBlock Text="АРГУМЕНТЫ КОМАНДНОЙ СТРОКИ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                                <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Технические параметры ядра winws.exe. Формируются автоматически на основе выбранного пресета (фильтры портов, списки адресов и методы расщепления пакетов)." VerticalAlignment="Center" />
+                            </StackPanel>
+                            <Button Grid.Column="1" x:Name="CopyArgsButton" Click="CopyArgsButton_Click" Padding="6" Height="26" Width="26" ToolTipService.ToolTip="Копировать аргументы командной строки">
+                                <FontIcon Glyph="&#xE8C8;" FontSize="11" />
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- Args content -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
+                        <TextBlock x:Name="PresetArgumentsTextBox" FontFamily="Consolas" FontSize="11" Foreground="#C0B89A" TextWrapping="Wrap" />
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

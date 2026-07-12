@@ -1,0 +1,378 @@
+<Page
+    x:Class="ZapretMirrlyGUI.Pages.SupportPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Padding="{StaticResource PagePadding}" Spacing="20">
+
+            <!-- ══════════════════════ HEADER ══════════════════════ -->
+            <StackPanel Spacing="4">
+                <TextBlock
+                    Text="Поддержать автора"
+                    Style="{StaticResource PremiumPageTitleStyle}"
+                    FontSize="22" />
+                <TextBlock
+                    Text="Zapret Mirrly GUI — часть экосистемы Mirrly"
+                    Style="{StaticResource PremiumSubtitleStyle}"
+                    FontSize="12" />
+            </StackPanel>
+
+            <!-- ══════════════════════ HERO QR CARD ══════════════════════ -->
+            <Border Style="{StaticResource GlassCardStyle}" Padding="0">
+                <Grid Padding="28" ColumnSpacing="32" RowSpacing="22">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- QR code -->
+                    <Border
+                        Width="230"
+                        Height="230"
+                        Background="White"
+                        CornerRadius="18"
+                        Padding="12"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                        <Image
+                            x:Name="QrCodeImage"
+                            Width="206"
+                            Height="206"
+                            Stretch="Uniform" />
+                    </Border>
+
+                    <!-- Text side -->
+                    <StackPanel
+                        Grid.Column="1"
+                        Spacing="20"
+                        VerticalAlignment="Center">
+
+                        <Border
+                            BorderBrush="{StaticResource BrandElectricBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource ControlCornerRadius}"
+                            Padding="10,5"
+                            HorizontalAlignment="Left">
+                            <TextBlock
+                                Text="Поддержать разработчика"
+                                Style="{StaticResource MirrlyTextSmallStyle}"
+                                FontWeight="SemiBold" />
+                        </Border>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                Text="Поддержать через daLink"
+                                Style="{StaticResource MirrlyTextLargeStyle}" />
+                            <TextBlock
+                                Text="Отсканируй QR камерой телефона или нажми кнопку, чтобы открыть страницу доната в браузере. Каждое пожертвование помогает развивать экосистему Mirrly."
+                                Style="{StaticResource MirrlyTextMediumStyle}"
+                                Opacity="0.75"
+                                TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="10">
+                            <Button
+                                Content="Поддержать"
+                                Tag="https://dalink.to/cartneyzix"
+                                Click="DonateButton_Click"
+                                Style="{StaticResource PremiumAccentButtonStyle}"
+                                MinWidth="160"
+                                Padding="22,12" />
+                            <TextBlock
+                                Text="Донат идёт разработчику Zapret Mirrly GUI — графической оболочки для zapret-discord-youtube."
+                                Style="{StaticResource MirrlyTextSmallStyle}"
+                                Opacity="0.7"
+                                TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════ ORIGINAL ZAPRET LEGEND ══════════════════════ -->
+            <StackPanel Spacing="14">
+                <TextBlock
+                    Text="Сердце проекта — zapret"
+                    Style="{StaticResource MirrlyTextLargeStyle}" />
+                <TextBlock
+                    Text="Этот инструмент не существовал бы без легендарной утилиты zapret от bolvan."
+                    Style="{StaticResource MirrlyTextMediumStyle}"
+                    Opacity="0.65"
+                    TextWrapping="WrapWholeWords" />
+
+                <Border Style="{StaticResource GlassCardStyle}" Padding="20">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border
+                            Width="56" Height="56"
+                            CornerRadius="14"
+                            BorderThickness="1"
+                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                            Background="Transparent">
+                            <FontIcon
+                                Glyph="&#xE943;"
+                                FontSize="24"
+                                Foreground="{StaticResource BrandElectricBrush}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Spacing="12">
+                            <StackPanel Spacing="6">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock
+                                        Text="bolvan / zapret"
+                                        Style="{StaticResource MirrlyTextMediumStyle}"
+                                        FontWeight="SemiBold" />
+                                    <Border
+                                        BorderBrush="{StaticResource BrandElectricBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="6,2">
+                                        <TextBlock
+                                            Text="Оригинальный движок"
+                                            Style="{StaticResource MirrlyTextSmallStyle}"
+                                            FontSize="10"
+                                            Foreground="{StaticResource BrandElectricBrush}"
+                                            FontWeight="SemiBold" />
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock
+                                    Text="bolvan — разработчик оригинального ПО zapret для обхода систем DPI на уровне пакетов. Проект включает утилиту winws для Windows, которая перехватывает пакеты с помощью драйвера WinDivert и модифицирует их для преодоления ограничений провайдеров."
+                                    Style="{StaticResource MirrlyTextSmallStyle}"
+                                    Opacity="0.75"
+                                    TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="14">
+                                <HyperlinkButton
+                                    Content="github.com/bolvan/zapret"
+                                    NavigateUri="https://github.com/bolvan/zapret"
+                                    Padding="0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- ══════════════════════ MIRRLY ECOSYSTEM ══════════════════════ -->
+            <StackPanel Spacing="14">
+                <TextBlock
+                    Text="Экосистема Mirrly"
+                    Style="{StaticResource MirrlyTextLargeStyle}" />
+                <TextBlock
+                    Text="Все инструменты разработаны одним автором и образуют единую экосистему."
+                    Style="{StaticResource MirrlyTextMediumStyle}"
+                    Opacity="0.65"
+                    TextWrapping="WrapWholeWords" />
+
+                <Grid ColumnSpacing="14" RowSpacing="14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Mirrly -->
+                    <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="18">
+                        <StackPanel Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Border
+                                    Width="40" Height="40"
+                                    CornerRadius="10"
+                                    BorderThickness="1"
+                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                    Background="Transparent">
+                                    <FontIcon
+                                        Glyph="&#xE8EA;"
+                                        FontSize="18"
+                                        Foreground="{StaticResource BrandElectricBrush}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="Mirrly" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
+                                    <TextBlock Text="Android зеркало · Windows" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.6" />
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock
+                                Text="Форк scrcpy — кастомное зеркало Android с Wi-Fi балансом, диагностикой и продвинутым управлением соединением."
+                                Style="{StaticResource MirrlyTextSmallStyle}"
+                                Opacity="0.7"
+                                TextWrapping="WrapWholeWords" />
+                            <HyperlinkButton
+                                Content="GitHub"
+                                NavigateUri="https://github.com/joycecurcirt539-dot"
+                                Padding="0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Mirrly Companion Android -->
+                    <Border Grid.Column="1" Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="18">
+                        <StackPanel Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Border
+                                    Width="40" Height="40"
+                                    CornerRadius="10"
+                                    BorderThickness="1"
+                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                    Background="Transparent">
+                                    <FontIcon
+                                        Glyph="&#xE8A7;"
+                                        FontSize="18"
+                                        Foreground="{StaticResource BrandElectricBrush}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="Mirrly Companion" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
+                                    <TextBlock Text="Мобильный компаньон · Android" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.6" />
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock
+                                Text="Android-приложение-компаньон для Mirrly Desktop. Сопряжение по сети, диагностика устройства, управление сессией и QR-паринг — прямо с телефона."
+                                Style="{StaticResource MirrlyTextSmallStyle}"
+                                Opacity="0.7"
+                                TextWrapping="WrapWholeWords" />
+                            <HyperlinkButton
+                                Content="GitHub"
+                                NavigateUri="https://github.com/joycecurcirt539-dot"
+                                Padding="0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Mirrly Builder -->
+                    <Border Grid.Column="2" Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="18">
+                        <StackPanel Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Border
+                                    Width="40" Height="40"
+                                    CornerRadius="10"
+                                    BorderThickness="1"
+                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                    Background="Transparent">
+                                    <FontIcon
+                                        Glyph="&#xE9F5;"
+                                        FontSize="18"
+                                        Foreground="{StaticResource BrandElectricBrush}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="Mirrly Builder" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
+                                    <TextBlock Text="Сборщик релизов" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.6" />
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock
+                                Text="Инструмент сборки всей экосистемы — автоматизирует версионирование, бандлинг и подготовку к дистрибуции."
+                                Style="{StaticResource MirrlyTextSmallStyle}"
+                                Opacity="0.7"
+                                TextWrapping="WrapWholeWords" />
+                            <HyperlinkButton
+                                Content="GitHub"
+                                NavigateUri="https://github.com/joycecurcirt539-dot"
+                                Padding="0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Zapret Mirrly GUI -->
+                    <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="18">
+                        <StackPanel Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Border
+                                    Width="40" Height="40"
+                                    CornerRadius="10"
+                                    BorderThickness="1"
+                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                    Background="Transparent">
+                                    <FontIcon
+                                        Glyph="&#xEA18;"
+                                        FontSize="18"
+                                        Foreground="{StaticResource BrandElectricBrush}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="Zapret Mirrly GUI" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
+                                    <TextBlock Text="Это приложение · Windows" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.6" />
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock
+                                Text="GUI для zapret-discord-youtube — обход DPI, мониторинг, диагностика и служба автозапуска Windows."
+                                Style="{StaticResource MirrlyTextSmallStyle}"
+                                Opacity="0.7"
+                                TextWrapping="WrapWholeWords" />
+                            <HyperlinkButton
+                                Content="GitHub"
+                                NavigateUri="https://github.com/joycecurcirt539-dot"
+                                Padding="0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Author Card spans 2 cols -->
+                    <Border Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource GlassCardStyle}" Padding="18">
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border
+                                Width="40" Height="40"
+                                CornerRadius="10"
+                                BorderThickness="1"
+                                BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                Background="Transparent">
+                                <FontIcon
+                                    Glyph="&#xE8D4;"
+                                    FontSize="18"
+                                    Foreground="{StaticResource BrandElectricBrush}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="Разработчик экосистемы" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
+                                    <TextBlock Text="joycecurcirt539-dot — автор Mirrly, Mirrly Companion, Mirrly Builder, Zapret Mirrly GUI" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.7" TextWrapping="WrapWholeWords" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <HyperlinkButton Content="GitHub" NavigateUri="https://github.com/joycecurcirt539-dot" Padding="0" />
+                                    <HyperlinkButton Content="Telegram" NavigateUri="https://t.me/WhyOKyHb" Padding="0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+
+            <!-- ══════════════════════ FOOTER ══════════════════════ -->
+            <Border Style="{StaticResource GlassCardStyle}" Padding="16">
+                <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE8D7;" FontSize="14" Foreground="{StaticResource BrandElectricBrush}" VerticalAlignment="Center" />
+                    <TextBlock
+                        Text="Zapret Mirrly GUI — часть экосистемы Mirrly. Графическая оболочка для утилиты zapret."
+                        Style="{StaticResource MirrlyTextSmallStyle}"
+                        Opacity="0.6"
+                        VerticalAlignment="Center"
+                        TextWrapping="WrapWholeWords" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,344 @@
+<Page
+    x:Class="ZapretMirrlyGUI.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <Grid>
+        <NavigationView x:Name="SettingsNav"
+                        PaneDisplayMode="Left"
+                        CompactModeThresholdWidth="0"
+                        ExpandedModeThresholdWidth="0"
+                        IsPaneToggleButtonVisible="False"
+                        IsBackButtonVisible="Collapsed"
+                        IsSettingsVisible="False"
+                        SelectionChanged="SettingsNav_SelectionChanged">
+
+            <NavigationView.PaneHeader>
+                <StackPanel Margin="16,24,16,18" Spacing="4">
+                    <TextBlock Text="Настройки" Style="{StaticResource MirrlyTextLargeStyle}" FontSize="18" FontWeight="Bold" />
+                    <TextBlock Text="Параметры запуска и обхода" Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Opacity="0.8" />
+                </StackPanel>
+            </NavigationView.PaneHeader>
+
+            <NavigationView.PaneFooter>
+                <StackPanel Margin="12,0,12,12" Spacing="8">
+                    <Button Click="SaveSettingsButton_Click" HorizontalAlignment="Stretch" Style="{StaticResource PremiumAccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE74E;" FontSize="14" />
+                            <TextBlock Text="Применить" Style="{StaticResource MirrlyTextMediumStyle}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Click="CancelSettingsButton_Click" HorizontalAlignment="Stretch" Background="Transparent" BorderThickness="0">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE72C;" FontSize="14" />
+                            <TextBlock Text="Отменить изменения" Style="{StaticResource MirrlyTextMediumStyle}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </NavigationView.PaneFooter>
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Параметры запуска" Tag="launch" IsSelected="True">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE945;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItemSeparator />
+                <NavigationViewItem Content="Фильтры трафика" Tag="filters">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xF168;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Папки и файлы" Tag="folders">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8B7;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Автоматизация" Tag="automation">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE815;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Обновления" Tag="updates">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE895;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{StaticResource PagePadding}">
+                <Grid>
+                    <!-- 1. Launch Parameters Panel -->
+                    <StackPanel x:Name="LaunchParamsPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
+                        <TextBlock Text="Параметры запуска и службы" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,8" />
+                        
+                        <!-- Card 1: Preset selection -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Выбор пресета обхода" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Выбор пресета обхода (.bat файла) службы DPI. Этот пресет используется как при запуске из GUI (кнопка 'Запустить обход'), так и при автоматической работе службы автозапуска Windows." VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Text="Выберите пресет для обхода DPI. Влияет как на запуск в GUI, так и на автоматическую службу." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" />
+                                <ComboBox x:Name="PresetsComboBox" HorizontalAlignment="Stretch" SelectionChanged="PresetsComboBox_SelectionChanged" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 2: Windows Service Setup -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Служба автозапуска Windows" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Установка файла winws.exe в качестве системной службы. Служба будет автоматически запускаться в фоновом режиме даже без открытия GUI, что удобно для постоянной работы." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="Установите winws.exe в качестве службы для фоновой работы без открытия приложения." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <Button x:Name="ServiceInstallBtn" Click="ServiceInstallBtn_Click" >
+                                        <TextBlock Text="Установить / Обновить" />
+                                    </Button>
+                                    <Button x:Name="ServiceRemoveBtn" Click="ServiceRemoveBtn_Click" >
+                                        <TextBlock Text="Удалить службу" />
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- 2. Packet Filters Panel -->
+                    <StackPanel x:Name="FiltersPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
+                        <TextBlock Text="Параметры фильтрации трафика" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,8" />
+
+                        <!-- Card 1: Game Filter -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Игровой фильтр (Game Filter)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Ограничивает применение обхода только указанными портами (1024-65535). Это необходимо для обхода блокировок голосовых каналов Discord (WebRTC/UDP), но не мешает обычным играм." VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Text="Ограничение фильтрации диапазоном UDP и TCP портов (например, для разблокировки Discord)." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                
+                                <StackPanel Spacing="10" Margin="0,8,0,0">
+                                    <RadioButton x:Name="GameDisabledRadio" Content="Отключен (обход работает для всех портов)" />
+                                    <RadioButton x:Name="GameAllRadio" Content="Включен для TCP и UDP (порты 1024-65535)" />
+                                    <RadioButton x:Name="GameTcpRadio" Content="Фильтровать только TCP" />
+                                    <RadioButton x:Name="GameUdpRadio" Content="Фильтровать только UDP" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 2: IPSet Filter -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Фильтр по IP-адресам (IPSet)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Ограничивает обход только IP-адресами из файла lists\ipset-all.txt. Полезно, если вы хотите обходить DPI только для конкретного списка сайтов, а не для всего интернета." VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Text="Применяет правила обхода только к IP-адресам из файла lists\ipset-all.txt." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                
+                                <StackPanel Spacing="10" Margin="0,8,0,0">
+                                    <RadioButton x:Name="IpsetLoadedRadio" Content="Включен (использовать ipset-all.txt)" />
+                                    <RadioButton x:Name="IpsetNoneRadio" Content="Отключен (обход для всех IP-адресов)" />
+                                    <RadioButton x:Name="IpsetAnyRadio" Content="Режим 'Any' (обход всего, кроме списка исключений)" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- 3. Files & Folders Panel -->
+                    <StackPanel x:Name="FilesFoldersPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
+                        <TextBlock Text="Настройки папок и файлов" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,8" />
+
+                        <!-- Card 1: Working Folders -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Быстрый переход к файлам" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Быстрый доступ к папкам проекта. Главная папка ведет к исполняемым файлам, а папка списков - к файлам доменов и исключений." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="Быстрые кнопки для перехода к папкам утилиты zapret и редактируемым спискам." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <Button x:Name="OpenRootFolderBtn" Click="OpenRootFolderBtn_Click">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8B7;" />
+                                            <TextBlock Text="Главная папка" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="OpenListsFolderBtn" Click="OpenListsFolderBtn_Click">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8B7;" />
+                                            <TextBlock Text="Папка списков" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- 4. Automation Panel -->
+                    <StackPanel x:Name="AutomationPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
+                        <TextBlock Text="Автоматизация работы" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,8" />
+
+                        <!-- Card 1: Startup -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Автозапуск при старте Windows" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Автоматический запуск графического интерфейса при входе в Windows. Программа будет запускаться свернутой в трей." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="Запуск приложения в свернутом виде при входе пользователя в систему." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" x:Name="RunAtStartupToggle" OnContent="Да" OffContent="Нет" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Card 2: Update Check -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Автоматическая проверка обновлений" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Проверка наличия обновлений для GUI и утилит zapret при каждом запуске приложения." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="Автоматическое получение информации о новых релизах с репозитория GitHub." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" x:Name="AutoUpdateToggle" OnContent="Вкл" OffContent="Выкл" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Card 2.1: Minimize to Tray on Close -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Сворачивать в трей при закрытии" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="При нажатии кнопки закрытия окно скрывается в системный трей, а служба продолжает работать." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="При нажатии кнопки 'Закрыть' приложение сворачивается в область уведомлений." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" x:Name="MinimizeToTrayOnCloseToggle" OnContent="Да" OffContent="Нет" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Card 2.2: Minimize to Tray on Minimize -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Сворачивать в трей при минимизации" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Сворачивание приложения в системный трей вместо панели задач при нажатии кнопки 'Свернуть'." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="Перенаправление окна в системный трей при обычном сворачивании." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" x:Name="MinimizeToTrayOnMinimizeToggle" OnContent="Да" OffContent="Нет" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Card 3: Windows Service -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Служба Windows (Автозапуск)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Фоновая служба Windows. Позволяет утилите winws работать без открытого окна программы." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="ServiceStatusInSettings" Text="Проверка статуса..." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
+                                </StackPanel>
+                                <TextBlock Text="Используйте кнопки ниже для установки или удаления фоновой службы. Установка службы позволяет забыть о необходимости ручного запуска обхода." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,4,0,0">
+                                    <Button Grid.Column="0" x:Name="SettingsInstallServiceButton" Click="SettingsInstallServiceButton_Click" HorizontalAlignment="Stretch" Height="40" Style="{StaticResource PremiumAccentButtonStyle}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE109;" FontSize="12" />
+                                            <TextBlock Text="Установить" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Grid.Column="1" x:Name="SettingsUninstallServiceButton" Click="SettingsUninstallServiceButton_Click" HorizontalAlignment="Stretch" Height="40">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE10A;" FontSize="12" />
+                                            <TextBlock Text="Удалить" />
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    
+                    <!-- 5. Updates Panel -->
+                    <StackPanel x:Name="UpdatesPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
+                        <TextBlock Text="Обновления и базы данных" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,8" />
+
+                        <!-- Card 1: Check for App Updates -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Версия утилиты обхода" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Проверка версии утилиты winws.exe и сравнение с последним доступным релизом на GitHub." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="AppUpdateStatusText" Text="Текущая версия обхода: 1.9.9a" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <Button x:Name="CheckAppUpdatesBtn" Click="CheckAppUpdatesBtn_Click">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon Glyph="&#xE72C;" FontSize="12" />
+                                            <TextBlock Text="Проверить" />
+                                        </StackPanel>
+                                    </Button>
+                                    <HyperlinkButton x:Name="DownloadLatestReleaseBtn" Content="Скачать новую версию" NavigateUri="https://sourceforge.net/projects/zapret-discord-youtube/" Visibility="Collapsed" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Card 2: Update IPSet List -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Обновление списков IP (IPSet)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Обновление файла lists\ipset-all.txt для фильтрации по IP-адресам." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="IPSetUpdateStatusText" Text="Обновление файла списков IP для фильтрации." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Button Grid.Column="1" x:Name="UpdateIPSetListBtn" Click="UpdateIPSetListBtn_Click" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE896;" FontSize="12" />
+                                        <TextBlock Text="Обновить IP" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- Card 3: Update Hosts File -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Файл сопоставления хостов (hosts)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Очистка или обновление записей в системном файле hosts для обхода блокировок Google/YouTube." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="HostsUpdateStatusText" Text="Проверка и очистка системного файла hosts по пути C:\Windows\System32\drivers\etc\hosts." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <Button x:Name="CheckHostsBtn" Click="CheckHostsBtn_Click">
+                                        <TextBlock Text="Проверить hosts" />
+                                    </Button>
+                                    <Button x:Name="ApplyHostsUpdateBtn" Click="ApplyHostsUpdateBtn_Click" Style="{StaticResource PremiumAccentButtonStyle}" Visibility="Collapsed">
+                                        <TextBlock Text="Очистить hosts" />
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </NavigationView>
+    </Grid>
+</Page>

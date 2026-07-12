@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="ZapretMirrlyGUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    RequestedTheme="Dark">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Graphite palette matching Mirrly main app -->
+            <Color x:Key="BrandIndigoColor">#2B2B2B</Color>
+            <Color x:Key="BrandElectricColor">#A79A83</Color>
+            <Color x:Key="SystemAccentColor">#8D8577</Color>
+            <Color x:Key="SystemAccentColorDark1">#746D62</Color>
+            <Color x:Key="SystemAccentColorDark2">#5E584F</Color>
+            <Color x:Key="SystemAccentColorDark3">#49443D</Color>
+            <Color x:Key="SystemAccentColorLight1">#A79A83</Color>
+            <Color x:Key="SystemAccentColorLight2">#C0B49F</Color>
+            <Color x:Key="SystemAccentColorLight3">#D8D0C0</Color>
+            
+            <SolidColorBrush x:Key="BrandIndigoBrush" Color="#8D8577" />
+            <SolidColorBrush x:Key="BrandElectricBrush" Color="#A79A83" />
+            <SolidColorBrush x:Key="DeepIndigoBrush" Color="#050505" />
+            <SolidColorBrush x:Key="ElectricBlueBrush" Color="#A79A83" />
+            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#6E675C" />
+            <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#5C564D" />
+            <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#49443D" />
+            <SolidColorBrush x:Key="AccentFillColorDisabledBrush" Color="#34322E" />
+            <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#D8D0C0" />
+            <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#C0B49F" />
+            <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#A79A83" />
+            <SolidColorBrush x:Key="AccentTextFillColorDisabledBrush" Color="#77736B" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#F6F2EA" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#F6F2EA" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorDisabledBrush" Color="#9A9488" />
+            
+            <SolidColorBrush x:Key="ButtonBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1F1F1F" />
+            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#2F2F2F" />
+            <SolidColorBrush x:Key="ButtonBorderBrush" Color="#3E3B35" />
+            <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#565044" />
+            <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#34312C" />
+            <SolidColorBrush x:Key="AccentButtonBackground" Color="#4E483E" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="#6E675C" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="#3D3830" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrush" Color="#45423B" />
+            
+            <SolidColorBrush x:Key="SystemFillColorSuccessBrush" Color="#C0B49F" />
+            <SolidColorBrush x:Key="SystemFillColorCautionBrush" Color="#A79A83" />
+            <SolidColorBrush x:Key="SystemFillColorCriticalBrush" Color="#8D8577" />
+            <SolidColorBrush x:Key="SystemFillColorSuccessBackgroundBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="SystemFillColorCautionBackgroundBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="SystemFillColorCriticalBackgroundBrush" Color="Transparent" />
+
+            <!-- Layout Tokens -->
+            <Thickness x:Key="PagePadding">32,24,32,32</Thickness>
+            <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
+            <CornerRadius x:Key="OverlayCornerRadius">12</CornerRadius>
+            <CornerRadius x:Key="CardCornerRadius">16</CornerRadius>
+
+            <!-- Typography -->
+            <Style x:Key="PremiumPageTitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="22" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style x:Key="PremiumSubtitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Opacity" Value="0.82" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <Style x:Key="MirrlyTextLargeStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Opacity" Value="0.86" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <Style x:Key="MirrlyTextMediumStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Opacity" Value="0.82" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <Style x:Key="MirrlyTextSmallStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Opacity" Value="0.64" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <!-- Glass Card Design -->
+            <Style x:Key="GlassCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="#2F2F2F" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="{StaticResource CardCornerRadius}" />
+                <Setter Property="Padding" Value="20" />
+            </Style>
+
+            <Style x:Key="PremiumAccentButtonStyle" TargetType="Button">
+                <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
+                <Setter Property="Padding" Value="16,8" />
+                <Setter Property="Background" Value="#4E483E" />
+                <Setter Property="BorderBrush" Value="#45423B" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Foreground" Value="#F3EFE6" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

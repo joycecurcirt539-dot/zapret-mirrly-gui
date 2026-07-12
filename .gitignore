@@ -1,0 +1,32 @@
+# Visual Studio / .NET Build Output
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bin/
+obj/
+publish/
+release/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.docstates
+
+# Visual Studio Code & Visual Studio
+.vscode/
+.vs/
+
+# JetBrains Rider
+.idea/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Log files
+*.log
