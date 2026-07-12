@@ -259,15 +259,67 @@
                     </Grid>
                 </Border>
 
-                <!-- bolvan brief mention -->
-                <Border Style="{StaticResource GlassCardStyle}" Padding="16">
-                    <StackPanel Orientation="Horizontal" Spacing="14">
-                        <FontIcon Glyph="&#xE8D7;" FontSize="14" Foreground="{StaticResource BrandElectricBrush}" VerticalAlignment="Center" />
-                        <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="bolvan / zapret — оригинальный движок" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Opacity="0.85" />
-                            <HyperlinkButton Content="github.com/bolvan/zapret" NavigateUri="https://github.com/bolvan/zapret" Padding="0" />
+                <!-- bolvan LEGEND card -->
+                <Border Style="{StaticResource GlassCardStyle}" Padding="20">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border
+                            Width="56" Height="56"
+                            CornerRadius="14"
+                            BorderThickness="1"
+                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                            Background="Transparent">
+                            <FontIcon
+                                Glyph="&#xE8D7;"
+                                FontSize="24"
+                                Foreground="{StaticResource BrandElectricBrush}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Spacing="12">
+                            <StackPanel Spacing="6">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock
+                                        Text="bolvan / zapret"
+                                        Style="{StaticResource MirrlyTextMediumStyle}"
+                                        FontWeight="SemiBold" />
+                                    <Border
+                                        BorderBrush="{StaticResource BrandElectricBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="6,2">
+                                        <TextBlock
+                                            Text="Легенда"
+                                            Style="{StaticResource MirrlyTextSmallStyle}"
+                                            FontSize="10"
+                                            Foreground="{StaticResource BrandElectricBrush}"
+                                            FontWeight="SemiBold" />
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock
+                                    Text="bolvan — создатель оригинального движка zapret, на котором держится весь экосистемный стек обхода DPI в России. Его winws перехватывает сетевые пакеты через WinDivert и модифицирует заголовки, обходя алгоритмы провайдеров. Без bolvan не было бы ни zapret-discord-youtube, ни этого приложения."
+                                    Style="{StaticResource MirrlyTextSmallStyle}"
+                                    Opacity="0.75"
+                                    TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="14">
+                                <HyperlinkButton
+                                    Content="github.com/bolvan/zapret"
+                                    NavigateUri="https://github.com/bolvan/zapret"
+                                    Padding="0" />
+                                <HyperlinkButton
+                                    Content="zapret2"
+                                    NavigateUri="https://github.com/bolvan/zapret2"
+                                    Padding="0" />
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
+                    </Grid>
                 </Border>
             </StackPanel>
 
