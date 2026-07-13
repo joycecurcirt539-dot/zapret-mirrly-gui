@@ -11,12 +11,12 @@
 
 <div align="center">
 
-[![Скачать последнюю версию](https://img.shields.io/badge/⬇%EF%B8%8F_%D0%A1качать_v1.0.0-ZapretMirrlyGUI.exe-6e40c9?style=for-the-badge&logo=github)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest)
+[![Скачать последнюю версию](https://img.shields.io/badge/⬇%EF%B8%8F_%D0%A1качать_v1.0.1-ZapretMirrlyGUI.exe-6e40c9?style=for-the-badge&logo=github)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest)
 
 </div>
 
 > [!NOTE]
-> 🔔 Аккаунт **Flowseal/zapret-discord-youtube** заморожен на GitHub с 10 июля 2026. **Zapret Mirrly GUI** использует те же батники Flowseal и является рабочей альтернативой с графическим интерфейсом. Скачивай только из официального репозитория, не из зеркал.
+> 🔔 Репозиторий **Flowseal/zapret-discord-youtube** заморожен на GitHub с 10 июля 2026. **Zapret Mirrly GUI** использует те же батники Flowseal и является рабочей альтернативой с графическим интерфейсом. Скачивай только из официального репозитория, не из зеркал.
 
 > [!WARNING]
 > Для корректной работы (запуск winws, установка службы, использование WinDivert) **требуются права администратора**. Приложение автоматически запросит повышение прав UAC.
@@ -38,7 +38,18 @@
 
 ## 📸 Скриншоты
 
-> Скриншоты будут добавлены в ближайшее время.
+<p align="center">
+  <img src="screenshot/hub.png" width="48%" alt="Главный экран" />
+  <img src="screenshot/diagnostics.png" width="48%" alt="Диагностика" />
+</p>
+<p align="center">
+  <img src="screenshot/logs.png" width="48%" alt="Журнал логов" />
+  <img src="screenshot/lists.png" width="48%" alt="Редактор списков" />
+</p>
+<p align="center">
+  <img src="screenshot/safety.png" width="48%" alt="Настройки безопасности" />
+  <img src="screenshot/tray.png" width="48%" alt="Трей" />
+</p>
 
 ---
 
