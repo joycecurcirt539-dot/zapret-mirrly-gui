@@ -187,6 +187,7 @@ public sealed partial class MainWindow : Window
             "lists" => typeof(ListsPage),
             "logs" => typeof(LogsPage),
             "diagnostics" => typeof(DiagnosticsPage),
+            "tgwsproxy" => typeof(TgWsProxyPage),
             "support" => typeof(SupportPage),
             "guide" => typeof(GuidePage),
             _ => typeof(DashboardPage)
@@ -346,6 +347,10 @@ public sealed partial class MainWindow : Window
             {
                 ZapretService.StopBypass();
             }
+            if (TgWsProxyService.IsRunning)
+            {
+                TgWsProxyService.StopProxy();
+            }
             if (_trayWindow != null)
             {
                 try { _trayWindow.Close(); } catch {}
@@ -356,7 +361,7 @@ public sealed partial class MainWindow : Window
 
         args.Cancel = true;
 
-        bool isBypassActive = ZapretService.IsRunning;
+        bool isBypassActive = ZapretService.IsRunning || TgWsProxyService.IsRunning;
         bool isDiagActive = ZapretService.IsDiagnosticsRunning;
 
         if (isBypassActive || isDiagActive)
@@ -468,6 +473,10 @@ public sealed partial class MainWindow : Window
         if (ZapretService.IsRunning)
         {
             ZapretService.StopBypass();
+        }
+        if (TgWsProxyService.IsRunning)
+        {
+            TgWsProxyService.StopProxy();
         }
         if (_trayWindow != null)
         {

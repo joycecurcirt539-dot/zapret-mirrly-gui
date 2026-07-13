@@ -1,0 +1,197 @@
+<Page
+    x:Class="ZapretMirrlyGUI.Pages.TgWsProxyPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <Grid Padding="{StaticResource PagePadding}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="380" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- LEFT COLUMN: Monitor + Link + Log                       -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="0" Margin="0,0,24,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,24">
+                <TextBlock Text="Транспортный прокси Telegram" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
+                <TextBlock Text="Запуск TgWsProxy для параллельного обхода блокировок Telegram на ПК" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
+            </StackPanel>
+
+            <!-- ─── CONNECTION MONITOR & ACTIONS ─── -->
+            <StackPanel Grid.Row="1" Spacing="16" Margin="0,0,0,16">
+                <!-- Monitor Card -->
+                <Border Style="{StaticResource GlassCardStyle}" Padding="0" CornerRadius="12">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Top band: Status -->
+                        <Grid Grid.Row="0" Padding="24,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Pulsing status orb -->
+                            <Border Grid.Column="0" x:Name="StatusOrbOuter" Width="52" Height="52" CornerRadius="26" Margin="0,0,20,0" VerticalAlignment="Center">
+                                <Border.Background>
+                                    <SolidColorBrush x:Name="StatusOrbBg" Color="#1F2A1F" />
+                                </Border.Background>
+                                <Border x:Name="StatusOrbInner" Width="34" Height="34" CornerRadius="17" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Border.Background>
+                                        <SolidColorBrush x:Name="StatusOrbInnerBg" Color="#2F2F2F" />
+                                    </Border.Background>
+                                    <FontIcon x:Name="StatusIndicatorIcon" Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <FontIcon.Foreground>
+                                            <SolidColorBrush x:Name="StatusIconFg" Color="#8D8577" />
+                                        </FontIcon.Foreground>
+                                    </FontIcon>
+                                </Border>
+                            </Border>
+
+                            <!-- Status text -->
+                            <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                                <TextBlock Text="СОСТОЯНИЕ СЛУЖБЫ PROXY" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                                <TextBlock x:Name="StatusText" Text="Прокси-сервер не запущен" Style="{StaticResource MirrlyTextLargeStyle}" FontSize="17" FontWeight="Bold" />
+                                <TextBlock x:Name="ServiceStatusText" Text="Работает параллельно с основным обходом" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Bottom band: Actions -->
+                        <Grid Grid.Row="1" Padding="24,0,24,20" ColumnDefinitions="*,*">
+                            <!-- Toggle Button -->
+                            <Button Grid.Column="0" x:Name="ActionBypassButton" Click="ActionBypassButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48" Margin="0,0,8,0">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <FontIcon Grid.Column="0" x:Name="ActionBypassIcon" Glyph="&#xE768;" FontSize="16" Margin="0,0,10,0" />
+                                    <TextBlock Grid.Column="1" x:Name="ActionBypassText" Text="Запустить прокси" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                                </Grid>
+                            </Button>
+
+                            <!-- Telegram Connect Link -->
+                            <Button Grid.Column="1" x:Name="ConnectTelegramButton" Click="ConnectTelegramButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Background="#1F2A38" BorderBrush="#2D3B4C" HorizontalAlignment="Stretch" Height="48" Margin="8,0,0,0" IsEnabled="False">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <FontIcon Grid.Column="0" Glyph="&#xE73E;" FontSize="16" Margin="0,0,10,0" />
+                                    <TextBlock Grid.Column="1" Text="Подключить Telegram" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                                </Grid>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- ─── LAUNCH LOG ─── -->
+            <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Background="#09090B" BorderBrush="#1A1A1A" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Log header -->
+                    <Grid Grid.Row="0" Padding="16,12" Background="#0D0D0F" BorderBrush="#1F1F1F">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE9F5;" FontSize="12" Foreground="#A79A83" />
+                            <TextBlock Text="ЛОГИ РАБОТЫ TGWSROOT" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                            <Button x:Name="CopyLogButton" Click="CopyLogButton_Click" Padding="6" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
+                                <FontIcon Glyph="&#xE8C8;" FontSize="11" />
+                            </Button>
+                            <Button x:Name="ClearLogButton" Click="ClearLogButton_Click" Padding="8,4" Height="26" FontSize="11">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE74D;" FontSize="11" />
+                                    <TextBlock Text="Очистить" FontSize="11" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Log output -->
+                    <ScrollViewer Grid.Row="1" x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
+                        <TextBlock x:Name="LaunchLogTextBlock" FontFamily="Consolas" FontSize="11" Foreground="#C0B89A" TextWrapping="Wrap" />
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- RIGHT COLUMN: Strategy Config & Info                   -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="1" Margin="0,80,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Configuration Card -->
+            <Border Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="20" Margin="0,0,0,16">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="НАСТРОЙКИ TGWS-PROXY" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+
+                    <!-- Port Setting -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Порт прокси (SOCKS5/MTProto)" FontSize="12" Opacity="0.8" />
+                        <TextBox x:Name="ProxyPortTextBox" Text="1443" PlaceholderText="1443" />
+                    </StackPanel>
+
+                    <!-- Host Setting -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Интерфейс (Хост)" FontSize="12" Opacity="0.8" />
+                        <TextBox x:Name="ProxyHostTextBox" Text="127.0.0.1" PlaceholderText="127.0.0.1" />
+                    </StackPanel>
+
+                    <!-- Secret Setting -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Секрет MTProto (32 символа)" FontSize="12" Opacity="0.8" />
+                        <TextBox x:Name="ProxySecretTextBox" Text="2924fc12c2c0e18a00cd7ddf5a5e5db6" PlaceholderText="32-значный hex-секрет" />
+                    </StackPanel>
+
+                    <!-- Cloudflare Toggle -->
+                    <ToggleSwitch x:Name="CfProxyToggle" Header="Использовать Cloudflare Worker" IsOn="True" FontSize="12" OffContent="Выкл" OnContent="Вкл" />
+
+                    <!-- Save Button -->
+                    <Button x:Name="SaveSettingsButton" Click="SaveSettingsButton_Click" Content="Сохранить настройки" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- Information Card (Flowseal & Future structure explanation) -->
+            <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="20">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="О ПРОЕКТЕ И РАЗРАБОТКЕ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Разработчик:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                            <TextBlock Text="Flowseal (tg-ws-proxy)" FontSize="11" Opacity="0.9" />
+                        </StackPanel>
+
+                        <TextBlock Text="Как это работает сейчас:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock Text="Так как в данный момент оригинальные репозитории автора заблокированы (нет доступа к исходному коду проекта), мы используем ранее скомпилированный оригинальный исполняемый файл TgWsProxy_windows.exe. Приложение запускает его параллельно в фоновом режиме, генерируя правильную структуру конфигурации, и перенаправляет логи в это окно." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
+
+                        <TextBlock Text="Будущие планы:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock Text="После того как репозитории Flowseal будут официально разблокированы (или исходный код станет полностью доступен в чистом виде), мы планируем переписать всю логику транспортного туннеля непосредственно на сетевой код C# внутри нашего приложения. Это позволит полностью отказаться от использования внешних .exe-файлов для Telegram-обхода, уберет возможные ложные срабатывания Windows Defender и сделает интеграцию нативной." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Collections.Generic;
@@ -15,6 +15,13 @@ public class AppSettings
     public bool MinimizeToTrayOnClose { get; set; } = false;
     public bool MinimizeToTrayOnMinimize { get; set; } = false;
     public bool AskBeforeClosing { get; set; } = true;
+
+    // TgWsProxy settings
+    public bool TgWsProxyEnabled { get; set; } = false;
+    public int TgWsProxyPort { get; set; } = 1443;
+    public string TgWsProxyHost { get; set; } = "127.0.0.1";
+    public string TgWsProxySecret { get; set; } = "2924fc12c2c0e18a00cd7ddf5a5e5db6";
+    public bool TgWsProxyCfProxy { get; set; } = true;
 }
 
 public static class SettingsManager

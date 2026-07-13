@@ -22,6 +22,11 @@ public static class AssetsExtractor
         return Path.Combine(GetAppDataRoot(), "zapret");
     }
 
+    public static string GetTgWsProxyPath()
+    {
+        return Path.Combine(GetAppDataRoot(), "tgwsproxy");
+    }
+
     public static void ExtractEverythingIfNeeded()
     {
         var appDataRoot = GetAppDataRoot();
@@ -120,6 +125,29 @@ public static class AssetsExtractor
                     catch { }
                 }
             }
+        }
+
+        // 3. Extract TgWsProxy
+        var tgwsproxyDir = GetTgWsProxyPath();
+        if (!Directory.Exists(tgwsproxyDir))
+        {
+            Directory.CreateDirectory(tgwsproxyDir);
+        }
+
+        var tgwsproxyDest = Path.Combine(tgwsproxyDir, "TgWsProxy_windows.exe");
+        if (!File.Exists(tgwsproxyDest))
+        {
+            try
+            {
+                string resourceName = "ZapretMirrlyGUI.Assets.TgWsProxy_windows.exe";
+                using var stream = assembly.GetManifestResourceStream(resourceName);
+                if (stream != null)
+                {
+                    using var fileStream = File.Create(tgwsproxyDest);
+                    stream.CopyTo(fileStream);
+                }
+            }
+            catch { }
         }
     }
 }
