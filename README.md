@@ -1,19 +1,26 @@
-# <img src="Assets/SidebarLogoNav.png" width="40" height="40" valign="middle" /> Zapret Mirrly GUI
+<p align="center">
+  <img src="Assets/SidebarLogoNav.png" width="120" height="120" alt="Zapret Mirrly GUI Logo" />
+</p>
 
-[![Release](https://img.shields.io/github/v/release/joycecurcirt539-dot/zapret-mirrly-gui?style=for-the-badge&logo=github&color=6e40c9)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)
-[![Downloads](https://img.shields.io/github/downloads/joycecurcirt539-dot/zapret-mirrly-gui/total?style=for-the-badge&logo=github&color=6e40c9)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)
-[![.NET 10](https://img.shields.io/badge/.NET-10.0-blue?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/download)
-[![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)](https://www.microsoft.com/windows)
-[![UI Framework](https://img.shields.io/badge/UI-WinUI%203-005A9E?style=for-the-badge&logo=windows)](https://learn.microsoft.com/windows/apps/winui/winui3/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+<h1 align="center">Zapret Mirrly GUI</h1>
 
-**Zapret Mirrly GUI** — современная графическая оболочка для [`zapret-discord-youtube`](https://github.com/Flowseal/zapret-discord-youtube) от **Flowseal**. Обход блокировок YouTube и Discord **без VPN и без серверов** — прямо с вашего ПК, одним кликом.
+<p align="center">
+  <b>Современный графический интерфейс (WinUI 3) для автоматического обхода DPI блокировок YouTube & Discord в один клик.</b>
+</p>
 
-<div align="center">
+<p align="center">
+  <a href="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases"><img src="https://img.shields.io/github/v/release/joycecurcirt539-dot/zapret-mirrly-gui?style=for-the-badge&logo=github&color=6e40c9" alt="Release" /></a>
+  <a href="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases"><img src="https://img.shields.io/github/downloads/joycecurcirt539-dot/zapret-mirrly-gui/total?style=for-the-badge&logo=github&color=6e40c9" alt="Downloads" /></a>
+  <img src="https://img.shields.io/badge/.NET-10.0-blue?style=for-the-badge&logo=dotnet" alt=".NET 10" />
+  <img src="https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows" alt="Platform" />
+  <img src="https://img.shields.io/badge/UI-WinUI%203-005A9E?style=for-the-badge&logo=windows" alt="UI Framework" />
+</p>
 
-[![Скачать последнюю версию](https://img.shields.io/badge/⬇%EF%B8%8F_%D0%A1качать_v1.0.1-ZapretMirrlyGUI.exe-6e40c9?style=for-the-badge&logo=github)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest)
-
-</div>
+<p align="center">
+  <a href="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest">
+    <img src="https://img.shields.io/badge/⬇%EF%B8%8F_%D0%A1качать_v1.0.1-ZapretMirrlyGUI.exe-6e40c9?style=for-the-badge&logo=github" alt="Скачать последнюю версию" />
+  </a>
+</p>
 
 > [!NOTE]
 > 🔔 Репозиторий **Flowseal/zapret-discord-youtube** заморожен на GitHub с 10 июля 2026. **Zapret Mirrly GUI** использует те же батники Flowseal и является рабочей альтернативой с графическим интерфейсом. Скачивай только из официального репозитория, не из зеркал.
@@ -24,7 +31,7 @@
 ---
 
 ## 📖 Содержание
-1. [Скриншоты](#-скриншоты)
+1. [Скриншоты и Возможности](#-скриншоты-и-возможности)
 2. [Основные возможности](#-основные-возможности)
 3. [Сравнение с аналогами](#-сравнение-с-аналогами)
 4. [Системные требования](#-системные-требования)
@@ -36,19 +43,64 @@
 
 ---
 
-## 📸 Скриншоты
+## 📸 Скриншоты и Возможности
 
+### 🏠 Главный хаб управления
 <p align="center">
-  <img src="screenshot/hub.png" width="48%" alt="Главный экран" />
-  <img src="screenshot/diagnostics.png" width="48%" alt="Диагностика" />
+  <img src="screenshot/hub.png" width="80%" alt="Главный экран" />
 </p>
 <p align="center">
-  <img src="screenshot/logs.png" width="48%" alt="Журнал логов" />
-  <img src="screenshot/lists.png" width="48%" alt="Редактор списков" />
+  <i>Запуск и остановка утилиты обхода блокировок в один клик. Выбирайте предустановленные стратегии (FAKE TLS, SIMPLE FAKE, ALT) или устанавливайте службу для автоматического запуска при загрузке Windows.</i>
+</p>
+
+---
+
+### 🔍 Интерактивная диагностика
+<p align="center">
+  <img src="screenshot/diagnostics.png" width="80%" alt="Диагностика" />
 </p>
 <p align="center">
-  <img src="screenshot/safety.png" width="48%" alt="Настройки безопасности" />
-  <img src="screenshot/tray.png" width="48%" alt="Трей" />
+  <i>Встроенный тест доступности популярных ресурсов (YouTube, Discord). Проверяет разрешение DNS, доступность по Ping и отправку тестовых HTTP-запросов, помогая определить, работает ли обход DPI.</i>
+</p>
+
+---
+
+### 📊 Цветовой журнал логов
+<p align="center">
+  <img src="screenshot/logs.png" width="80%" alt="Журнал логов" />
+</p>
+<p align="center">
+  <i>Динамический лог работы <code>winws.exe</code>. Все события разделены по категориям и подсвечиваются цветом (критические ошибки — красным, предупреждения — оранжевым, успешные статусы — зеленым), упрощая отладку.</i>
+</p>
+
+---
+
+### 📝 Редактор списков доменов
+<p align="center">
+  <img src="screenshot/lists.png" width="80%" alt="Редактор списков" />
+</p>
+<p align="center">
+  <i>Управляйте списками доменов (blacklist/whitelist) прямо из GUI без необходимости открывать блокнот и искать файлы конфигурации в проводнике.</i>
+</p>
+
+---
+
+### 🛡️ Настройки и Безопасность
+<p align="center">
+  <img src="screenshot/safety.png" width="80%" alt="Настройки безопасности" />
+</p>
+<p align="center">
+  <i>Тонкая настройка таймаутов, автоматическое отключение конфликтующих утилит (GoodbyeDPI) и мониторинг состояния службы в реальном времени с защитой от сбоев.</i>
+</p>
+
+---
+
+### 📥 Управление в трее
+<p align="center">
+  <img src="screenshot/tray.png" width="40%" alt="Трей" />
+</p>
+<p align="center">
+  <i>Приложение сворачивается в системный трей, не занимая места на панели задач, и позволяет управлять состоянием службы через удобное контекстное меню.</i>
 </p>
 
 ---
@@ -59,7 +111,7 @@
 * ⚙️ **Управление Windows-службой:** Установка, удаление, запуск и остановка службы `winws` в один клик. Работает в фоне после закрытия окна.
 * ⚡ **Менеджер пресетов:** Стратегии обхода DPI (FAKE TLS, SIMPLE FAKE, ALT) для YouTube и Discord. Поддержка собственных аргументов. Обход Telegram не гарантируется.
 * 🔍 **Встроенная диагностика сети:** Тестирование Discord, YouTube, DNS и Ping прямо из приложения.
-* 📝 **Живой лог `winws.exe`:** Вывод в реальном времени для диагностики проблем.
+* 📝 **Живой лог `winws.exe`:** Вывод в реальном времени с цветовым кодированием событий для диагностики проблем.
 * 📋 **Редактор списков доменов:** Удобное управление blacklist/whitelist файлами конфигурации `zapret`.
 * 📦 **Один файл, без установки:** `ZapretMirrlyGUI.exe` — полностью автономный, .NET Runtime не нужен.
 
@@ -73,7 +125,7 @@
 | Windows-служба (автозапуск) | ✅ | ⚠️ Вручную | ❌ |
 | Выбор пресетов | ✅ | ⚠️ Редактирование файлов | ⚠️ Ограниченно |
 | Встроенная диагностика | ✅ | ❌ | ❌ |
-| Живой лог | ✅ | ❌ | ❌ |
+| Живой лог с подсветкой | ✅ | ❌ | ❌ |
 | Один EXE без установки | ✅ | ⚠️ Архив с файлами | ✅ |
 | Открытый исходный код | ✅ MIT | ✅ | ✅ |
 | Требует VPN/сервер | ❌ | ❌ | ❌ |
@@ -185,13 +237,3 @@ Zapret Mirrly GUI оптимизирован для YouTube и Discord. Обхо
 ## 🔍 Ключевые слова для поиска
 
 `zapret gui`, `zapret для windows`, `обход блокировки discord`, `обход блокировок youtube`, `winws gui windows`, `goodbyedpi альтернатива`, `zapret discord youtube gui`, `графический интерфейс для zapret`, `обход dpi windows 11`, `winws служба автозапуск`, `ускорение ютуба`, `discord не работает провайдер`, `youtube тормозит россия`, `antizapret`, `обход dpi без vpn`, `flowseal альтернатива`, `zapret-discord-youtube альтернатива`
-
----
-
-<div align="center">
-
-⭐ Если приложение помогло — поставь звёздочку! Это очень помогает проекту расти. ⭐
-
-[![Star on GitHub](https://img.shields.io/github/stars/joycecurcirt539-dot/zapret-mirrly-gui?style=social)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/stargazers)
-
-</div>
