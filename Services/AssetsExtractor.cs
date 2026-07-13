@@ -57,20 +57,68 @@ public static class AssetsExtractor
 
         // 2. Extract Zapret zip archive
         var zapretDir = GetZapretPath();
-        // If the directory does not exist, or if winws.exe is missing (e.g. incomplete extraction)
-        if (!Directory.Exists(zapretDir) || !File.Exists(Path.Combine(zapretDir, "bin", "winws.exe")))
-        {
-            if (Directory.Exists(zapretDir))
-            {
-                try { Directory.Delete(zapretDir, true); } catch { }
-            }
+        bool needsUpdate = false;
 
+        var scriptPath = Path.Combine(zapretDir, "utils", "test zapret.ps1");
+        if (File.Exists(scriptPath))
+        {
+            try
+            {
+                var content = File.ReadAllText(scriptPath);
+                if (!content.Contains("# GUI_COMPATIBLE"))
+                {
+                    needsUpdate = true;
+                }
+            }
+            catch
+            {
+                needsUpdate = true;
+            }
+        }
+        else
+        {
+            needsUpdate = true;
+        }
+
+        // If the directory does not exist, or if winws.exe is missing, or if we need a safe upgrade/update
+        if (!Directory.Exists(zapretDir) || !File.Exists(Path.Combine(zapretDir, "bin", "winws.exe")) || needsUpdate)
+        {
             string resourceName = "ZapretMirrlyGUI.Assets.zapret.zip";
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream != null)
             {
                 using var archive = new ZipArchive(stream);
-                archive.ExtractToDirectory(appDataRoot, true);
+                foreach (var entry in archive.Entries)
+                {
+                    // Skip directory entries themselves (they are created automatically on file extraction)
+                    if (string.IsNullOrEmpty(entry.Name)) continue;
+
+                    // Compute destination path
+                    var destPath = Path.GetFullPath(Path.Combine(appDataRoot, entry.FullName));
+
+                    // Security check: ensure the path is within appDataRoot
+                    if (!destPath.StartsWith(appDataRoot, StringComparison.OrdinalIgnoreCase)) continue;
+
+                    // If it is inside the lists/ folder and already exists, DO NOT overwrite it to preserve user lists
+                    if (entry.FullName.StartsWith("zapret/lists/", StringComparison.OrdinalIgnoreCase) && File.Exists(destPath))
+                    {
+                        continue;
+                    }
+
+                    // Ensure parent directory exists
+                    var parentDir = Path.GetDirectoryName(destPath);
+                    if (parentDir != null && !Directory.Exists(parentDir))
+                    {
+                        Directory.CreateDirectory(parentDir);
+                    }
+
+                    // Extract and overwrite
+                    try
+                    {
+                        entry.ExtractToFile(destPath, true);
+                    }
+                    catch { }
+                }
             }
         }
     }

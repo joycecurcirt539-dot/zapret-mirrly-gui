@@ -371,8 +371,9 @@ public sealed partial class DiagnosticsPage : Page
             StandardErrorEncoding = Encoding.UTF8
         };
 
-        // Pass timeout via Environment Variable
+        // Pass timeout and GUI mode via Environment Variables
         startInfo.EnvironmentVariables["MONITOR_TIMEOUT"] = timeout;
+        startInfo.EnvironmentVariables["GUI_MODE"] = "1";
 
         try
         {
