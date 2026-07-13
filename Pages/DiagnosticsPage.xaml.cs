@@ -125,6 +125,9 @@ public sealed partial class DiagnosticsPage : Page
     private string _bestPresetFound = "";
     private readonly List<string> _allPresets = new();
     private readonly List<string> _selectedPresets = new();
+    private readonly StringBuilder _logBuffer = new();
+    private DateTime _lastLogFlush = DateTime.MinValue;
+    private bool _isLogFlushScheduled = false;
 
     public DiagnosticsPage()
     {
@@ -312,6 +315,10 @@ public sealed partial class DiagnosticsPage : Page
         _strategyScores.Clear();
         BestStrategyCard.Visibility = Visibility.Collapsed;
         _bestPresetFound = "";
+        lock (_logBuffer)
+        {
+            _logBuffer.Clear();
+        }
         ConsoleLogTextBox.Text = "";
 
         // Collect parameters
@@ -598,11 +605,58 @@ public sealed partial class DiagnosticsPage : Page
 
     private void AppendToConsole(string text)
     {
-        DispatcherQueue.TryEnqueue(() =>
+        lock (_logBuffer)
         {
-            ConsoleLogTextBox.Text += text + Environment.NewLine;
-            ScrollTextBoxToBottom(ConsoleLogTextBox);
-        });
+            _logBuffer.AppendLine(text);
+            
+            // Limit buffer size to prevent memory exhaustion (keep last ~100k chars)
+            if (_logBuffer.Length > 150000)
+            {
+                _logBuffer.Remove(0, 50000);
+            }
+
+            if (_isLogFlushScheduled) return;
+
+            _isLogFlushScheduled = true;
+        }
+
+        var now = DateTime.UtcNow;
+        var elapsed = (now - _lastLogFlush).TotalMilliseconds;
+
+        if (elapsed >= 100)
+        {
+            DispatcherQueue.TryEnqueue(() => FlushLogToUI());
+        }
+        else
+        {
+            int delayMs = (int)(100 - elapsed);
+            if (delayMs < 10) delayMs = 10;
+            Task.Delay(delayMs).ContinueWith(_ =>
+            {
+                DispatcherQueue.TryEnqueue(() => FlushLogToUI());
+            });
+        }
+    }
+
+    private void FlushLogToUI()
+    {
+        try
+        {
+            string fullLog;
+            lock (_logBuffer)
+            {
+                _isLogFlushScheduled = false;
+                fullLog = _logBuffer.ToString();
+            }
+
+            if (ConsoleLogTextBox != null)
+            {
+                ConsoleLogTextBox.Text = fullLog;
+                ScrollTextBoxToBottom(ConsoleLogTextBox);
+            }
+            _lastLogFlush = DateTime.UtcNow;
+        }
+        catch { }
     }
 
     private string TranslatePowerShellLine(string line)
