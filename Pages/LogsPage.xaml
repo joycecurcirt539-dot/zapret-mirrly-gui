@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="ZapretMirrlyGUI.Pages.LogsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -15,10 +15,26 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
-            <TextBlock Text="Журнал логов" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
-            <TextBlock Text="Просмотр и фильтрация системного вывода процессов обхода DPI" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
-        </StackPanel>
+        <Grid Grid.Row="0" Margin="0,0,0,20" ColumnDefinitions="*,Auto">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Журнал логов" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
+                <TextBlock Text="Просмотр и фильтрация системного вывода процессов обхода DPI" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
+            </StackPanel>
+            <FontIcon Grid.Column="1" Glyph="&#xE946;" FontSize="16" Foreground="#8A8A8F" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0">
+                <ToolTipService.ToolTip>
+                    <ToolTip Background="#1F1F1F" BorderBrush="#333" Foreground="#F3EFE6">
+                        <StackPanel Spacing="6" Padding="4">
+                            <TextBlock Text="Цветовой язык журнала логов:" FontWeight="Bold" FontSize="12" />
+                            <TextBlock Text="● Красный — Ошибки, сбои, блокировки (ERROR, FAIL, Exception)" Foreground="#FF6B6B" FontSize="11" />
+                            <TextBlock Text="● Оранжевый — Предупреждения, таймауты (WARNING, Timeout)" Foreground="#FF922B" FontSize="11" />
+                            <TextBlock Text="● Зеленый — Успешное выполнение, доступность (OK, успешно, success)" Foreground="#51CF66" FontSize="11" />
+                            <TextBlock Text="● Голубой — Системные действия, команды (CMD, Checking, Запуск)" Foreground="#339AF0" FontSize="11" />
+                            <TextBlock Text="● Серый — Информационные сообщения (INFO)" Foreground="#ADB5BD" FontSize="11" />
+                        </StackPanel>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+            </FontIcon>
+        </Grid>
 
         <!-- 1. Tool deck Card -->
         <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="16" Margin="0,0,0,16">
@@ -70,7 +86,9 @@
 
         <!-- 2. Dark Terminal Viewport -->
         <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Padding="6" Background="#0C0C0C" BorderBrush="#1F1F1F">
-            <TextBox x:Name="LogTextBox" AcceptsReturn="True" IsReadOnly="True" TextWrapping="NoWrap" FontFamily="Consolas" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" Foreground="#F3EFE6" />
+            <ScrollViewer x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <RichTextBlock x:Name="LogRichTextBlock" IsTextSelectionEnabled="True" FontFamily="Consolas" FontSize="12" Foreground="#F3EFE6" TextWrapping="NoWrap" />
+            </ScrollViewer>
         </Border>
     </Grid>
 </Page>

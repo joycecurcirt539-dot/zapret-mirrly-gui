@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="ZapretMirrlyGUI.Pages.DashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -81,9 +81,10 @@
                     <!-- Bottom band: Launch button -->
                     <Grid Grid.Row="1" x:Name="MonitorActionBar" Padding="24,0,24,20">
                         <Button x:Name="ActionBypassButton" Click="ActionBypassButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48">
-                            <Grid ColumnDefinitions="Auto,*">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
                                 <FontIcon Grid.Column="0" x:Name="ActionBypassIcon" Glyph="&#xE768;" FontSize="16" Margin="0,0,10,0" />
                                 <TextBlock Grid.Column="1" x:Name="ActionBypassText" Text="Запустить обход" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                                <ProgressRing Grid.Column="2" x:Name="ActionBypassProgressRing" IsActive="False" Width="20" Height="20" Foreground="White" Margin="10,0,0,0" Visibility="Collapsed" />
                             </Grid>
                         </Button>
                     </Grid>

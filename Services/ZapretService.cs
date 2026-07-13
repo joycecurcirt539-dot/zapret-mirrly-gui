@@ -353,26 +353,77 @@ public static class ZapretService
 
     public static bool IsServiceInstalled()
     {
-        var output = ExecuteCommand("sc.exe", "query zapret");
-        return !output.Contains("FAILED 1060", StringComparison.OrdinalIgnoreCase) && 
-               !output.Contains("не установлена", StringComparison.OrdinalIgnoreCase);
+        try
+        {
+            using var sc = new System.ServiceProcess.ServiceController("zapret");
+            _ = sc.Status;
+            return true;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            Log($"[SERVICE ERROR] Win32Exception при проверке наличия службы: {ex.Message} (ErrorCode: {ex.NativeErrorCode})");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Log($"[SERVICE ERROR] Ошибка при проверке наличия службы: {ex.Message}");
+            return false;
+        }
     }
 
     public static string GetServiceStatus()
     {
-        var output = ExecuteCommand("sc.exe", "query zapret");
-        if (output.Contains("RUNNING", StringComparison.OrdinalIgnoreCase))
-            return "RUNNING";
-        if (output.Contains("STOPPED", StringComparison.OrdinalIgnoreCase))
-            return "STOPPED";
-        if (output.Contains("START_PENDING", StringComparison.OrdinalIgnoreCase))
-            return "START_PENDING";
-        if (output.Contains("STOP_PENDING", StringComparison.OrdinalIgnoreCase))
-            return "STOP_PENDING";
-        if (output.Contains("FAILED 1060", StringComparison.OrdinalIgnoreCase) || 
-            output.Contains("не установлена", StringComparison.OrdinalIgnoreCase))
-            return "NOT_INSTALLED";
-        return "UNKNOWN";
+        try
+        {
+            using var sc = new System.ServiceProcess.ServiceController("zapret");
+            try
+            {
+                _ = sc.Status;
+            }
+            catch (InvalidOperationException)
+            {
+                return "Не установлена";
+            }
+
+            var status = sc.Status;
+            var startType = sc.StartType;
+
+            if (status == System.ServiceProcess.ServiceControllerStatus.Running)
+            {
+                return "RUNNING";
+            }
+            if (status == System.ServiceProcess.ServiceControllerStatus.StartPending)
+            {
+                return "START_PENDING";
+            }
+            if (status == System.ServiceProcess.ServiceControllerStatus.StopPending)
+            {
+                return "STOP_PENDING";
+            }
+
+            if (startType == System.ServiceProcess.ServiceStartMode.Automatic)
+            {
+                return "Включен (Автозапуск)";
+            }
+            else
+            {
+                return "Отключен";
+            }
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            Log($"[SERVICE ERROR] Win32Exception при опросе ServiceController: {ex.Message} (ErrorCode: {ex.NativeErrorCode})");
+            return "UNKNOWN";
+        }
+        catch (Exception ex)
+        {
+            Log($"[SERVICE ERROR] Исключение при опросе ServiceController: {ex.Message}");
+            return "UNKNOWN";
+        }
     }
 
     public static string InstallService(string batchFilename, string gameFilterMode)

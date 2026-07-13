@@ -255,16 +255,18 @@
                                 <TextBlock Text="Используйте кнопки ниже для установки или удаления фоновой службы. Установка службы позволяет забыть о необходимости ручного запуска обхода." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,4,0,0">
                                     <Button Grid.Column="0" x:Name="SettingsInstallServiceButton" Click="SettingsInstallServiceButton_Click" HorizontalAlignment="Stretch" Height="40" Style="{StaticResource PremiumAccentButtonStyle}">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon Glyph="&#xE109;" FontSize="12" />
-                                            <TextBlock Text="Установить" />
-                                        </StackPanel>
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <FontIcon Grid.Column="0" Glyph="&#xE109;" FontSize="12" Margin="0,0,8,0" />
+                                            <TextBlock Grid.Column="1" Text="Установить" VerticalAlignment="Center" />
+                                            <ProgressRing Grid.Column="2" x:Name="InstallServiceProgressRing" IsActive="False" Width="16" Height="16" Foreground="White" Margin="8,0,0,0" Visibility="Collapsed" />
+                                        </Grid>
                                     </Button>
                                     <Button Grid.Column="1" x:Name="SettingsUninstallServiceButton" Click="SettingsUninstallServiceButton_Click" HorizontalAlignment="Stretch" Height="40">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon Glyph="&#xE10A;" FontSize="12" />
-                                            <TextBlock Text="Удалить" />
-                                        </StackPanel>
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <FontIcon Grid.Column="0" Glyph="&#xE10A;" FontSize="12" Margin="0,0,8,0" />
+                                            <TextBlock Grid.Column="1" Text="Удалить" VerticalAlignment="Center" />
+                                            <ProgressRing Grid.Column="2" x:Name="UninstallServiceProgressRing" IsActive="False" Width="16" Height="16" Margin="8,0,0,0" Visibility="Collapsed" />
+                                        </Grid>
                                     </Button>
                                 </Grid>
                             </StackPanel>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -124,9 +124,7 @@ public sealed partial class DashboardPage : Page
             iconColor = Windows.UI.Color.FromArgb(255, 240, 80, 80);
             iconGlyph = "\uE71A";
             statusTitle = "Обход не запущен";
-            serviceNote = isServiceInstalled
-                ? $"Автозапуск через службу: {serviceStatus}"
-                : "Автозапуск через службу: не настроен";
+            serviceNote = $"Автозапуск через службу: {serviceStatus}";
             btnText  = "Запустить обход";
             btnGlyph = "\uE768";
         }
@@ -212,26 +210,42 @@ public sealed partial class DashboardPage : Page
 
     // ── Bypass control ──────────────────────────────────────────────────────────
 
-    private void ActionBypassButton_Click(object sender, RoutedEventArgs e)
+    private async void ActionBypassButton_Click(object sender, RoutedEventArgs e)
     {
         if (ZapretService.IsDiagnosticsRunning) return;
 
-        if (ZapretService.IsRunning)
-        {
-            ZapretService.StopBypass();
-        }
-        else
-        {
-            if (string.IsNullOrEmpty(_selectedPreset)) return;
+        ActionBypassButton.IsEnabled = false;
+        ActionBypassProgressRing.IsActive = true;
+        ActionBypassProgressRing.Visibility = Visibility.Visible;
 
-            string serviceStatus = ZapretService.GetServiceStatus();
-            if (serviceStatus == "RUNNING")
-                ZapretService.RemoveService();
+        try
+        {
+            await Task.Run(() =>
+            {
+                if (ZapretService.IsRunning)
+                {
+                    ZapretService.StopBypass();
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(_selectedPreset)) return;
 
-            var mode = GetActiveGameFilterMode();
-            ZapretService.StartBypass(_selectedPreset, mode);
+                    string serviceStatus = ZapretService.GetServiceStatus();
+                    if (serviceStatus == "RUNNING")
+                        ZapretService.RemoveService();
+
+                    var mode = GetActiveGameFilterMode();
+                    ZapretService.StartBypass(_selectedPreset, mode);
+                }
+            });
+            UpdateUIStatus();
         }
-        UpdateUIStatus();
+        finally
+        {
+            ActionBypassButton.IsEnabled = true;
+            ActionBypassProgressRing.IsActive = false;
+            ActionBypassProgressRing.Visibility = Visibility.Collapsed;
+        }
     }
 
     private void RefreshStatusButton_Click(object sender, RoutedEventArgs e)

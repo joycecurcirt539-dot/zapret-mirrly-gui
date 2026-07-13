@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
@@ -483,26 +483,57 @@ public sealed partial class SettingsPage : Page
         }
     }
 
-    private void SettingsInstallServiceButton_Click(object sender, RoutedEventArgs e)
+    private async void SettingsInstallServiceButton_Click(object sender, RoutedEventArgs e)
     {
-        var activePreset = SettingsManager.Instance.LastSelectedPreset;
-        if (string.IsNullOrEmpty(activePreset)) activePreset = "general.bat";
+        SettingsInstallServiceButton.IsEnabled = false;
+        SettingsUninstallServiceButton.IsEnabled = false;
+        InstallServiceProgressRing.IsActive = true;
+        InstallServiceProgressRing.Visibility = Visibility.Visible;
 
-        var root = ZapretService.FindZapretRoot();
-        var gameFilterFile = System.IO.Path.Combine(root, "utils", "game_filter.enabled");
-        string gameFilterMode = "disabled";
-        try { if (System.IO.File.Exists(gameFilterFile)) gameFilterMode = System.IO.File.ReadAllText(gameFilterFile).Trim().ToLower(); } catch { }
+        try
+        {
+            var activePreset = SettingsManager.Instance.LastSelectedPreset;
+            if (string.IsNullOrEmpty(activePreset)) activePreset = "general.bat";
 
-        if (ZapretService.IsRunning) ZapretService.StopBypass();
+            var root = ZapretService.FindZapretRoot();
+            var gameFilterFile = System.IO.Path.Combine(root, "utils", "game_filter.enabled");
+            string gameFilterMode = "disabled";
+            try { if (System.IO.File.Exists(gameFilterFile)) gameFilterMode = System.IO.File.ReadAllText(gameFilterFile).Trim().ToLower(); } catch { }
 
-        ZapretService.InstallService(activePreset, gameFilterMode);
-        UpdateServiceStatusInSettings();
+            await Task.Run(() =>
+            {
+                if (ZapretService.IsRunning) ZapretService.StopBypass();
+                ZapretService.InstallService(activePreset, gameFilterMode);
+            });
+        }
+        finally
+        {
+            InstallServiceProgressRing.IsActive = false;
+            InstallServiceProgressRing.Visibility = Visibility.Collapsed;
+            UpdateServiceStatusInSettings();
+        }
     }
 
-    private void SettingsUninstallServiceButton_Click(object sender, RoutedEventArgs e)
+    private async void SettingsUninstallServiceButton_Click(object sender, RoutedEventArgs e)
     {
-        ZapretService.RemoveService();
-        UpdateServiceStatusInSettings();
+        SettingsInstallServiceButton.IsEnabled = false;
+        SettingsUninstallServiceButton.IsEnabled = false;
+        UninstallServiceProgressRing.IsActive = true;
+        UninstallServiceProgressRing.Visibility = Visibility.Visible;
+
+        try
+        {
+            await Task.Run(() =>
+            {
+                ZapretService.RemoveService();
+            });
+        }
+        finally
+        {
+            UninstallServiceProgressRing.IsActive = false;
+            UninstallServiceProgressRing.Visibility = Visibility.Collapsed;
+            UpdateServiceStatusInSettings();
+        }
     }
 }
 

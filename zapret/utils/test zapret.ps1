@@ -366,7 +366,9 @@ if ($hasErrors) {
     Write-Host "Fix the errors above and rerun." -ForegroundColor Yellow
     if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
         Write-Host "Press any key to exit..." -ForegroundColor Yellow
-        [void][System.Console]::ReadKey($true)
+        try {
+            [void][System.Console]::ReadKey($true)
+        } catch {}
     }
     exit 1
 }
@@ -382,6 +384,10 @@ $globalResults = @()
 
 # Select top-level test type (standard vs DPI checkers)
 function Read-TestType {
+    if ($env:GUI_MODE -eq "1") {
+        if ($env:TEST_TYPE -eq 'dpi') { return 'dpi' }
+        return 'standard'
+    }
     while ($true) {
         Write-Host ""
         Write-Host "Select test type:" -ForegroundColor Cyan
@@ -398,6 +404,10 @@ function Read-TestType {
 
 # Select test mode: all configs or custom subset
 function Read-ModeSelection {
+    if ($env:GUI_MODE -eq "1") {
+        if ($env:RUN_MODE -eq 'select') { return 'select' }
+        return 'all'
+    }
     while ($true) {
         Write-Host ""
         Write-Host "Select test run mode:" -ForegroundColor Cyan
@@ -414,6 +424,43 @@ function Read-ModeSelection {
 
 function Read-ConfigSelection {
     param([array]$allFiles)
+
+    if ($env:GUI_MODE -eq "1") {
+        $selectionInput = $env:SELECTED_INDICES
+        if (-not $selectionInput) {
+            return $allFiles
+        }
+        $trimmed = $selectionInput.Trim()
+        if ($trimmed -eq '0') {
+            return $allFiles
+        }
+        $parts = $selectionInput -split '[,\s]+' | Where-Object { $_ -match '^\d+(-\d+)?$' }
+        if ($parts.Count -eq 0) {
+            return $allFiles
+        }
+        $selectedIndices = @()
+        foreach ($part in $parts) {
+            if ($part -match '^(\d+)-(\d+)$') {
+                $start = [int]$matches[1]
+                $end = [int]$matches[2]
+                $start = [Math]::Max($start, 1)
+                $end = [Math]::Min($end, $allFiles.Count)
+                for ($i = $start; $i -le $end; $i++) {
+                    $selectedIndices += $i
+                }
+            } else {
+                $num = [int]$part
+                if ($num -ge 1 -and $num -le $allFiles.Count) {
+                    $selectedIndices += $num
+                }
+            }
+        }
+        $valid = $selectedIndices | Sort-Object -Unique | Where-Object { $_ -ge 1 -and $_ -le $allFiles.Count }
+        if ($valid.Count -eq 0) {
+            return $allFiles
+        }
+        return $valid | ForEach-Object { $allFiles[$_ - 1] }
+    }
 
     while ($true) {
         Write-Host "" 
@@ -488,13 +535,14 @@ function Read-ConfigSelection {
 }
 
 while ($true) {
-    $globalResults = @()
-$testType = Read-TestType
-$mode = Read-ModeSelection
-if ($mode -eq 'select') {
-    $selected = Read-ConfigSelection -allFiles $batFiles
-    $batFiles = @($selected)
-}
+    try {
+        $globalResults = @()
+        $testType = Read-TestType
+        $mode = Read-ModeSelection
+        if ($mode -eq 'select') {
+            $selected = Read-ConfigSelection -allFiles $batFiles
+            $batFiles = @($selected)
+        }
 
 # Load targets once for standard mode
 $targetList = @()
@@ -548,7 +596,9 @@ if (-not $batFiles -or $batFiles.Count -eq 0) {
     Write-Host "[ERROR] No general*.bat files found" -ForegroundColor Red
     if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
         Write-Host "Press any key to exit..." -ForegroundColor Yellow
-        [void][System.Console]::ReadKey($true)
+        try {
+            [void][System.Console]::ReadKey($true)
+        } catch {}
     }
     exit 1
 }
@@ -975,10 +1025,21 @@ try {
     }
     Remove-Item -Path $ipsetFlagFile -ErrorAction SilentlyContinue
 }
+    } catch {
+        $errorLogDir = Join-Path $PSScriptRoot "test results"
+        if (-not (Test-Path $errorLogDir)) { New-Item -ItemType Directory -Path $errorLogDir | Out-Null }
+        $errorLogFile = Join-Path $errorLogDir "error_log.txt"
+        $errorMsg = "[CRITICAL ERROR] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Exception: $($_.Exception.Message)`n$($_.ScriptStackTrace)"
+        $errorMsg | Out-File $errorLogFile -Append -Encoding UTF8
+        Write-Error $errorMsg
+        break
+    }
 
     if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
         Write-Host "Press any key to close..." -ForegroundColor Yellow
-        [void][System.Console]::ReadKey($true)
+        try {
+            [void][System.Console]::ReadKey($true)
+        } catch {}
     }
     exit
 }

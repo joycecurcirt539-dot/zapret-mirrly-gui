@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Documents;
 using Windows.ApplicationModel.DataTransfer;
 using ZapretMirrlyGUI.Services;
 
@@ -126,6 +127,7 @@ public sealed partial class DiagnosticsPage : Page
     private readonly List<string> _allPresets = new();
     private readonly List<string> _selectedPresets = new();
     private readonly StringBuilder _logBuffer = new();
+    private readonly List<(string Text, bool IsError)> _pendingLogLines = new();
     private DateTime _lastLogFlush = DateTime.MinValue;
     private bool _isLogFlushScheduled = false;
 
@@ -262,40 +264,59 @@ public sealed partial class DiagnosticsPage : Page
 
     private async void PlayButton_Click(object sender, RoutedEventArgs e)
     {
-        // 1. Service Conflict Handling (Y/N prompt)
-        if (ZapretService.IsServiceInstalled())
+        if (ZapretService.IsDiagnosticsRunning) return;
+
+        PlayButton.IsEnabled = false;
+        PlayProgressRing.IsActive = true;
+        PlayProgressRing.Visibility = Visibility.Visible;
+
+        try
         {
-            var serviceStatus = ZapretService.GetServiceStatus();
-            var dialog = new ContentDialog
+            // 1. Service Conflict Handling (Y/N prompt)
+            if (ZapretService.IsServiceInstalled())
             {
-                Title = "Конфликт со службой zapret",
-                Content = $"Обнаружена установленная служба Windows (Статус: {serviceStatus}). Для проведения диагностики службу необходимо временно удалить (настройки сохранятся).\n\nВы согласны удалить службу и продолжить?",
-                PrimaryButtonText = "Да (Рекомендуется)",
-                CloseButtonText = "Нет",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.XamlRoot
-            };
+                var serviceStatus = ZapretService.GetServiceStatus();
+                var dialog = new ContentDialog
+                {
+                    Title = "Конфликт со службой zapret",
+                    Content = $"Обнаружена установленная служба Windows (Статус: {serviceStatus}). Для проведения диагностики службу необходимо временно удалить (настройки сохранятся).\n\nВы согласны удалить службу и продолжить?",
+                    PrimaryButtonText = "Да (Рекомендуется)",
+                    CloseButtonText = "Нет",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = this.XamlRoot
+                };
 
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                StatusStripTextBlock.Text = "Удаление службы перед диагностикой...";
-                ZapretService.RemoveService();
+                var result = await dialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    StatusStripTextBlock.Text = "Удаление службы перед диагностикой...";
+                    await Task.Run(() => ZapretService.RemoveService());
+                }
+                else
+                {
+                    StatusStripTextBlock.Text = "Диагностика отменена из-за конфликта службы.";
+                    PlayButton.IsEnabled = true;
+                    PlayProgressRing.IsActive = false;
+                    PlayProgressRing.Visibility = Visibility.Collapsed;
+                    return;
+                }
             }
-            else
+
+            // 2. GUI Process check
+            if (ZapretService.IsRunning)
             {
-                StatusStripTextBlock.Text = "Диагностика отменена из-за конфликта службы.";
-                return;
+                await Task.Run(() => ZapretService.StopBypass());
             }
+
+            StartDiagnostics();
         }
-
-        // 2. GUI Process check
-        if (ZapretService.IsRunning)
+        catch (Exception ex)
         {
-            ZapretService.StopBypass();
+            StatusStripTextBlock.Text = $"Ошибка инициализации: {ex.Message}";
+            PlayButton.IsEnabled = true;
+            PlayProgressRing.IsActive = false;
+            PlayProgressRing.Visibility = Visibility.Collapsed;
         }
-
-        StartDiagnostics();
     }
 
     private void StartDiagnostics()
@@ -304,6 +325,8 @@ public sealed partial class DiagnosticsPage : Page
 
         // Prepare UI state
         PlayButton.IsEnabled = false;
+        PlayProgressRing.IsActive = true;
+        PlayProgressRing.Visibility = Visibility.Visible;
         StopButton.IsEnabled = true;
         TestTypeComboBox.IsEnabled = false;
         RunModeComboBox.IsEnabled = false;
@@ -318,8 +341,9 @@ public sealed partial class DiagnosticsPage : Page
         lock (_logBuffer)
         {
             _logBuffer.Clear();
+            _pendingLogLines.Clear();
         }
-        ConsoleLogTextBox.Text = "";
+        ConsoleLogRichTextBlock.Blocks.Clear();
 
         // Collect parameters
         string testType = (TestTypeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "standard";
@@ -360,7 +384,7 @@ public sealed partial class DiagnosticsPage : Page
         var startInfo = new ProcessStartInfo
         {
             FileName = "powershell.exe",
-            Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\"",
+            Arguments = $"-NonInteractive -NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\"",
             WorkingDirectory = Path.Combine(root, "utils"),
             CreateNoWindow = true,
             UseShellExecute = false,
@@ -374,6 +398,14 @@ public sealed partial class DiagnosticsPage : Page
         // Pass timeout and GUI mode via Environment Variables
         startInfo.EnvironmentVariables["MONITOR_TIMEOUT"] = timeout;
         startInfo.EnvironmentVariables["GUI_MODE"] = "1";
+        startInfo.EnvironmentVariables["TEST_TYPE"] = testType;
+        startInfo.EnvironmentVariables["RUN_MODE"] = runMode;
+        if (runMode == "select")
+        {
+            var indicesStr = string.Join(",", selectedIndices);
+            if (string.IsNullOrEmpty(indicesStr)) indicesStr = "0"; 
+            startInfo.EnvironmentVariables["SELECTED_INDICES"] = indicesStr;
+        }
 
         try
         {
@@ -384,7 +416,7 @@ public sealed partial class DiagnosticsPage : Page
                 if (e.Data != null)
                 {
                     var translated = TranslatePowerShellLine(e.Data);
-                    AppendToConsole(translated);
+                    AppendToConsole(translated, isError: false);
                     ParseStdoutLine(e.Data);
                 }
             };
@@ -394,34 +426,13 @@ public sealed partial class DiagnosticsPage : Page
                 if (e.Data != null)
                 {
                     var translated = TranslatePowerShellLine(e.Data);
-                    AppendToConsole($"[Системная ошибка] {translated}");
+                    AppendToConsole($"[Системная ошибка] {translated}", isError: true);
                 }
             };
 
             _powershellProcess.Start();
             _powershellProcess.BeginOutputReadLine();
             _powershellProcess.BeginErrorReadLine();
-
-            // Feed selections to PowerShell interactive stdin
-            using (var writer = _powershellProcess.StandardInput)
-            {
-                // Prompt 1: Select test type (1 for standard, 2 for dpi)
-                var typeChoice = testType == "standard" ? "1" : "2";
-                writer.WriteLine(typeChoice);
-
-                // Prompt 2: Select run mode (1 for all, 2 for select)
-                var modeChoice = runMode == "all" ? "1" : "2";
-                writer.WriteLine(modeChoice);
-
-                // Prompt 3: Select configs (if выборочно)
-                if (runMode == "select")
-                {
-                    var indicesStr = string.Join(",", selectedIndices);
-                    // Fallback to 0 if nothing selected
-                    if (string.IsNullOrEmpty(indicesStr)) indicesStr = "0"; 
-                    writer.WriteLine(indicesStr);
-                }
-            }
 
             _powershellProcess.WaitForExit();
             
@@ -604,7 +615,7 @@ public sealed partial class DiagnosticsPage : Page
         });
     }
 
-    private void AppendToConsole(string text)
+    private void AppendToConsole(string text, bool isError = false)
     {
         lock (_logBuffer)
         {
@@ -615,6 +626,8 @@ public sealed partial class DiagnosticsPage : Page
             {
                 _logBuffer.Remove(0, 50000);
             }
+
+            _pendingLogLines.Add((text, isError));
 
             if (_isLogFlushScheduled) return;
 
@@ -641,23 +654,117 @@ public sealed partial class DiagnosticsPage : Page
 
     private void FlushLogToUI()
     {
+        List<(string Text, bool IsError)> linesToRender;
+        lock (_logBuffer)
+        {
+            _isLogFlushScheduled = false;
+            linesToRender = new List<(string Text, bool IsError)>(_pendingLogLines);
+            _pendingLogLines.Clear();
+        }
+
+        if (linesToRender.Count == 0) return;
+
         try
         {
-            string fullLog;
-            lock (_logBuffer)
+            if (ConsoleLogRichTextBlock != null)
             {
-                _isLogFlushScheduled = false;
-                fullLog = _logBuffer.ToString();
-            }
+                foreach (var item in linesToRender)
+                {
+                    if (string.IsNullOrEmpty(item.Text)) continue;
 
-            if (ConsoleLogTextBox != null)
-            {
-                ConsoleLogTextBox.Text = fullLog;
-                ScrollTextBoxToBottom(ConsoleLogTextBox);
+                    var parts = item.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                    foreach (var part in parts)
+                    {
+                        if (string.IsNullOrEmpty(part) && parts.Length > 1 && part == parts.Last())
+                            continue; // Skip trailing empty split element
+
+                        var paragraph = new Paragraph();
+                        var run = new Run { Text = part };
+
+                        // 1. Red - Error / Fail
+                        bool isErrorLine = item.IsError || 
+                                           part.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase) ||
+                                           part.Contains("[winws ERROR]", StringComparison.OrdinalIgnoreCase) ||
+                                           part.Contains("[SERVICE ERROR]", StringComparison.OrdinalIgnoreCase) ||
+                                           part.Contains("[Системная ошибка]", StringComparison.OrdinalIgnoreCase) ||
+                                           part.Contains("Exception", StringComparison.OrdinalIgnoreCase) ||
+                                           part.Contains("FAIL", StringComparison.OrdinalIgnoreCase) ||
+                                           part.Contains("ERR", StringComparison.Ordinal) ||
+                                           part.Contains("unsupported", StringComparison.OrdinalIgnoreCase) ||
+                                           part.Contains("blocked", StringComparison.OrdinalIgnoreCase);
+
+                        // 2. Orange - Warning / Timeout
+                        bool isWarningLine = part.Contains("[WARNING]", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("[WARN]", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("Timeout", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("leftover", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("skipped", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("Внимание", StringComparison.OrdinalIgnoreCase);
+
+                        // 3. Green - Success / OK
+                        bool isSuccessLine = part.Contains("OK", StringComparison.Ordinal) ||
+                                             part.Contains("available", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("успешно", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("success", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("SUCCESS", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("найден", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("found", StringComparison.OrdinalIgnoreCase) ||
+                                             part.Contains("detected", StringComparison.OrdinalIgnoreCase);
+
+                        // 4. Blue - Operations / Cmd
+                        bool isActionLine = part.Contains("[CMD]", StringComparison.OrdinalIgnoreCase) ||
+                                            part.Contains("[SERVICE]", StringComparison.OrdinalIgnoreCase) ||
+                                            part.Contains("Checking strategy", StringComparison.OrdinalIgnoreCase) ||
+                                            part.Contains("Testing:", StringComparison.OrdinalIgnoreCase) ||
+                                            part.Contains("Запуск", StringComparison.OrdinalIgnoreCase) ||
+                                            part.Contains("Остановка", StringComparison.OrdinalIgnoreCase) ||
+                                            part.Contains("Удаление", StringComparison.OrdinalIgnoreCase) ||
+                                            part.Contains("Восстановление", StringComparison.OrdinalIgnoreCase);
+
+                        if (isErrorLine)
+                        {
+                            run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 107, 107)); // Hex #FF6B6B
+                        }
+                        else if (isWarningLine)
+                        {
+                            run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 146, 43)); // Hex #FF922B
+                        }
+                        else if (isSuccessLine)
+                        {
+                            run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 81, 207, 102)); // Hex #51CF66
+                        }
+                        else if (isActionLine)
+                        {
+                            run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 51, 154, 240)); // Hex #339AF0
+                        }
+                        else
+                        {
+                            run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 173, 181, 189)); // Hex #ADB5BD
+                        }
+
+                        paragraph.Inlines.Add(run);
+                        ConsoleLogRichTextBlock.Blocks.Add(paragraph);
+                    }
+                }
+
+                while (ConsoleLogRichTextBlock.Blocks.Count > 1000)
+                {
+                    ConsoleLogRichTextBlock.Blocks.RemoveAt(0);
+                }
+
+                ScrollRichTextBlockToBottom();
             }
             _lastLogFlush = DateTime.UtcNow;
         }
         catch { }
+    }
+
+    private void ScrollRichTextBlockToBottom()
+    {
+        if (ConsoleLogScrollViewer != null)
+        {
+            ConsoleLogScrollViewer.ChangeView(null, ConsoleLogScrollViewer.ScrollableHeight, null, false);
+        }
     }
 
     private string TranslatePowerShellLine(string line)
@@ -721,6 +828,8 @@ public sealed partial class DiagnosticsPage : Page
         DispatcherQueue.TryEnqueue(() =>
         {
             PlayButton.IsEnabled = true;
+            PlayProgressRing.IsActive = false;
+            PlayProgressRing.Visibility = Visibility.Collapsed;
             StopButton.IsEnabled = false;
             
             string runMode = (RunModeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "all";
@@ -781,9 +890,14 @@ public sealed partial class DiagnosticsPage : Page
 
     private void CopyConsoleButton_Click(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrEmpty(ConsoleLogTextBox.Text)) return;
+        string fullLog;
+        lock (_logBuffer)
+        {
+            fullLog = _logBuffer.ToString();
+        }
+        if (string.IsNullOrEmpty(fullLog)) return;
         var dataPackage = new DataPackage();
-        dataPackage.SetText(ConsoleLogTextBox.Text);
+        dataPackage.SetText(fullLog);
         Clipboard.SetContent(dataPackage);
     }
 
