@@ -1,4 +1,4 @@
-# GUI_COMPATIBLE
+# GUI_COMPATIBLE_V2
 $hasErrors = $false
 
 $rootDir = Split-Path $PSScriptRoot

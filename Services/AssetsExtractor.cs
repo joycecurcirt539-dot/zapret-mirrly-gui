@@ -65,7 +65,7 @@ public static class AssetsExtractor
             try
             {
                 var content = File.ReadAllText(scriptPath);
-                if (!content.Contains("# GUI_COMPATIBLE"))
+                if (!content.Contains("# GUI_COMPATIBLE_V2"))
                 {
                     needsUpdate = true;
                 }
