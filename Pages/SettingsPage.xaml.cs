@@ -17,6 +17,11 @@ public sealed partial class SettingsPage : Page
     private bool _originalMinimizeToTrayOnClose = false;
     private bool _originalMinimizeToTrayOnMinimize = false;
     private bool _originalAutoCheckGuiUpdates = true;
+    private string _originalTgWsProxyHost = "127.0.0.1";
+    private int _originalTgWsProxyPoolSize = 4;
+    private string _originalTgWsProxyWorkerDomains = "";
+    private bool _originalTgWsProxyCfProxy = true;
+    private bool _originalTgWsProxyForceTestDc = false;
 
     public SettingsPage()
     {
@@ -87,6 +92,22 @@ public sealed partial class SettingsPage : Page
         // 7. GUI wrapper auto check updates settings
         _originalAutoCheckGuiUpdates = SettingsManager.Instance.AutoCheckGuiUpdates;
         AutoCheckGuiUpdatesToggle.IsOn = _originalAutoCheckGuiUpdates;
+
+        // 8. TgWsProxy advanced settings
+        _originalTgWsProxyHost = SettingsManager.Instance.TgWsProxyHost;
+        SettingsProxyHostTextBox.Text = _originalTgWsProxyHost;
+
+        _originalTgWsProxyPoolSize = SettingsManager.Instance.TgWsProxyPoolSize;
+        SettingsProxyPoolSizeTextBox.Text = _originalTgWsProxyPoolSize.ToString();
+
+        _originalTgWsProxyWorkerDomains = SettingsManager.Instance.TgWsProxyWorkerDomains;
+        SettingsProxyWorkerDomainsTextBox.Text = _originalTgWsProxyWorkerDomains;
+
+        _originalTgWsProxyCfProxy = SettingsManager.Instance.TgWsProxyCfProxy;
+        SettingsCfProxyToggle.IsOn = _originalTgWsProxyCfProxy;
+
+        _originalTgWsProxyForceTestDc = SettingsManager.Instance.TgWsProxyForceTestDc;
+        SettingsProxyForceTestDcToggle.IsOn = _originalTgWsProxyForceTestDc;
     }
 
     private string GetActivePresetFromRegistry()
@@ -194,6 +215,7 @@ public sealed partial class SettingsPage : Page
             FilesFoldersPanel.Visibility = tag == "folders" ? Visibility.Visible : Visibility.Collapsed;
             AutomationPanel.Visibility = tag == "automation" ? Visibility.Visible : Visibility.Collapsed;
             UpdatesPanel.Visibility = tag == "updates" ? Visibility.Visible : Visibility.Collapsed;
+            TgWsProxyPanel.Visibility = tag == "tgwsproxy" ? Visibility.Visible : Visibility.Collapsed;
 
             if (tag == "automation")
                 UpdateServiceStatusInSettings();
@@ -243,8 +265,21 @@ public sealed partial class SettingsPage : Page
 
     private void SaveSettingsButton_Click(object sender, RoutedEventArgs e)
     {
+        if (!int.TryParse(SettingsProxyPoolSizeTextBox.Text, out var poolSize) || poolSize < 0 || poolSize > 100)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Ошибка",
+                Content = "Пожалуйста, введите корректный размер пула веб-сокетов (0 - 100).",
+                CloseButtonText = "ОК",
+                XamlRoot = this.XamlRoot
+            };
+            _ = dialog.ShowAsync();
+            return;
+        }
+
         var root = ZapretService.FindZapretRoot();
-        
+
         try
         {
             // 1. Write Preset Registry (if service installed)
@@ -352,6 +387,25 @@ public sealed partial class SettingsPage : Page
             // 7. Save GUI wrapper auto check updates settings
             SettingsManager.Instance.AutoCheckGuiUpdates = AutoCheckGuiUpdatesToggle.IsOn;
             _originalAutoCheckGuiUpdates = AutoCheckGuiUpdatesToggle.IsOn;
+
+            // 8. Save TgWsProxy advanced settings
+            var proxyHost = SettingsProxyHostTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(proxyHost)) proxyHost = "127.0.0.1";
+            SettingsManager.Instance.TgWsProxyHost = proxyHost;
+            _originalTgWsProxyHost = proxyHost;
+
+            SettingsManager.Instance.TgWsProxyPoolSize = poolSize;
+            _originalTgWsProxyPoolSize = poolSize;
+
+            var workers = SettingsProxyWorkerDomainsTextBox.Text.Trim();
+            SettingsManager.Instance.TgWsProxyWorkerDomains = workers;
+            _originalTgWsProxyWorkerDomains = workers;
+
+            SettingsManager.Instance.TgWsProxyCfProxy = SettingsCfProxyToggle.IsOn;
+            _originalTgWsProxyCfProxy = SettingsCfProxyToggle.IsOn;
+
+            SettingsManager.Instance.TgWsProxyForceTestDc = SettingsProxyForceTestDcToggle.IsOn;
+            _originalTgWsProxyForceTestDc = SettingsProxyForceTestDcToggle.IsOn;
 
             SettingsManager.Save();
 

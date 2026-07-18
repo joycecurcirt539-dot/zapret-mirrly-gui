@@ -1,159 +1,107 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using ZapretMirrlyGUI.Services.TgWsProxy;
 
 namespace ZapretMirrlyGUI.Services;
 
 public static class TgWsProxyService
 {
-    private static Process? _runningProcess;
+    private static TgWsProxyServer? _server;
     private static readonly List<string> _logHistory = new();
     private const int MaxLogHistory = 2000;
 
     public static event Action<string>? OnLogReceived;
     public static event Action<bool>? OnStatusChanged;
 
-    public static bool IsRunning => _runningProcess != null && !_runningProcess.HasExited;
+    public static bool IsRunning => _server != null;
 
     public static void StartProxy()
     {
         if (IsRunning) StopProxy();
 
-        var tgwsproxyDir = AssetsExtractor.GetTgWsProxyPath();
-        var exePath = Path.Combine(tgwsproxyDir, "TgWsProxy_windows.exe");
-
-        if (!File.Exists(exePath))
-        {
-            Log("[TG_SERVICE ERROR] Исполняемый файл TgWsProxy_windows.exe не найден в директории приложения.");
-            return;
-        }
-
-        // Write configuration file
-        try
-        {
-            var configJson = $$"""
-{
-  "port": {{SettingsManager.Instance.TgWsProxyPort}},
-  "host": "{{SettingsManager.Instance.TgWsProxyHost}}",
-  "dc_ip": [
-    "2:149.154.167.220",
-    "4:149.154.167.220"
-  ],
-  "verbose": false,
-  "check_updates": false,
-  "log_max_mb": 5,
-  "buf_kb": 256,
-  "pool_size": 4,
-  "cfproxy": {{(SettingsManager.Instance.TgWsProxyCfProxy ? "true" : "false")}},
-  "cfproxy_user_domain": [],
-  "cfproxy_worker_domain": [],
-  "ws_keepalive_interval": 30,
-  "secret": "{{SettingsManager.Instance.TgWsProxySecret}}",
-  "language": "ru",
-  "autostart": false
-}
-""";
-            var configPath = Path.Combine(tgwsproxyDir, "config.json");
-            File.WriteAllText(configPath, configJson, Encoding.UTF8);
-            Log("[TG_SERVICE] Файл конфигурации config.json успешно создан.");
-        }
-        catch (Exception ex)
-        {
-            Log($"[TG_SERVICE ERROR] Ошибка записи config.json: {ex.Message}");
-            return;
-        }
-
-        Log("[TG_SERVICE] Запуск TgWsProxy...");
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = exePath,
-            WorkingDirectory = tgwsproxyDir,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            StandardOutputEncoding = Encoding.UTF8,
-            StandardErrorEncoding = Encoding.UTF8
-        };
+        Log("[TG_SERVICE] Инициализация встроенного C# TgWsProxy сервера...");
 
         try
         {
-            _runningProcess = new Process { StartInfo = startInfo };
-            _runningProcess.EnableRaisingEvents = true;
-            _runningProcess.Exited += (s, e) =>
+            var dcRedirects = new Dictionary<int, string>
             {
-                OnStatusChanged?.Invoke(false);
-                Log("[TG_SERVICE] Процесс TgWsProxy завершён.");
+                { 2, "149.154.167.220" },
+                { 4, "149.154.167.220" }
             };
 
-            _runningProcess.OutputDataReceived += (s, e) =>
+            int port = SettingsManager.Instance.TgWsProxyPort;
+            string host = SettingsManager.Instance.TgWsProxyHost;
+            string secret = SettingsManager.Instance.TgWsProxySecret;
+            bool cfProxy = SettingsManager.Instance.TgWsProxyCfProxy;
+            string fakeTlsDomain = SettingsManager.Instance.TgWsProxyFakeTlsDomain;
+            int poolSize = SettingsManager.Instance.TgWsProxyPoolSize;
+            bool forceTestDc = SettingsManager.Instance.TgWsProxyForceTestDc;
+
+            var workerDomains = new List<string>();
+            string rawWorkers = SettingsManager.Instance.TgWsProxyWorkerDomains ?? "";
+            string[] parts = rawWorkers.Split(new[] { ',', ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var p in parts)
             {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Log($"[tgwsproxy] {e.Data}");
-                }
+                workerDomains.Add(p.Trim());
+            }
+
+            _server = new TgWsProxyServer(
+                host,
+                port,
+                secret,
+                dcRedirects,
+                cfProxy,
+                workerDomains,
+                fakeTlsDomain,
+                forceTestDc,
+                logCallback: Log
+            )
+            {
+                PoolSize = poolSize
             };
 
-            _runningProcess.ErrorDataReceived += (s, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Log($"[tgwsproxy ERROR] {e.Data}");
-                }
-            };
-
-            _runningProcess.Start();
-            _runningProcess.BeginOutputReadLine();
-            _runningProcess.BeginErrorReadLine();
-
+            _server.Start();
             OnStatusChanged?.Invoke(true);
-            Log($"[TG_SERVICE] TgWsProxy успешно запущен (PID: {_runningProcess.Id}).");
+            Log("[TG_SERVICE] TgWsProxy успешно запущен в основном процессе GUI.");
         }
         catch (Exception ex)
         {
             Log($"[TG_SERVICE ERROR] Не удалось запустить TgWsProxy: {ex.Message}");
-            _runningProcess = null;
+            _server = null;
             OnStatusChanged?.Invoke(false);
         }
     }
 
     public static void StopProxy()
     {
-        if (_runningProcess != null)
+        if (_server != null)
         {
             try
             {
-                if (!_runningProcess.HasExited)
-                {
-                    Log("[TG_SERVICE] Завершение процесса TgWsProxy...");
-                    _runningProcess.Kill(entireProcessTree: true);
-                }
+                Log("[TG_SERVICE] Остановка TgWsProxy...");
+                _server.Stop();
             }
             catch (Exception ex)
             {
-                Log($"[TG_SERVICE ERROR] Ошибка при завершении процесса: {ex.Message}");
+                Log($"[TG_SERVICE ERROR] Ошибка при остановке прокси: {ex.Message}");
             }
             finally
             {
-                _runningProcess.Dispose();
-                _runningProcess = null;
+                _server = null;
                 OnStatusChanged?.Invoke(false);
                 Log("[TG_SERVICE] Процесс TgWsProxy остановлен.");
             }
         }
-
-        KillAllTgWsProxyProcesses();
     }
 
     public static void KillAllTgWsProxyProcesses()
     {
         try
         {
-            foreach (var proc in Process.GetProcessesByName("TgWsProxy_windows"))
+            foreach (var proc in System.Diagnostics.Process.GetProcessesByName("TgWsProxy_windows"))
             {
                 try
                 {

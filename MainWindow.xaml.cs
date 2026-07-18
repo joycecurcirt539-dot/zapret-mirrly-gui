@@ -485,6 +485,11 @@ public sealed partial class MainWindow : Window
         RestoreWindow();
     }
 
+    public void NavigateToPublic(string tag)
+    {
+        NavigateTo(tag);
+    }
+
     public void ExitAppPublic()
     {
         RemoveTrayIcon();

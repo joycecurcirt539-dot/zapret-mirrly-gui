@@ -47,6 +47,17 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
+                <!-- Telegram Proxy (TgWsProxy) -->
+                <NavigationViewItem
+                    x:Name="TgWsProxyItem"
+                    Content="Telegram Proxy"
+                    Tag="tgwsproxy"
+                    ToolTipService.ToolTip="Обход блокировок Telegram">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE73E;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
                 <!-- Lists Editor -->
                 <NavigationViewItem
                     x:Name="ListsItem"
@@ -77,17 +88,6 @@
                     ToolTipService.ToolTip="Тестирование и проблемы">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE9D2;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-
-                <!-- Telegram Proxy (TgWsProxy) -->
-                <NavigationViewItem
-                    x:Name="TgWsProxyItem"
-                    Content="Telegram Proxy"
-                    Tag="tgwsproxy"
-                    ToolTipService.ToolTip="Обход блокировок Telegram">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE73E;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>

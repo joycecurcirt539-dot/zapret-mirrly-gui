@@ -33,7 +33,6 @@
     <EmbeddedResource Include="Assets\SidebarLogoNav.png" />
     <EmbeddedResource Include="Assets\dalink-qr-code.png" />
     <EmbeddedResource Include="Assets\zapret.zip" />
-    <EmbeddedResource Include="Assets\TgWsProxy_windows.exe" />
   </ItemGroup>
 
   <ItemGroup>

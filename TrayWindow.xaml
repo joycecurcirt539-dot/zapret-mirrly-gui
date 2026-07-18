@@ -25,7 +25,7 @@
             </Border.Resources>
             <Grid IsTabStop="False">
                 <!-- 1. VPN Widget Panel (Shown on Left-Click) -->
-                <Grid x:Name="VpnPanel" Padding="14" IsTabStop="False">
+                <Grid x:Name="VpnPanel" Padding="14,18,14,14" IsTabStop="False">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" /> <!-- Header -->
                         <RowDefinition Height="Auto" /> <!-- Update badge -->
@@ -67,17 +67,36 @@
                         </Button>
                     </Border>
 
-                    <!-- Power Button & Status -->
-                    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10" IsTabStop="False">
-                        <Button x:Name="PowerButton" Click="PowerButton_Click" Width="68" Height="68" CornerRadius="34" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False">
-                            <Button.Content>
-                                <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;" FontSize="22" />
-                            </Button.Content>
-                        </Button>
+                    <!-- Power Buttons & Statuses -->
+                    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12" IsTabStop="False">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="20" HorizontalAlignment="Center" Width="170" IsTabStop="False">
+                            <!-- Zapret Toggle -->
+                            <StackPanel Grid.Column="0" Spacing="6" HorizontalAlignment="Center">
+                                <Button x:Name="PowerButton" Click="PowerButton_Click" Width="52" Height="52" CornerRadius="26" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False">
+                                    <Button.Content>
+                                        <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;" FontSize="18" />
+                                    </Button.Content>
+                                </Button>
+                                <TextBlock Text="Обход DPI" FontSize="9" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
+                            </StackPanel>
+
+                            <!-- Telegram Proxy Toggle -->
+                            <StackPanel Grid.Column="1" Spacing="6" HorizontalAlignment="Center">
+                                <Button x:Name="TgPowerButton" Click="TgPowerButton_Click" Width="52" Height="52" CornerRadius="26" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False">
+                                    <Button.Content>
+                                        <FontIcon x:Name="TgPowerIcon" Glyph="&#xE73E;" FontSize="18" />
+                                    </Button.Content>
+                                </Button>
+                                <TextBlock Text="Telegram" FontSize="9" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Grid>
 
                         <StackPanel Spacing="1" HorizontalAlignment="Center" IsTabStop="False">
                             <TextBlock x:Name="StatusTextBlock" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" />
                             <TextBlock x:Name="StatusSubTextBlock" FontSize="9" Opacity="0.5" HorizontalAlignment="Center" />
+                            <Button x:Name="ToggleAllButton" Click="ToggleAllButton_Click" HorizontalAlignment="Center" Margin="0,4,0,0" Height="22" Padding="8,0" CornerRadius="4" BorderThickness="0" Background="#1FFFFFFF">
+                                <TextBlock x:Name="ToggleAllTextBlock" Text="Запустить всё" FontSize="9" FontWeight="SemiBold" Foreground="#A79A83" VerticalAlignment="Center" />
+                            </Button>
                         </StackPanel>
                     </StackPanel>
 
@@ -117,10 +136,34 @@
                             <TextBlock Text="Открыть Mirrly" FontSize="11" Foreground="#FFFFFF" />
                         </StackPanel>
                     </Button>
+                    <Button Click="OpenSettingsButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE713;" FontSize="11" Foreground="#A79A83" />
+                            <TextBlock Text="Настройки" FontSize="11" Foreground="#FFFFFF" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="MenuConnectTelegramButton" Click="ConnectTelegramButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE73E;" FontSize="11" Foreground="#A79A83" />
+                            <TextBlock Text="Подключить Telegram" FontSize="11" Foreground="#FFFFFF" />
+                        </StackPanel>
+                    </Button>
                     <Button Click="PowerButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon x:Name="MenuPowerIcon" Glyph="&#xE7E8;" FontSize="11" />
                             <TextBlock x:Name="MenuPowerText" Text="Включить обход" FontSize="11" Foreground="#FFFFFF" />
+                        </StackPanel>
+                    </Button>
+                    <Button Click="TgPowerButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon x:Name="MenuTgPowerIcon" Glyph="&#xE73E;" FontSize="11" />
+                            <TextBlock x:Name="MenuTgPowerText" Text="Включить Telegram прокси" FontSize="11" Foreground="#FFFFFF" />
+                        </StackPanel>
+                    </Button>
+                    <Button Click="ToggleAllButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon x:Name="MenuToggleAllIcon" Glyph="&#xE7E8;" FontSize="11" />
+                            <TextBlock x:Name="MenuToggleAllText" Text="Запустить всё" FontSize="11" Foreground="#FFFFFF" />
                         </StackPanel>
                     </Button>
 

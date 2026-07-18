@@ -22,11 +22,6 @@ public static class AssetsExtractor
         return Path.Combine(GetAppDataRoot(), "zapret");
     }
 
-    public static string GetTgWsProxyPath()
-    {
-        return Path.Combine(GetAppDataRoot(), "tgwsproxy");
-    }
-
     public static void ExtractEverythingIfNeeded()
     {
         var appDataRoot = GetAppDataRoot();
@@ -85,7 +80,6 @@ public static class AssetsExtractor
             needsUpdate = true;
         }
 
-        // If the directory does not exist, or if winws.exe is missing, or if we need a safe upgrade/update
         if (!Directory.Exists(zapretDir) || !File.Exists(Path.Combine(zapretDir, "bin", "winws.exe")) || needsUpdate)
         {
             string resourceName = "ZapretMirrlyGUI.Assets.zapret.zip";
@@ -95,29 +89,23 @@ public static class AssetsExtractor
                 using var archive = new ZipArchive(stream);
                 foreach (var entry in archive.Entries)
                 {
-                    // Skip directory entries themselves (they are created automatically on file extraction)
                     if (string.IsNullOrEmpty(entry.Name)) continue;
 
-                    // Compute destination path
                     var destPath = Path.GetFullPath(Path.Combine(appDataRoot, entry.FullName));
 
-                    // Security check: ensure the path is within appDataRoot
                     if (!destPath.StartsWith(appDataRoot, StringComparison.OrdinalIgnoreCase)) continue;
 
-                    // If it is inside the lists/ folder and already exists, DO NOT overwrite it to preserve user lists
                     if (entry.FullName.StartsWith("zapret/lists/", StringComparison.OrdinalIgnoreCase) && File.Exists(destPath))
                     {
                         continue;
                     }
 
-                    // Ensure parent directory exists
                     var parentDir = Path.GetDirectoryName(destPath);
                     if (parentDir != null && !Directory.Exists(parentDir))
                     {
                         Directory.CreateDirectory(parentDir);
                     }
 
-                    // Extract and overwrite
                     try
                     {
                         entry.ExtractToFile(destPath, true);
@@ -125,29 +113,6 @@ public static class AssetsExtractor
                     catch { }
                 }
             }
-        }
-
-        // 3. Extract TgWsProxy
-        var tgwsproxyDir = GetTgWsProxyPath();
-        if (!Directory.Exists(tgwsproxyDir))
-        {
-            Directory.CreateDirectory(tgwsproxyDir);
-        }
-
-        var tgwsproxyDest = Path.Combine(tgwsproxyDir, "TgWsProxy_windows.exe");
-        if (!File.Exists(tgwsproxyDest))
-        {
-            try
-            {
-                string resourceName = "ZapretMirrlyGUI.Assets.TgWsProxy_windows.exe";
-                using var stream = assembly.GetManifestResourceStream(resourceName);
-                if (stream != null)
-                {
-                    using var fileStream = File.Create(tgwsproxyDest);
-                    stream.CopyTo(fileStream);
-                }
-            }
-            catch { }
         }
     }
 }

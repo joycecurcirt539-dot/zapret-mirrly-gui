@@ -68,6 +68,11 @@
                         <FontIcon Glyph="&#xE895;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem Content="Обход Telegram" Tag="tgwsproxy">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE12F;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{StaticResource PagePadding}">
@@ -372,6 +377,78 @@
                                     </Button>
                                 </StackPanel>
                             </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- 6. TgWsProxy Advanced Panel -->
+                    <StackPanel x:Name="TgWsProxyPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
+                        <TextBlock Text="Настройки TgWsProxy (Telegram)" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,8" />
+
+                        <!-- Card 1: Listening Host -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Интерфейс прослушивания (Хост)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="IP-адрес локального интерфейса для прокси. Значение 127.0.0.1 ограничивает доступ только вашим компьютером. 0.0.0.0 разрешит подключения к вашему прокси со всех устройств в локальной сети." VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Text="Устанавливает IP-адрес интерфейса прослушивания для входящих подключений." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                <TextBox x:Name="SettingsProxyHostTextBox" PlaceholderText="127.0.0.1" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 2: Web Socket Pool Size -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Размер пула веб-сокетов" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Количество заранее поддерживаемых соединений к серверам Telegram для каждого DC. Большие значения ускоряют первый запуск, но могут привести к блокировке со стороны Telegram за флуд." VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Text="Количество заранее подготовленных соединений к Telegram (0 - 100)." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                <TextBox x:Name="SettingsProxyPoolSizeTextBox" PlaceholderText="4" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 3: Cloudflare Workers domains -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Домены Cloudflare Workers" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Укажите список доменов ваших личных проксирующих Cloudflare Workers. Используйте запятую или пробел в качестве разделителя." VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Text="Настройки личных Cloudflare Workers для обхода блокировок." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                <TextBox x:Name="SettingsProxyWorkerDomainsTextBox" PlaceholderText="worker1.workers.dev, worker2..." />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 4: Toggles -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="16">
+                                <!-- Cloudflare Toggle -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="Маршрутизация Cloudflare Worker" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                            <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Включает или выключает использование Cloudflare Workers в качестве альтернативного туннеля для подключения." VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <TextBlock Text="Использовать Cloudflare Workers как приоритетное направление обхода." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <ToggleSwitch Grid.Column="1" x:Name="SettingsCfProxyToggle" OnContent="Вкл" OffContent="Выкл" VerticalAlignment="Center" />
+                                </Grid>
+
+                                <MenuFlyoutSeparator />
+
+                                <!-- Force Test DCs Toggle -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="Подключение к тестовым серверам Telegram" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                            <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Включение перенаправления на тестовые DC Telegram (Test DCs). Не включайте, если не тестируете специализированные клиенты, так как обычные аккаунты не смогут подключиться." VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <TextBlock Text="Использовать исключительно тестовую сетевую инфраструктуру Telegram." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <ToggleSwitch Grid.Column="1" x:Name="SettingsProxyForceTestDcToggle" OnContent="Вкл" OffContent="Выкл" VerticalAlignment="Center" />
+                                </Grid>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </Grid>

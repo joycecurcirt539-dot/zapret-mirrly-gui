@@ -136,62 +136,68 @@
         <!-- ═══════════════════════════════════════════════════════ -->
         <!-- RIGHT COLUMN: Strategy Config & Info                   -->
         <!-- ═══════════════════════════════════════════════════════ -->
-        <Grid Grid.Column="1" Margin="0,80,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <ScrollViewer Grid.Column="1" Margin="0,80,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="16" Margin="0,0,12,0">
+                <!-- Configuration Card -->
+                <Border Style="{StaticResource GlassCardStyle}" Padding="20">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="НАСТРОЙКИ TGWS-PROXY" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
 
-            <!-- Configuration Card -->
-            <Border Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="20" Margin="0,0,0,16">
-                <StackPanel Spacing="14">
-                    <TextBlock Text="НАСТРОЙКИ TGWS-PROXY" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                        <!-- Port Setting -->
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Порт прокси (SOCKS5/MTProto)" FontSize="12" Opacity="0.8" />
+                                <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Порт, на котором будет запущен SOCKS5/MTProto прокси-сервер. Этот порт нужно указать в настройках Telegram на вашем устройстве." VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBox x:Name="ProxyPortTextBox" Text="1443" PlaceholderText="1443" />
+                        </StackPanel>
 
-                    <!-- Port Setting -->
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Порт прокси (SOCKS5/MTProto)" FontSize="12" Opacity="0.8" />
-                        <TextBox x:Name="ProxyPortTextBox" Text="1443" PlaceholderText="1443" />
+                        <!-- Secret Setting -->
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Секрет MTProto (32 символа)" FontSize="12" Opacity="0.8" />
+                                <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Криптографический ключ для подключения к MTProto прокси. Должен быть длиной ровно 32 шестнадцатеричных символа (hex)." VerticalAlignment="Center" />
+                            </StackPanel>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <TextBox Grid.Column="0" x:Name="ProxySecretTextBox" Text="2924fc12c2c0e18a00cd7ddf5a5e5db6" PlaceholderText="32-значный hex-секрет" />
+                                <Button Grid.Column="1" Click="RegenerateSecretButton_Click" ToolTipService.ToolTip="Сгенерировать случайный секрет" Height="32">
+                                    <FontIcon Glyph="&#xE72C;" FontSize="12" />
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Fake TLS SNI Domain -->
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Домен маскировки Fake TLS" FontSize="12" Opacity="0.8" />
+                                <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Доменное имя, под которое маскируется трафик (например, google.com). Позволяет обходить активное блокирование MTProto протокола DPI. Оставьте пустым для обычного режима." VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBox x:Name="ProxyFakeTlsDomainTextBox" PlaceholderText="Например: example.com (пусто = выкл)" />
+                        </StackPanel>
+
+                        <!-- Save Button -->
+                        <Button x:Name="SaveSettingsButton" Click="SaveSettingsButton_Click" Content="Сохранить настройки" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     </StackPanel>
+                </Border>
 
-                    <!-- Host Setting -->
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Интерфейс (Хост)" FontSize="12" Opacity="0.8" />
-                        <TextBox x:Name="ProxyHostTextBox" Text="127.0.0.1" PlaceholderText="127.0.0.1" />
-                    </StackPanel>
-
-                    <!-- Secret Setting -->
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Секрет MTProto (32 символа)" FontSize="12" Opacity="0.8" />
-                        <TextBox x:Name="ProxySecretTextBox" Text="2924fc12c2c0e18a00cd7ddf5a5e5db6" PlaceholderText="32-значный hex-секрет" />
-                    </StackPanel>
-
-                    <!-- Cloudflare Toggle -->
-                    <ToggleSwitch x:Name="CfProxyToggle" Header="Использовать Cloudflare Worker" IsOn="True" FontSize="12" OffContent="Выкл" OnContent="Вкл" />
-
-                    <!-- Save Button -->
-                    <Button x:Name="SaveSettingsButton" Click="SaveSettingsButton_Click" Content="Сохранить настройки" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                </StackPanel>
-            </Border>
-
-            <!-- Information Card (Flowseal & Future structure explanation) -->
-            <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="20">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <!-- Information Card (Flowseal & Future structure explanation) -->
+                <Border Style="{StaticResource GlassCardStyle}" Padding="20">
                     <StackPanel Spacing="12">
                         <TextBlock Text="О ПРОЕКТЕ И РАЗРАБОТКЕ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Разработчик:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
-                            <TextBlock Text="Flowseal (tg-ws-proxy)" FontSize="11" Opacity="0.9" />
+                            <TextBlock Text="Разработчики:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                            <TextBlock Text="Flowseal (tg-ws-proxy) &amp; Antigravity" FontSize="11" Opacity="0.9" />
                         </StackPanel>
 
                         <TextBlock Text="Как это работает сейчас:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
-                        <TextBlock Text="Мы используем оригинальный скомпилированный исполняемый файл TgWsProxy_windows.exe от Flowseal. Приложение запускает его параллельно в фоновом режиме, генерируя правильную структуру конфигурации, и перенаправляет логи в это окно." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
+                        <TextBlock Text="Вся логика транспортного туннеля полностью переписана на чистый сетевой код C# и интегрирована непосредственно в процесс GUI. Мы больше не используем внешний исполняемый файл exe. Это позволило убрать ложные срабатывания Windows Defender и ускорить работу сети." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
 
-                        <TextBlock Text="Будущие планы:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
-                        <TextBlock Text="Мы планируем переписать всю логику транспортного туннеля непосредственно на чистый сетевой код C# внутри нашего приложения. Это позволит полностью отказаться от использования внешнего исполняемого файла для Telegram-обхода, уберет возможные ложные срабатывания Windows Defender и сделает интеграцию нативной." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
+                        <TextBlock Text="Статус разработки:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock Text="Успешно реализовано! Прокси работает нативно в процессе основного GUI-приложения. Все настройки подключения теперь сохраняются локально в конфигурационном файле." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
                     </StackPanel>
-                </ScrollViewer>
-            </Border>
-        </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

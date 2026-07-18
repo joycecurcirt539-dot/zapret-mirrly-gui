@@ -72,18 +72,27 @@ namespace ZapretMirrlyGUI
             MenuVersionText.Text = $"Zapret Mirrly GUI v{AppUpdateService.CurrentGuiVersion}";
 
             // Sync connection status
-            UpdateUiState(ZapretService.IsRunning);
+            UpdateUiState();
             ZapretService.OnStatusChanged += ZapretService_OnStatusChanged;
-
+            TgWsProxyService.OnStatusChanged += TgWsProxyService_OnStatusChanged;
+ 
             this.Activated += TrayWindow_Activated;
             this.Closed += TrayWindow_Closed;
         }
-
+ 
         private void ZapretService_OnStatusChanged(bool isRunning)
         {
             DispatcherQueue.TryEnqueue(() =>
             {
-                UpdateUiState(isRunning);
+                UpdateUiState();
+            });
+        }
+
+        private void TgWsProxyService_OnStatusChanged(bool isRunning)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                UpdateUiState();
             });
         }
 
@@ -99,6 +108,7 @@ namespace ZapretMirrlyGUI
         private void TrayWindow_Closed(object sender, WindowEventArgs args)
         {
             ZapretService.OnStatusChanged -= ZapretService_OnStatusChanged;
+            TgWsProxyService.OnStatusChanged -= TgWsProxyService_OnStatusChanged;
         }
 
         public void ShowAndPosition(bool isMenuMode)
@@ -108,7 +118,7 @@ namespace ZapretMirrlyGUI
             {
                 VpnPanel.Visibility = Visibility.Collapsed;
                 MenuPanel.Visibility = Visibility.Visible;
-
+ 
                 // Sync status texts in MenuPanel
                 if (ZapretService.IsRunning)
                 {
@@ -121,6 +131,30 @@ namespace ZapretMirrlyGUI
                     MenuPowerIcon.Glyph = "\uE7E8"; // Start/Power glyph
                     MenuPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90)); // Green
                     MenuPowerText.Text = "Запустить обход";
+                }
+
+                if (TgWsProxyService.IsRunning)
+                {
+                    MenuTgPowerIcon.Glyph = "\uE10A"; // Stop glyph
+                    MenuTgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 69, 58)); // Red
+                    MenuTgPowerText.Text = "Остановить Telegram прокси";
+                }
+                else
+                {
+                    MenuTgPowerIcon.Glyph = "\uE73E"; // Start glyph
+                    MenuTgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90)); // Green
+                    MenuTgPowerText.Text = "Запустить Telegram прокси";
+                }
+
+                if (TgWsProxyService.IsRunning)
+                {
+                    MenuConnectTelegramButton.IsEnabled = true;
+                    MenuConnectTelegramButton.Opacity = 1.0;
+                }
+                else
+                {
+                    MenuConnectTelegramButton.IsEnabled = false;
+                    MenuConnectTelegramButton.Opacity = 0.5;
                 }
             }
             else
@@ -137,7 +171,7 @@ namespace ZapretMirrlyGUI
             // Dynamically size the VPN panel — taller if update badge is visible
             bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
             int windowWidth = isMenuMode ? 180 : 220;
-            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 140 : 118) : (updateVisible ? 282 : 246);
+            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 252 : 230) : (updateVisible ? 312 : 276);
 
             int posX, posY;
 
@@ -170,31 +204,82 @@ namespace ZapretMirrlyGUI
             ShowWindow(hWnd, SW_RESTORE);
             SetForegroundWindow(hWnd);
 
-            UpdateUiState(ZapretService.IsRunning);
+            UpdateUiState();
             UpdateTrayUpdateStatus();
         }
 
-        private void UpdateUiState(bool isRunning)
+        private void UpdateUiState()
         {
-            if (isRunning)
+            bool isZapretRunning = ZapretService.IsRunning;
+            bool isTgRunning = TgWsProxyService.IsRunning;
+ 
+            if (isZapretRunning)
             {
-                PowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(26, 48, 204, 90));
+                PowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(30, 48, 204, 90));
                 PowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
                 PowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
+            }
+            else
+            {
+                PowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(15, 255, 255, 255));
+                PowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(50, 255, 255, 255));
+                PowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, 255, 255, 255));
+            }
+
+            if (isTgRunning)
+            {
+                TgPowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(30, 48, 204, 90));
+                TgPowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
+                TgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
+            }
+            else
+            {
+                TgPowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(15, 255, 255, 255));
+                TgPowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(50, 255, 255, 255));
+                TgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, 255, 255, 255));
+            }
+ 
+            if (isZapretRunning && isTgRunning)
+            {
+                StatusTextBlock.Text = "ПОДКЛЮЧЕНО";
+                StatusTextBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
+                StatusSubTextBlock.Text = "Обход и прокси Telegram активны";
+            }
+            else if (isZapretRunning)
+            {
                 StatusTextBlock.Text = "ПОДКЛЮЧЕНО";
                 StatusTextBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
                 StatusSubTextBlock.Text = "DPI обход активен";
             }
+            else if (isTgRunning)
+            {
+                StatusTextBlock.Text = "ПОДКЛЮЧЕНО";
+                StatusTextBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
+                StatusSubTextBlock.Text = "Прокси Telegram активен";
+            }
             else
             {
-                PowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(26, 255, 69, 58));
-                PowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 69, 58));
-                PowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 69, 58));
                 StatusTextBlock.Text = "ОТКЛЮЧЕНО";
                 StatusTextBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 69, 58));
                 StatusSubTextBlock.Text = "Трафик идет напрямую";
             }
-
+ 
+            bool anyRunning = isZapretRunning || isTgRunning;
+            if (anyRunning)
+            {
+                ToggleAllTextBlock.Text = "Остановить всё";
+                MenuToggleAllIcon.Glyph = "\uE10A"; // Stop glyph
+                MenuToggleAllIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 69, 58)); // Red
+                MenuToggleAllText.Text = "Остановить всё";
+            }
+            else
+            {
+                ToggleAllTextBlock.Text = "Запустить всё";
+                MenuToggleAllIcon.Glyph = "\uE7E8"; // Start/Power glyph
+                MenuToggleAllIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90)); // Green
+                MenuToggleAllText.Text = "Запустить всё";
+            }
+ 
             var activePreset = SettingsManager.Instance.LastSelectedPreset;
             ActivePresetNameText.Text = string.IsNullOrEmpty(activePreset) ? "general.bat" : activePreset;
         }
@@ -270,6 +355,19 @@ namespace ZapretMirrlyGUI
             AppWindow.Hide(); // Hide menu or widget immediately after toggle action
         }
 
+        private void TgPowerButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (TgWsProxyService.IsRunning)
+            {
+                TgWsProxyService.StopProxy();
+            }
+            else
+            {
+                TgWsProxyService.StartProxy();
+            }
+            AppWindow.Hide(); // Hide menu or widget immediately after toggle action
+        }
+
         private void HideWindowButton_Click(object sender, RoutedEventArgs e)
         {
             AppWindow.Hide();
@@ -284,6 +382,62 @@ namespace ZapretMirrlyGUI
         private void ExitAppButton_Click(object sender, RoutedEventArgs e)
         {
             _mainWindow.ExitAppPublic();
+            AppWindow.Hide();
+        }
+
+        private void ToggleAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool isZapretRunning = ZapretService.IsRunning;
+            bool isTgRunning = TgWsProxyService.IsRunning;
+            bool anyRunning = isZapretRunning || isTgRunning;
+ 
+            if (anyRunning)
+            {
+                if (isZapretRunning) ZapretService.StopBypass();
+                if (isTgRunning) TgWsProxyService.StopProxy();
+            }
+            else
+            {
+                var activePreset = SettingsManager.Instance.LastSelectedPreset;
+                if (string.IsNullOrEmpty(activePreset)) activePreset = "general.bat";
+ 
+                var root = ZapretService.FindZapretRoot();
+                var gameFilterFile = System.IO.Path.Combine(root, "utils", "game_filter.enabled");
+                string gameFilterMode = "disabled";
+                try
+                {
+                    if (System.IO.File.Exists(gameFilterFile))
+                        gameFilterMode = System.IO.File.ReadAllText(gameFilterFile).Trim().ToLower();
+                }
+                catch { }
+ 
+                ZapretService.StartBypass(activePreset, gameFilterMode);
+                TgWsProxyService.StartProxy();
+            }
+            AppWindow.Hide();
+        }
+
+        private void OpenSettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mainWindow.RestoreWindowPublic();
+            _mainWindow.NavigateToPublic("settings");
+            AppWindow.Hide();
+        }
+
+        private void ConnectTelegramButton_Click(object sender, RoutedEventArgs e)
+        {
+            var port = SettingsManager.Instance.TgWsProxyPort;
+            var secret = SettingsManager.Instance.TgWsProxySecret;
+            var url = $"https://t.me/proxy?server=127.0.0.1&port={port}&secret=ee{secret}";
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch { }
             AppWindow.Hide();
         }
     }

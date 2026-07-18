@@ -25,9 +25,8 @@ public sealed partial class TgWsProxyPage : Page
 
         // Initialize UI settings from SettingsManager
         ProxyPortTextBox.Text = SettingsManager.Instance.TgWsProxyPort.ToString();
-        ProxyHostTextBox.Text = SettingsManager.Instance.TgWsProxyHost;
         ProxySecretTextBox.Text = SettingsManager.Instance.TgWsProxySecret;
-        CfProxyToggle.IsOn = SettingsManager.Instance.TgWsProxyCfProxy;
+        ProxyFakeTlsDomainTextBox.Text = SettingsManager.Instance.TgWsProxyFakeTlsDomain;
 
         // Load log history
         var sb = new StringBuilder();
@@ -198,16 +197,9 @@ public sealed partial class TgWsProxyPage : Page
             return false;
         }
 
-        var host = ProxyHostTextBox.Text.Trim();
-        if (string.IsNullOrEmpty(host))
-        {
-            host = "127.0.0.1";
-        }
-
         SettingsManager.Instance.TgWsProxyPort = port;
-        SettingsManager.Instance.TgWsProxyHost = host;
         SettingsManager.Instance.TgWsProxySecret = ProxySecretTextBox.Text.Trim();
-        SettingsManager.Instance.TgWsProxyCfProxy = CfProxyToggle.IsOn;
+        SettingsManager.Instance.TgWsProxyFakeTlsDomain = ProxyFakeTlsDomainTextBox.Text.Trim();
 
         SettingsManager.Save();
 
@@ -226,9 +218,15 @@ public sealed partial class TgWsProxyPage : Page
         package.SetText(LaunchLogTextBlock.Text);
         Clipboard.SetContent(package);
     }
-
     private void ClearLogButton_Click(object sender, RoutedEventArgs e)
     {
         LaunchLogTextBlock.Text = string.Empty;
+    }
+
+    private void RegenerateSecretButton_Click(object sender, RoutedEventArgs e)
+    {
+        var randomBytes = new byte[16];
+        System.Security.Cryptography.RandomNumberGenerator.Fill(randomBytes);
+        ProxySecretTextBox.Text = Convert.ToHexString(randomBytes).ToLower();
     }
 }
