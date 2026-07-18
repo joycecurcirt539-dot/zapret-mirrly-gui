@@ -68,13 +68,12 @@ namespace ZapretMirrlyGUI
             appWindow.TitleBar.ButtonInactiveBackgroundColor = Microsoft.UI.Colors.Transparent;
 
             // Configure OverlappedPresenter to be borderless and top-most
-            // Configure OverlappedPresenter to keep border (for Mica/composition backdrop) but hide title bar
             var overlappedPresenter = appWindow.Presenter as Microsoft.UI.Windowing.OverlappedPresenter;
             if (overlappedPresenter != null)
             {
                 overlappedPresenter.IsResizable = false;
                 overlappedPresenter.IsAlwaysOnTop = true;
-                overlappedPresenter.SetBorderAndTitleBar(true, false); // hasBorder: true enables Mica
+                overlappedPresenter.SetBorderAndTitleBar(false, false); // false, false removes OS borders completely
             }
 
             // DWM custom attributes: Set border color to blend with window background (removing the white line)
@@ -163,7 +162,7 @@ namespace ZapretMirrlyGUI
  
             bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
             int windowWidth = isMenuMode ? 180 : 220;
-            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 232 : 204) : (updateVisible ? 316 : 280);
+            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 232 : 204) : (updateVisible ? 302 : 266);
  
             var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             uint dpi = GetDpiForWindow(hWnd);
