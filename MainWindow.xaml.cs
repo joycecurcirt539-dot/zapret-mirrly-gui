@@ -1,6 +1,9 @@
 using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Text;
 using ZapretMirrlyGUI.Pages;
 using ZapretMirrlyGUI.Services;
 
@@ -594,7 +597,7 @@ public sealed partial class MainWindow : Window
         _latestVersionTag = update.LatestVersion;
 
         UpdateTagNameText.Text = $"Версия {update.LatestVersion}";
-        UpdateChangelogText.Text = update.Changelog;
+        PopulateRichTextBlockWithMarkdown(UpdateChangelogText, update.Changelog);
 
         if (update.IsPrerelease)
         {
@@ -647,5 +650,144 @@ public sealed partial class MainWindow : Window
     private void CloseUpdateOverlay_Click(object sender, RoutedEventArgs e)
     {
         HideUpdateModal();
+    }
+
+    private void PopulateRichTextBlockWithMarkdown(RichTextBlock rtb, string markdown)
+    {
+        rtb.Blocks.Clear();
+        if (string.IsNullOrEmpty(markdown)) return;
+
+        var lines = markdown.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+        Paragraph? currentParagraph = null;
+
+        foreach (var line in lines)
+        {
+            var trimmedLine = line.Trim();
+
+            // 1. Headers (e.g. ### Header or ## Header)
+            if (trimmedLine.StartsWith("#"))
+            {
+                int depth = 0;
+                while (depth < trimmedLine.Length && trimmedLine[depth] == '#') depth++;
+                string headerText = trimmedLine.Substring(depth).Trim();
+
+                var headerParagraph = new Paragraph { Margin = new Thickness(0, depth == 1 ? 16 : 10, 0, 4) };
+                var run = new Run 
+                { 
+                    Text = headerText, 
+                    FontSize = depth == 1 ? 18 : (depth == 2 ? 15 : 13.5), 
+                    FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 167, 154, 131)) // matching #A79A83
+                };
+                headerParagraph.Inlines.Add(run);
+                rtb.Blocks.Add(headerParagraph);
+                currentParagraph = null; // Reset paragraph context
+                continue;
+            }
+
+            // 2. Horizontal Rule (e.g. ---)
+            if (trimmedLine == "---" || trimmedLine == "***")
+            {
+                var ruleParagraph = new Paragraph { Margin = new Thickness(0, 10, 0, 10) };
+                var inlineContainer = new InlineUIContainer();
+                var lineBorder = new Border 
+                { 
+                    Height = 1, 
+                    Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(24, 255, 255, 255)),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Width = rtb.ActualWidth > 0 ? rtb.ActualWidth : 580 // fallback
+                };
+                inlineContainer.Child = lineBorder;
+                ruleParagraph.Inlines.Add(inlineContainer);
+                rtb.Blocks.Add(ruleParagraph);
+                currentParagraph = null;
+                continue;
+            }
+
+            // 3. Bullet list item (e.g. * Item or - Item)
+            if (trimmedLine.StartsWith("* ") || trimmedLine.StartsWith("- ") || trimmedLine.StartsWith("• "))
+            {
+                var itemText = trimmedLine.Substring(2).Trim();
+                var listParagraph = new Paragraph { Margin = new Thickness(16, 2, 0, 2) };
+                
+                // Add bullet dot
+                var bulletRun = new Run { Text = "•  ", FontWeight = Microsoft.UI.Text.FontWeights.Bold, Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, 167, 154, 131)) };
+                listParagraph.Inlines.Add(bulletRun);
+
+                ParseInlineMarkdown(listParagraph.Inlines, itemText);
+                rtb.Blocks.Add(listParagraph);
+                currentParagraph = null;
+                continue;
+            }
+
+            // 4. Empty line
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                currentParagraph = null;
+                continue;
+            }
+
+            // 5. Normal text paragraph
+            if (currentParagraph == null)
+            {
+                currentParagraph = new Paragraph { Margin = new Thickness(0, 4, 0, 4) };
+                rtb.Blocks.Add(currentParagraph);
+            }
+            else
+            {
+                // Add line break between lines in the same paragraph
+                currentParagraph.Inlines.Add(new LineBreak());
+            }
+
+            ParseInlineMarkdown(currentParagraph.Inlines, line);
+        }
+    }
+
+    private void ParseInlineMarkdown(Microsoft.UI.Xaml.Documents.InlineCollection inlines, string text)
+    {
+        int i = 0;
+        while (i < text.Length)
+        {
+            if (text.Substring(i).StartsWith("**"))
+            {
+                int end = text.IndexOf("**", i + 2);
+                if (end != -1)
+                {
+                    var boldText = text.Substring(i + 2, end - (i + 2));
+                    var bold = new Bold();
+                    bold.Inlines.Add(new Run { Text = boldText });
+                    inlines.Add(bold);
+                    i = end + 2;
+                    continue;
+                }
+            }
+            
+            if (text[i] == '*')
+            {
+                int end = text.IndexOf('*', i + 1);
+                if (end != -1)
+                {
+                    var italicText = text.Substring(i + 1, end - (i + 1));
+                    var italic = new Italic();
+                    italic.Inlines.Add(new Run { Text = italicText });
+                    inlines.Add(italic);
+                    i = end + 1;
+                    continue;
+                }
+            }
+
+            // Append regular character/word
+            int nextSpecial = text.IndexOf('*', i);
+            if (nextSpecial == -1)
+            {
+                inlines.Add(new Run { Text = text.Substring(i) });
+                break;
+            }
+            else
+            {
+                inlines.Add(new Run { Text = text.Substring(i, nextSpecial - i) });
+                i = nextSpecial;
+            }
+        }
     }
 }

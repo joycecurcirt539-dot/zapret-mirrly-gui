@@ -221,12 +221,12 @@
 
             <Border
                 x:Name="UpdateCard"
-                Width="480"
-                MaxHeight="550"
+                Width="660"
+                MaxHeight="640"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Style="{StaticResource GlassCardStyle}"
-                Padding="24"
+                Padding="28"
                 RenderTransformOrigin="0.5,0.5">
                 <Border.RenderTransform>
                     <ScaleTransform x:Name="UpdateCardScale" ScaleX="0.9" ScaleY="0.9" />
@@ -255,9 +255,9 @@
                     </StackPanel>
 
                     <!-- Changelog Content -->
-                    <Border Grid.Row="2" Background="#0C0B0A" BorderBrush="#252422" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="250">
-                            <TextBlock x:Name="UpdateChangelogText" Text="Описание изменений..." FontSize="13" TextWrapping="Wrap" Opacity="0.9" LineHeight="18" />
+                    <Border Grid.Row="2" Background="#0C0B0A" BorderBrush="#252422" BorderThickness="1" CornerRadius="8" Padding="16">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="360">
+                            <RichTextBlock x:Name="UpdateChangelogText" FontSize="13.5" TextWrapping="Wrap" Opacity="0.9" LineHeight="20" SelectionHighlightColor="Transparent" />
                         </ScrollViewer>
                     </Border>
 
