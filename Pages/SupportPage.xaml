@@ -188,10 +188,6 @@
                                     Content="zapret-discord-youtube"
                                     NavigateUri="https://github.com/Flowseal/zapret-discord-youtube"
                                     Padding="0" />
-                                <HyperlinkButton
-                                    Content="t.me/FlowsealObhod"
-                                    NavigateUri="https://t.me/FlowsealObhod"
-                                    Padding="0" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -249,10 +245,6 @@
                                 <HyperlinkButton
                                     Content="github.com/Flowseal/tg-ws-proxy"
                                     NavigateUri="https://github.com/Flowseal/tg-ws-proxy"
-                                    Padding="0" />
-                                <HyperlinkButton
-                                    Content="t.me/FlowsealObhod"
-                                    NavigateUri="https://t.me/FlowsealObhod"
                                     Padding="0" />
                             </StackPanel>
                         </StackPanel>
