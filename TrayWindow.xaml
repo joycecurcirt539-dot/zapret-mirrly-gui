@@ -84,15 +84,19 @@
                             <StackPanel Grid.Column="1" Spacing="6" HorizontalAlignment="Center">
                                 <Button x:Name="TgPowerButton" Click="TgPowerButton_Click" Width="52" Height="52" CornerRadius="26" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False">
                                     <Button.Content>
-                                        <FontIcon x:Name="TgPowerIcon" Glyph="&#xE122;" FontSize="18" />
+                                        <FontIcon x:Name="TgPowerIcon" Glyph="&#xE122;" FontSize="18">
+                                            <FontIcon.RenderTransform>
+                                                <RotateTransform Angle="-45" CenterX="9" CenterY="9" />
+                                            </FontIcon.RenderTransform>
+                                        </FontIcon>
                                     </Button.Content>
                                 </Button>
                                 <TextBlock Text="Telegram" FontSize="9" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Grid>
 
-                        <Button x:Name="ToggleAllButton" Click="ToggleAllButton_Click" HorizontalAlignment="Center" Margin="0,4,0,0" Height="22" Padding="12,0" CornerRadius="4" BorderThickness="0" Background="#15FFFFFF">
-                            <TextBlock x:Name="ToggleAllTextBlock" Text="Запустить всё" FontSize="9" FontWeight="SemiBold" Foreground="#A79A83" VerticalAlignment="Center" />
+                        <Button x:Name="ToggleAllButton" Click="ToggleAllButton_Click" HorizontalAlignment="Center" Margin="0,6,0,0" Padding="14,4,14,4" CornerRadius="6" BorderThickness="0" Background="#15FFFFFF">
+                            <TextBlock x:Name="ToggleAllTextBlock" Text="Запустить всё" FontSize="9" FontWeight="SemiBold" Foreground="#A79A83" VerticalAlignment="Center" HorizontalAlignment="Center" />
                         </Button>
                     </StackPanel>
 
@@ -135,7 +139,11 @@
                     </Button>
                     <Button x:Name="MenuConnectTelegramButton" Click="ConnectTelegramButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE122;" FontSize="11" Foreground="#A79A83" />
+                            <FontIcon Glyph="&#xE122;" FontSize="11" Foreground="#A79A83">
+                                <FontIcon.RenderTransform>
+                                    <RotateTransform Angle="-45" CenterX="5.5" CenterY="5.5" />
+                                </FontIcon.RenderTransform>
+                            </FontIcon>
                             <TextBlock Text="Подключить Telegram" FontSize="11" Foreground="#FFFFFF" />
                         </StackPanel>
                     </Button>

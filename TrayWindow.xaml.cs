@@ -143,7 +143,7 @@ namespace ZapretMirrlyGUI
  
             bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
             int windowWidth = isMenuMode ? 180 : 220;
-            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 194 : 166) : (updateVisible ? 256 : 220);
+            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 220 : 192) : (updateVisible ? 276 : 240);
 
             int posX, posY;
 
