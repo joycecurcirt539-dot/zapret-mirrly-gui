@@ -415,10 +415,11 @@ public sealed partial class SettingsPage : Page
         GuiUpdateStatusText.Text = result.StatusText;
         CheckGuiUpdatesBtn.IsEnabled = true;
 
-        if (result.UpdateAvailable)
+        var mainWindow = (App.Current as App)?.MainWindowInstance;
+        if (mainWindow != null)
         {
-            var mainWindow = (App.Current as App)?.MainWindowInstance;
-            if (mainWindow != null)
+            mainWindow.UpdateSidebarStatus(result);
+            if (result.UpdateAvailable)
             {
                 mainWindow.ShowUpdateModal(result);
             }

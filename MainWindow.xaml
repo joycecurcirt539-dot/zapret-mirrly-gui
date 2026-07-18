@@ -93,6 +93,28 @@
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>
+                <!-- Update Status Item -->
+                <NavigationViewItem
+                    x:Name="UpdateStatusItem"
+                    Content="Версия актуальна"
+                    Tag="update_status"
+                    SelectsOnInvoked="False">
+                    <NavigationViewItem.Icon>
+                        <FontIcon x:Name="UpdateStatusIcon" Glyph="&#xE930;" Foreground="#8A8A8F" />
+                    </NavigationViewItem.Icon>
+                    <ToolTipService.ToolTip>
+                        <ToolTip x:Name="UpdateStatusToolTip" Placement="Right">
+                            <StackPanel Spacing="6" Padding="6">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon x:Name="UpdateTooltipIcon" Glyph="&#xE930;" FontSize="14" Foreground="#00F5D4" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="UpdateTooltipTitle" Text="Приложение обновлено" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock x:Name="UpdateTooltipDesc" Text="У вас установлена последняя версия Zapret Mirrly GUI (v1.0.3)." FontSize="11" Opacity="0.8" TextWrapping="Wrap" MaxWidth="220"/>
+                            </StackPanel>
+                        </ToolTip>
+                    </ToolTipService.ToolTip>
+                </NavigationViewItem>
+
                 <!-- Support / About -->
                 <NavigationViewItem
                     x:Name="SupportItem"

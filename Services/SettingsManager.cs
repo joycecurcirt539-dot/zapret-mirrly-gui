@@ -26,6 +26,7 @@ public class AppSettings
     // GUI update settings
     public bool AutoCheckGuiUpdates { get; set; } = true;
     public string SkippedGuiVersion { get; set; } = "";
+    public DateTime SkippedGuiVersionTime { get; set; } = DateTime.MinValue;
 }
 
 public static class SettingsManager

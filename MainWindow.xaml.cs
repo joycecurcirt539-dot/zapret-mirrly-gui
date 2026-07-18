@@ -102,6 +102,12 @@ public sealed partial class MainWindow : Window
             UpdateNotificationOverlay.Visibility = Visibility.Collapsed;
         };
 
+        // Hook update sidebar item tap
+        UpdateStatusItem.Tapped += (s, e) =>
+        {
+            UpdateStatusItem_Tapped();
+        };
+
         // Check for updates asynchronously
         DispatcherQueue.TryEnqueue(async () =>
         {
@@ -505,15 +511,71 @@ public sealed partial class MainWindow : Window
 
     private async System.Threading.Tasks.Task CheckForGUIUpdatesOnStartupAsync()
     {
+        var result = await AppUpdateService.CheckForGuiUpdatesAsync();
+        
+        UpdateSidebarStatus(result);
+
         if (!SettingsManager.Instance.AutoCheckGuiUpdates)
             return;
 
-        var result = await AppUpdateService.CheckForGuiUpdatesAsync();
         if (result.UpdateAvailable)
         {
+            // Check if skipped version matches, and if less than 7 days have passed since skipped
             if (SettingsManager.Instance.SkippedGuiVersion == result.LatestVersion)
-                return;
+            {
+                var timePassed = DateTime.UtcNow - SettingsManager.Instance.SkippedGuiVersionTime;
+                if (timePassed.TotalDays < 7)
+                {
+                    // Within 7 days window, skip showing the popup on startup
+                    return;
+                }
+            }
 
+            ShowUpdateModal(result);
+        }
+    }
+
+    public void UpdateSidebarStatus(GuiUpdateResult result)
+    {
+        if (result == null) return;
+
+        if (result.UpdateAvailable)
+        {
+            // Update icon and colors
+            UpdateStatusIcon.Glyph = "\uE896"; // Update arrow glyph
+            UpdateStatusIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 159, 28)); // Gold/orange
+
+            UpdateStatusItem.Content = "Доступно обновление";
+            // UpdateInfoBadge.Visibility = Visibility.Visible;
+
+            // ToolTip updates
+            UpdateTooltipIcon.Glyph = "\uE896";
+            UpdateTooltipIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 159, 28));
+            UpdateTooltipTitle.Text = "Доступна новая версия!";
+            UpdateTooltipDesc.Text = $"Версия {result.LatestVersion} ({(result.IsPrerelease ? "Эксперимент" : "Релиз")}) готова к установке. Нажмите на этот пункт меню, чтобы просмотреть подробности.";
+        }
+        else
+        {
+            // No updates
+            UpdateStatusIcon.Glyph = "\uE930"; // Checkmark glyph
+            UpdateStatusIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 138, 138, 143)); // Gray
+
+            UpdateStatusItem.Content = "Версия актуальна";
+            // UpdateInfoBadge.Visibility = Visibility.Collapsed;
+
+            // ToolTip updates
+            UpdateTooltipIcon.Glyph = "\uE930";
+            UpdateTooltipIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 245, 212)); // Green/teal
+            UpdateTooltipTitle.Text = "Приложение обновлено";
+            UpdateTooltipDesc.Text = $"Установлена последняя версия Zapret Mirrly GUI (v{AppUpdateService.CurrentGuiVersion}).";
+        }
+    }
+
+    private void UpdateStatusItem_Tapped()
+    {
+        var result = AppUpdateService.LastCheckResult;
+        if (result != null && result.UpdateAvailable)
+        {
             ShowUpdateModal(result);
         }
     }
@@ -568,6 +630,7 @@ public sealed partial class MainWindow : Window
         if (!string.IsNullOrEmpty(_latestVersionTag))
         {
             SettingsManager.Instance.SkippedGuiVersion = _latestVersionTag;
+            SettingsManager.Instance.SkippedGuiVersionTime = DateTime.UtcNow;
             SettingsManager.Save();
         }
         HideUpdateModal();

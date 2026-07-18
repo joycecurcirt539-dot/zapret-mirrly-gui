@@ -40,6 +40,8 @@ public static class AppUpdateService
     public const string CurrentGuiVersion = "1.0.3";
     private const string ReleasesUrl = "https://api.github.com/repos/joycecurcirt539-dot/zapret-mirrly-gui/releases";
 
+    public static GuiUpdateResult? LastCheckResult { get; set; }
+
     public static async Task<GuiUpdateResult> CheckForGuiUpdatesAsync()
     {
         var result = new GuiUpdateResult
@@ -58,6 +60,7 @@ public static class AppUpdateService
             if (!response.IsSuccessStatusCode)
             {
                 result.StatusText = $"Ошибка подключения к серверу обновлений (HTTP {(int)response.StatusCode})";
+                LastCheckResult = result;
                 return result;
             }
 
@@ -67,6 +70,7 @@ public static class AppUpdateService
             if (releases == null || releases.Length == 0)
             {
                 result.StatusText = "На сервере обновлений не найдено выпусков.";
+                LastCheckResult = result;
                 return result;
             }
 
@@ -94,6 +98,7 @@ public static class AppUpdateService
             result.StatusText = $"Не удалось проверить обновления: {ex.Message}";
         }
 
+        LastCheckResult = result;
         return result;
     }
 
