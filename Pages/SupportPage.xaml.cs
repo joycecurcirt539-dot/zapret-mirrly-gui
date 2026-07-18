@@ -2,6 +2,7 @@ using System.IO;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using ZapretMirrlyGUI.Services;
 
 namespace ZapretMirrlyGUI.Pages;
@@ -11,7 +12,7 @@ public sealed partial class SupportPage : Page
     public SupportPage()
     {
         InitializeComponent();
-        
+
         var assetsPath = AssetsExtractor.GetAssetsPath();
         var qrPath = Path.Combine(assetsPath, "dalink-qr-code.png");
         if (!File.Exists(qrPath))
@@ -22,6 +23,14 @@ public sealed partial class SupportPage : Page
         {
             QrCodeImage.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(qrPath));
         }
+    }
+
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Start all three QR animations
+        QrSpinStoryboard.Begin();
+        QrGlowStoryboard.Begin();
+        ScanPulseStoryboard.Begin();
     }
 
     private void DonateButton_Click(object sender, RoutedEventArgs e)

@@ -194,7 +194,7 @@ public sealed partial class MainWindow : Window
         NavigateTo(tag);
     }
 
-    private void NavigateTo(string tag)
+    private void NavigateTo(string tag, object? parameter = null)
     {
         if (string.Equals(tag, "paneToggle", StringComparison.OrdinalIgnoreCase))
         {
@@ -216,7 +216,14 @@ public sealed partial class MainWindow : Window
 
         if (RootFrame.CurrentSourcePageType != targetPage)
         {
-            RootFrame.Navigate(targetPage);
+            RootFrame.Navigate(targetPage, parameter);
+        }
+        else if (parameter != null && RootFrame.Content is Page page)
+        {
+            if (page is DiagnosticsPage diagPage && parameter.ToString() == "start")
+            {
+                diagPage.TriggerAutoStart();
+            }
         }
     }
 
@@ -488,9 +495,9 @@ public sealed partial class MainWindow : Window
         RestoreWindow();
     }
 
-    public void NavigateToPublic(string tag)
+    public void NavigateToPublic(string tag, object? parameter = null)
     {
-        NavigateTo(tag);
+        NavigateTo(tag, parameter);
     }
 
     public void ExitAppPublic()

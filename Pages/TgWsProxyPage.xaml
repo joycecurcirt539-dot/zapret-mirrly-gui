@@ -178,7 +178,7 @@
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="Разработчики:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
-                            <TextBlock Text="Flowseal (tg-ws-proxy) &amp; Antigravity" FontSize="11" Opacity="0.9" />
+                            <TextBlock Text="Flowseal (tg-ws-proxy)" FontSize="11" Opacity="0.9" />
                         </StackPanel>
 
                         <TextBlock Text="Как это работает сейчас:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />

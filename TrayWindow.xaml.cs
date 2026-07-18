@@ -161,8 +161,8 @@ namespace ZapretMirrlyGUI
             int screenHeight = displayArea.WorkArea.Height;
  
             bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
-            int windowWidth = isMenuMode ? 180 : 220;
-            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 232 : 204) : (updateVisible ? 302 : 266);
+            int windowWidth = isMenuMode ? 210 : 220;
+            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 261 : 233) : (updateVisible ? 302 : 266);
  
             var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             uint dpi = GetDpiForWindow(hWnd);
@@ -409,6 +409,13 @@ namespace ZapretMirrlyGUI
                 });
             }
             catch { }
+            AppWindow.Hide();
+        }
+
+        private void MenuDiagnosticsButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mainWindow.RestoreWindowPublic();
+            _mainWindow.NavigateToPublic("diagnostics", "start");
             AppWindow.Hide();
         }
     }

@@ -140,6 +140,23 @@ public sealed partial class DiagnosticsPage : Page
         Unloaded += DiagnosticsPage_Unloaded;
     }
 
+    protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        if (e.Parameter is string param && param == "start")
+        {
+            TriggerAutoStart();
+        }
+    }
+
+    public void TriggerAutoStart()
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            PlayButton_Click(this, new RoutedEventArgs());
+        });
+    }
+
     private void DiagnosticsPage_Loaded(object sender, RoutedEventArgs e)
     {
         _allPresets.Clear();
