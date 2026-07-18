@@ -515,6 +515,9 @@ public sealed partial class MainWindow : Window
         
         UpdateSidebarStatus(result);
 
+        // Sync tray update indicator if tray window exists
+        _trayWindow?.UpdateTrayUpdateStatus();
+
         if (!SettingsManager.Instance.AutoCheckGuiUpdates)
             return;
 

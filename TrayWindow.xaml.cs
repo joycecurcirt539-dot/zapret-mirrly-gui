@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using ZapretMirrlyGUI.Services;
 
 namespace ZapretMirrlyGUI
@@ -66,6 +67,10 @@ namespace ZapretMirrlyGUI
             int cornerPreference = 3;
             DwmSetWindowAttribute(hWnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
 
+            // Set version text
+            TrayVersionText.Text = $"v{AppUpdateService.CurrentGuiVersion}";
+            MenuVersionText.Text = $"Zapret Mirrly GUI v{AppUpdateService.CurrentGuiVersion}";
+
             // Sync connection status
             UpdateUiState(ZapretService.IsRunning);
             ZapretService.OnStatusChanged += ZapretService_OnStatusChanged;
@@ -129,8 +134,10 @@ namespace ZapretMirrlyGUI
             int screenWidth = displayArea.WorkArea.Width;
             int screenHeight = displayArea.WorkArea.Height;
 
+            // Dynamically size the VPN panel — taller if update badge is visible
+            bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
             int windowWidth = isMenuMode ? 180 : 220;
-            int windowHeight = isMenuMode ? 102 : 246;
+            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 140 : 118) : (updateVisible ? 282 : 246);
 
             int posX, posY;
 
@@ -164,6 +171,7 @@ namespace ZapretMirrlyGUI
             SetForegroundWindow(hWnd);
 
             UpdateUiState(ZapretService.IsRunning);
+            UpdateTrayUpdateStatus();
         }
 
         private void UpdateUiState(bool isRunning)
@@ -189,6 +197,51 @@ namespace ZapretMirrlyGUI
 
             var activePreset = SettingsManager.Instance.LastSelectedPreset;
             ActivePresetNameText.Text = string.IsNullOrEmpty(activePreset) ? "general.bat" : activePreset;
+        }
+
+        public void UpdateTrayUpdateStatus()
+        {
+            var result = AppUpdateService.LastCheckResult;
+            bool hasUpdate = result != null && result.UpdateAvailable;
+
+            if (hasUpdate)
+            {
+                UpdateBadgeText.Text = $"Обновление {result!.LatestVersion}";
+                UpdateBadgeBorder.Visibility = Visibility.Visible;
+                UpdatePulseStoryboard.Begin();
+
+                MenuUpdateButton.Visibility = Visibility.Visible;
+                MenuUpdateText.Text = $"Обновить до {result.LatestVersion}";
+            }
+            else
+            {
+                UpdateBadgeBorder.Visibility = Visibility.Collapsed;
+                UpdatePulseStoryboard.Stop();
+
+                MenuUpdateButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void UpdateBadgeButton_Click(object sender, RoutedEventArgs e)
+        {
+            AppWindow.Hide();
+            _mainWindow.RestoreWindowPublic();
+            var result = AppUpdateService.LastCheckResult;
+            if (result != null && result.UpdateAvailable)
+            {
+                _mainWindow.ShowUpdateModal(result);
+            }
+        }
+
+        private void MenuUpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            AppWindow.Hide();
+            _mainWindow.RestoreWindowPublic();
+            var result = AppUpdateService.LastCheckResult;
+            if (result != null && result.UpdateAvailable)
+            {
+                _mainWindow.ShowUpdateModal(result);
+            }
         }
 
         private void PowerButton_Click(object sender, RoutedEventArgs e)

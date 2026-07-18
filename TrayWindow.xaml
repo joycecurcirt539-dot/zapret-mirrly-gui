@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="ZapretMirrlyGUI.TrayWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -13,11 +13,22 @@
     <Grid Background="Transparent" IsTabStop="False">
         <!-- Main container with high transparency to let the Mica glass backdrop shine through -->
         <Border x:Name="WindowBorder" CornerRadius="12" BorderThickness="0" Background="#E6101011" IsTabStop="False">
+            <Border.Resources>
+                <!-- Pulsing animation for update badge -->
+                <Storyboard x:Name="UpdatePulseStoryboard" RepeatBehavior="Forever" AutoReverse="True">
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateBadgeBorder"
+                        Storyboard.TargetProperty="Opacity"
+                        From="0.7" To="1.0"
+                        Duration="0:0:1.1" />
+                </Storyboard>
+            </Border.Resources>
             <Grid IsTabStop="False">
                 <!-- 1. VPN Widget Panel (Shown on Left-Click) -->
                 <Grid x:Name="VpnPanel" Padding="14" IsTabStop="False">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" /> <!-- Header -->
+                        <RowDefinition Height="Auto" /> <!-- Update badge -->
                         <RowDefinition Height="*" />    <!-- Power Toggle -->
                         <RowDefinition Height="Auto" /> <!-- Preset Info -->
                         <RowDefinition Height="Auto" /> <!-- Footer Actions -->
@@ -26,10 +37,38 @@
                     <!-- Header -->
                     <Grid Grid.Row="0" Margin="0,0,0,10" IsTabStop="False">
                         <TextBlock Text="Mirrly Zapret" FontWeight="Bold" FontSize="11" Foreground="#A79A83" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TrayVersionText" Text="v1.0.3" FontSize="10" Foreground="#4A4A4F" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     </Grid>
 
+                    <!-- Update badge (hidden until update is available) -->
+                    <Border x:Name="UpdateBadgeBorder"
+                            Grid.Row="1"
+                            Background="#1FFF9F1C"
+                            BorderBrush="#40FF9F1C"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="8,5"
+                            Margin="0,0,0,10"
+                            Visibility="Collapsed"
+                            IsTabStop="False">
+                        <Button x:Name="UpdateBadgeButton"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="0"
+                                UseSystemFocusVisuals="False"
+                                IsTabStop="False"
+                                Click="UpdateBadgeButton_Click"
+                                HorizontalAlignment="Stretch">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <FontIcon Grid.Column="0" Glyph="&#xE896;" FontSize="10" Foreground="#FF9F1C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock x:Name="UpdateBadgeText" Grid.Column="1" Text="Доступно обновление" FontSize="10" FontWeight="SemiBold" Foreground="#FF9F1C" VerticalAlignment="Center"/>
+                                <FontIcon Grid.Column="2" Glyph="&#xE76C;" FontSize="9" Foreground="#80FF9F1C" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                            </Grid>
+                        </Button>
+                    </Border>
+
                     <!-- Power Button & Status -->
-                    <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10" IsTabStop="False">
+                    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10" IsTabStop="False">
                         <Button x:Name="PowerButton" Click="PowerButton_Click" Width="68" Height="68" CornerRadius="34" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False">
                             <Button.Content>
                                 <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;" FontSize="22" />
@@ -43,7 +82,7 @@
                     </StackPanel>
 
                     <!-- Active Preset Info Card -->
-                    <Border Grid.Row="2" Background="#1C1C1D" CornerRadius="6" Padding="8,5" Margin="0,8,0,8" BorderThickness="1" BorderBrush="#252526" IsTabStop="False">
+                    <Border Grid.Row="3" Background="#1C1C1D" CornerRadius="6" Padding="8,5" Margin="0,8,0,8" BorderThickness="1" BorderBrush="#252526" IsTabStop="False">
                         <Grid ColumnDefinitions="*,Auto" IsTabStop="False">
                             <StackPanel Grid.Column="0" Spacing="1" IsTabStop="False">
                                 <TextBlock Text="АКТИВНЫЙ ПРЕСЕТ" FontSize="7" FontWeight="Bold" Foreground="#8E8E93" />
@@ -54,7 +93,7 @@
                     </Border>
 
                     <!-- Footer Buttons -->
-                    <Grid Grid.Row="3" ColumnDefinitions="*,*" IsTabStop="False">
+                    <Grid Grid.Row="4" ColumnDefinitions="*,*" IsTabStop="False">
                         <Button Grid.Column="0" Click="OpenFullAppButton_Click" HorizontalAlignment="Stretch" Margin="0,0,4,0" Height="26" Padding="0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                             <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
                                 <FontIcon Glyph="&#xE7F4;" FontSize="9" />
@@ -84,9 +123,33 @@
                             <TextBlock x:Name="MenuPowerText" Text="Включить обход" FontSize="11" Foreground="#FFFFFF" />
                         </StackPanel>
                     </Button>
-                    
+
+                    <!-- Update menu item (hidden until update is available) -->
+                    <Button x:Name="MenuUpdateButton"
+                            Click="MenuUpdateButton_Click"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Height="28"
+                            Padding="12,0"
+                            CornerRadius="4"
+                            UseSystemFocusVisuals="False"
+                            IsTabStop="False"
+                            Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE896;" FontSize="11" Foreground="#FF9F1C" />
+                            <TextBlock x:Name="MenuUpdateText" Text="Обновить" FontSize="11" Foreground="#FF9F1C" />
+                        </StackPanel>
+                    </Button>
+
                     <Border Height="1" Background="#18FFFFFF" Margin="6,2" IsTabStop="False" />
-                    
+
+                    <!-- Version label in menu -->
+                    <Border Padding="12,2" IsTabStop="False">
+                        <TextBlock x:Name="MenuVersionText" Text="Zapret Mirrly GUI v1.0.3" FontSize="9" Foreground="#3CFFFFFF" />
+                    </Border>
+
                     <Button Click="ExitAppButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE10A;" FontSize="11" Foreground="#FF453A" />
