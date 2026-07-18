@@ -154,29 +154,6 @@
                                     Style="{StaticResource MirrlyTextSmallStyle}"
                                     Opacity="0.75"
                                     TextWrapping="WrapWholeWords" />
-
-                                <!-- Suspended notice -->
-                                <Border
-                                    Background="#1AFF8C00"
-                                    BorderBrush="#40FF8C00"
-                                    BorderThickness="1"
-                                    CornerRadius="8"
-                                    Padding="12,8"
-                                    Margin="0,4,0,0">
-                                    <StackPanel Orientation="Horizontal" Spacing="10">
-                                        <FontIcon
-                                            Glyph="&#xE7BA;"
-                                            FontSize="14"
-                                            Foreground="#FF8C00"
-                                            VerticalAlignment="Center" />
-                                        <TextBlock
-                                            Text="Аккаунт Flowseal на GitHub временно заморожен с 10 июля 2026 — сработали автоматические системы безопасности GitHub. Сам разработчик подтвердил: это временная приостановка, апелляция подана. Репозиторий вернётся. Не скачивай зеркала из непроверенных источников."
-                                            Style="{StaticResource MirrlyTextSmallStyle}"
-                                            Foreground="#FF8C00"
-                                            TextWrapping="WrapWholeWords"
-                                            VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </Border>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Spacing="14">
