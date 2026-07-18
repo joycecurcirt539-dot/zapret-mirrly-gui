@@ -31,6 +31,18 @@ namespace ZapretMirrlyGUI
 
         [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+ 
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct MARGINS
+        {
+            public int left;
+            public int right;
+            public int top;
+            public int bottom;
+        }
+
+        [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+        private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
 
         private const int SW_RESTORE = 9;
         private const int DWMWA_BORDER_COLOR = 34;
@@ -46,6 +58,10 @@ namespace ZapretMirrlyGUI
             var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
             var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+ 
+            // Extend frame into client area for transparency (removes black background corners under rounded edges)
+            MARGINS margins = new MARGINS { left = -1, right = -1, top = -1, bottom = -1 };
+            DwmExtendFrameIntoClientArea(hWnd, ref margins);
 
             // Configure titlebar transparency
             appWindow.TitleBar.ButtonBackgroundColor = Microsoft.UI.Colors.Transparent;
@@ -147,7 +163,7 @@ namespace ZapretMirrlyGUI
  
             bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
             int windowWidth = isMenuMode ? 180 : 220;
-            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 226 : 198) : (updateVisible ? 282 : 246);
+            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 232 : 204) : (updateVisible ? 316 : 280);
  
             var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             uint dpi = GetDpiForWindow(hWnd);
