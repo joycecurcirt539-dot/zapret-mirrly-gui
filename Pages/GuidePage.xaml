@@ -128,7 +128,7 @@
                         <TextBlock Text="Ссылки на доверенные проекты:" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Foreground="#A79A83" />
                         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
                             <!-- Row 0 -->
-                            <Button Grid.Row="0" Grid.Column="0" Click="OpenOriginalZapretGithub_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="40" HorizontalAlignment="Stretch">
+                            <Button Grid.Row="0" Grid.Column="0" Click="OpenOriginalZapretGithub_Click" Height="40" HorizontalAlignment="Stretch">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon Glyph="&#xEE40;" FontSize="14" />
                                     <TextBlock Text="GitHub bol-van (zapret)" />
