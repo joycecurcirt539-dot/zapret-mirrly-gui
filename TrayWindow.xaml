@@ -12,7 +12,7 @@
 
     <Grid Background="Transparent" IsTabStop="False">
         <!-- Main container with high transparency to let the Mica glass backdrop shine through -->
-        <Border x:Name="WindowBorder" CornerRadius="12" BorderThickness="0" Background="#E6101011" IsTabStop="False">
+        <Border x:Name="WindowBorder" Margin="1" CornerRadius="12" BorderThickness="0" Background="#E6101011" IsTabStop="False">
             <Border.Resources>
                 <!-- Pulsing animation for update badge -->
                 <Storyboard x:Name="UpdatePulseStoryboard" RepeatBehavior="Forever" AutoReverse="True">

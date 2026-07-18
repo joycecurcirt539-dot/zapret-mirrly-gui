@@ -36,6 +36,7 @@ namespace ZapretMirrlyGUI
         public TrayWindow(MainWindow mainWindow)
         {
             InitializeComponent();
+            ExtendsContentIntoTitleBar = true;
             _mainWindow = mainWindow;
 
             // Get HWND and AppWindow
@@ -143,7 +144,7 @@ namespace ZapretMirrlyGUI
  
             bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
             int windowWidth = isMenuMode ? 180 : 220;
-            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 220 : 192) : (updateVisible ? 276 : 240);
+            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 226 : 198) : (updateVisible ? 282 : 246);
 
             int posX, posY;
 
