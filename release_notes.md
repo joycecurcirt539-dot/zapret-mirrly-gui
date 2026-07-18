@@ -72,3 +72,4 @@
 ### Легенды, без которых это невозможно
 - **[Flowseal](https://github.com/Flowseal)** — создатель `zapret-discord-youtube` и `tg-ws-proxy`
 - **[bol-van](https://github.com/bol-van)** — создатель оригинального движка `zapret` и `winws`
+- **[basil00 (WinDivert)](https://github.com/basil00/Divert)** — создатель драйвера перехвата сетевых пакетов в Windows
