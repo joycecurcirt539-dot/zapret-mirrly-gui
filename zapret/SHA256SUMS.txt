@@ -1,0 +1,43 @@
+3e0a7026cccc02e6ca968dcd3efe4db94181cea190cecf4ac3e7e60d39d4dbb1  ./general (ALT5).bat
+c6dff44ea3c7159788077e31a8e35929eab1c0270fb86f5490d44b1fd049a6fc  ./general (ALT).bat
+94a8ef4dc67c5e04100c404604883cee6a7d8ad5d324395ecd71dc8ccb805d80  ./general (ALT2).bat
+86fa594a19f25e5b911be7b88ab55549ef91e7eb9bb49b79c173be05ee8f365d  ./README.md
+3d8bfbf6758e41c12d3e4975c451e20a92a0cf3a429e3c283d686b92172b2732  ./general (SIMPLE FAKE).bat
+c823a2779ca11474ada5ece9c37cc825f71c54fbc1525d9b0cf3dbc7879abb09  ./utils/check_updates.enabled
+4c953196e2649478c267450fc80cef121ef96bc50656ef75336b9589c0808cea  ./utils/targets.txt
+f31ced248fee999c780d1361d2a244ff2a63c7feb57f5678176367ef5d2b0e15  ./utils/test zapret.ps1
+feee3e7ecdbf3a5a46109b6018144954d793143ad4c889f3273f8ec1e8ac067d  ./general (ALT4).bat
+8612e0b0d5eb757448c4d2ef255abc00ff30f2b7e9087e0c936f7ba479af07e5  ./general (ALT8).bat
+1e9a3d1fe257f10c9355dbef5a45cca9765b57e2ce1f549225c68c86ff1c8d8b  ./general (FAKE TLS AUTO ALT2).bat
+8ef1e5f6ae38a7a288ba1516293eda9183d7f265210897399f911d8a1e7e62fe  ./general (ALT6).bat
+c4f7f5708de5323b55ea85e2ef140c43426352875593eae1c0b94bfc769a4477  ./general.bat
+8ea76af265366af6ef96595705ad21cafab82f2786203ae70d29a970260434dc  ./LICENSE.txt
+b9f847180ef1da5908870221acf03a469fc0dca87dadf7404350893d24ca02f2  ./general (SIMPLE FAKE ALT).bat
+8df459fc47b6becbfd4cc54263ab99ee275a62c8a8097fb4abea236e29e7cc85  ./general (ALT11).bat
+0a3744d9a42dd439b3576fa1d031d3d2ef6f93564bdb575a6afb0c8a3a056ac2  ./general (FAKE TLS AUTO ALT).bat
+3f28b3788373c4963ba7b4e38112ae965fef2c99a812f023e9d2c736e99cb9c7  ./general (ALT12).bat
+7a8b4d861c4448ee3fb4aef61d79bcdbfc3ea0ab043145f643539fbd177c8864  ./general (ALT10).bat
+fa227e6c9527b093d8099018b059c798f89e2984140fd903613e598a71b76276  ./general (FAKE TLS AUTO).bat
+7679e6f52ce95ed5c554de668286a40f2ac9b845cc69a3619a313f10e43cef46  ./general (FAKE TLS AUTO ALT3).bat
+99c06ea66bdade72d43febbf4e5bd6208351ebd471fa99a39a92253e21526c05  ./general (ALT3).bat
+26b4dd29e5020066660230cf5ea61693dd85b69d15fc11ac967f3adf54fb352f  ./general (ALT7).bat
+c1e060ee19444a259b2162f8af0f3fe8c4428a1c6f694dce20de194ac8d7d9a2  ./bin/WinDivert.dll
+9cd5469309780ca56c0bd97266524a48c7ee529d02c3179cfecb20b260a59641  ./bin/stun.bin
+8da085332782708d8767bcace5327a6ec7283c17cfb85e40b03cd2323a90ddc2  ./bin/WinDivert64.sys
+eefeaf09dde8d69b1f176212541f63c68b314a33a335eced99a8a29f17254da8  ./bin/tls_clienthello_4pda_to.bin
+f4589c57749f956bb30538197a521d7005f8b0a8723b4707e72405e51ddac50a  ./bin/quic_initial_www_google_com.bin
+936c2bee4cfb80aa3c426b2dcbcc834b3fbcd1adb17172959dc569c73a14275c  ./bin/tls_clienthello_www_google_com.bin
+103104a52e5293ce418944725df19e2bf81ad9269b9a120d71d39028e821499b  ./bin/cygwin1.dll
+e065870cb0d13152e6132807bbf42218a9e7cd8d96f5602b61674cc540f3a56e  ./bin/quic_initial_dbankcloud_ru.bin
+affb4f69d2ea302a7abccd5325d81826e140ddae014f1e070bc4a6c0dd555188  ./bin/winws.exe
+4ee0870abe0a0128600b0095189987ba1d210dae8bf963bc725aff49cf922624  ./bin/tls_clienthello_max_ru.bin
+7bd09ec68c6b2f5a148a6b8aae533fa5d980e6ef3cf36a7d3114c538a721c3b1  ./SHA256SUMS.txt
+4b8f50bd2b5cd71c0a883461d4a526a2cd9494a87847907807d06c233166c2c9  ./general (ALT9).bat
+7ad976ec3968a3dce1e0b54b81e77ec1f925a78eb31930deeaa8359b23201f1a  ./general (SIMPLE FAKE ALT2).bat
+d440a916701209b25bb54fa80bae928f7df535ef68ee1f850db8f53e13ba4f41  ./service.bat
+9bcd915e90635562ad7332eab9b7e6ecce420ee344762423037ac6eff01d9dab  ./lists/list-general.txt
+1fb91430a8594b2632d41a87b5bf071ce851ffb5b4d470b965d1db2b60d3ee94  ./lists/ipset-all.txt.backup
+96c03954012765ce4ab03b9c30f29ab1ca1b698c6752224d03828e6d182eb0fc  ./lists/ipset-exclude.txt
+cef044825cfc9e0f073cd040587e0bb2184d1cbb7a013ef6532da2cc34028de8  ./lists/list-exclude.txt
+1e59f9d487f7bce12091c838151713d0a8d31c3aae20afefebb38206f2cd8232  ./lists/list-google.txt
+19123a22bf1108815c07bda3cda8df282b30bd63e4939949928969c0fd195873  ./lists/ipset-all.txt

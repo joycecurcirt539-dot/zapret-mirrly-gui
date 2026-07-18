@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest">
-    <img src="https://img.shields.io/badge/⬇%EF%B8%8F_%D0%A1качать_v1.0.1-ZapretMirrlyGUI.exe-6e40c9?style=for-the-badge&logo=github" alt="Скачать последнюю версию" />
+    <img src="https://img.shields.io/badge/⬇%EF%B8%8F_%D0%A1качать_v1.0.3-ZapretMirrlyGUI.exe-6e40c9?style=for-the-badge&logo=github" alt="Скачать последнюю версию" />
   </a>
 </p>
 

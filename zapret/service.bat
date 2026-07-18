@@ -1,5 +1,5 @@
 @echo off
-set "LOCAL_VERSION=1.9.9a"
+set "LOCAL_VERSION=1.9.9d"
 
 :: External commands
 if "%~1"=="status_zapret" (
@@ -53,8 +53,11 @@ if "%1"=="admin" (
 
 :: MENU ================================
 setlocal EnableDelayedExpansion
+title ZAPRET SERVICE MANAGER v!LOCAL_VERSION!
 :menu
+
 cls
+
 call :ipset_switch_status
 call :game_switch_status
 call :check_updates_switch_status
@@ -115,7 +118,8 @@ if not exist "%LISTS_PATH%ipset-exclude-user.txt" (
     echo 203.0.113.113/32>"%LISTS_PATH%ipset-exclude-user.txt"
 )
 if not exist "%LISTS_PATH%list-general-user.txt" (
-    echo domain.example.abc>"%LISTS_PATH%list-general-user.txt"
+    echo # Never leave this file empty>"%LISTS_PATH%list-general-user.txt"
+    echo domain.example.abc>>"%LISTS_PATH%list-general-user.txt"
 )
 if not exist "%LISTS_PATH%list-exclude-user.txt" (
     echo domain.example.abc>"%LISTS_PATH%list-exclude-user.txt"
@@ -234,16 +238,22 @@ echo Pick one of the options:
 set "count=0"
 for /f "delims=" %%F in ('powershell -NoProfile -Command "Get-ChildItem -LiteralPath '.' -Filter '*.bat' | Where-Object { $_.Name -notlike 'service*' } | Sort-Object { [Regex]::Replace($_.Name, '(\d+)', { $args[0].Value.PadLeft(8, '0') }) } | ForEach-Object { $_.Name }"') do (
     set /a count+=1
-    echo !count!. %%F
+    echo   !count!. %%F
     set "file!count!=%%F"
 )
 
+echo   0. Exit
+
+echo.
+
 :: Choosing file
 set "choice="
-set /p "choice=Input file index (number): "
+set /p "choice=Input option (0-!count!, default: 0): "
 if "!choice!"=="" (
-    echo The choice is empty, exiting...
-    pause
+    set "choice=0"
+)
+
+if "!choice!"=="0" (
     goto menu
 )
 
@@ -366,9 +376,9 @@ chcp 437 > nul
 cls
 
 :: Set current version and URLs
-set "GITHUB_VERSION_URL=https://raw.githubusercontent.com/joycecurcirt539-dot/zapret-mirrly-gui/main/.service/version.txt"
-set "GITHUB_RELEASE_URL=https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/tag/"
-set "GITHUB_DOWNLOAD_URL=https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest"
+set "GITHUB_VERSION_URL=https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/main/.service/version.txt"
+set "GITHUB_RELEASE_URL=https://github.com/Flowseal/zapret-discord-youtube/releases/tag/"
+set "GITHUB_DOWNLOAD_URL=https://github.com/Flowseal/zapret-discord-youtube/releases/latest"
 
 :: Get the latest version from GitHub
 for /f "delims=" %%A in ('powershell -NoProfile -Command "(Invoke-WebRequest -Uri \"%GITHUB_VERSION_URL%\" -Headers @{\"Cache-Control\"=\"no-cache\"} -UseBasicParsing -TimeoutSec 5).Content.Trim()" 2^>nul') do set "GITHUB_VERSION=%%A"
@@ -456,6 +466,7 @@ echo:
 tasklist /FI "IMAGENAME eq AdguardSvc.exe" | find /I "AdguardSvc.exe" > nul
 if !errorlevel!==0 (
     call :PrintRed "[X] Adguard process found. Adguard may cause problems with Discord"
+    call :PrintRed "https://github.com/Flowseal/zapret-discord-youtube/issues/417"
 ) else (
     call :PrintGreen "Adguard check passed"
 )
@@ -465,6 +476,7 @@ echo:
 sc query | findstr /I "Killer" > nul
 if !errorlevel!==0 (
     call :PrintRed "[X] Killer services found. Killer conflicts with zapret"
+    call :PrintRed "https://github.com/Flowseal/zapret-discord-youtube/issues/2512#issuecomment-2821119513"
 ) else (
     call :PrintGreen "Killer check passed"
 )
@@ -817,7 +829,7 @@ for /f %%i in ('type "%listFile%" 2^>nul ^| find /c /v ""') do set "lineCount=%%
 if !lineCount!==0 (
     set "IPsetStatus=any"
 ) else (
-    findstr /R "^203\.0\.113\.113/32$" "%listFile%" >nul
+    findstr /C:"203.0.113.113/32" "%listFile%" >nul
     if !errorlevel!==0 (
         set "IPsetStatus=none"
     ) else (
@@ -879,7 +891,7 @@ chcp 437 > nul
 cls
 
 set "listFile=%~dp0lists\ipset-all.txt"
-set "url=https://raw.githubusercontent.com/joycecurcirt539-dot/zapret-mirrly-gui/refs/heads/main/.service/ipset-service.txt"
+set "url=https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/refs/heads/main/.service/ipset-service.txt"
 
 echo Updating ipset-all...
 
@@ -912,7 +924,7 @@ chcp 437 > nul
 cls
 
 set "hostsFile=%SystemRoot%\System32\drivers\etc\hosts"
-set "hostsUrl=https://raw.githubusercontent.com/joycecurcirt539-dot/zapret-mirrly-gui/refs/heads/main/.service/hosts"
+set "hostsUrl=https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/refs/heads/main/.service/hosts"
 set "tempFile=%TEMP%\zapret_hosts.txt"
 set "needsUpdate=0"
 
@@ -1020,7 +1032,7 @@ exit /b
 where %1 >nul 2>&1
 if %errorLevel% neq 0 (
     echo [ERROR] %1 not found in PATH
-    echo Fix your PATH variable to include the directory containing %1
+    echo Fix your PATH variable with instructions here https://github.com/Flowseal/zapret-discord-youtube/issues/7490
     pause
     exit /b 1
 )

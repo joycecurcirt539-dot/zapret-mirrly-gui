@@ -1,4 +1,4 @@
-# GUI_COMPATIBLE_V2
+﻿# GUI_COMPATIBLE_V2
 $hasErrors = $false
 
 $rootDir = Split-Path $PSScriptRoot
@@ -113,7 +113,7 @@ function Build-DpiTargets {
     $targets = @()
 
     if ($CustomHost) {
-        $targets += @{ Id = "CUSTOM"; Provider = "Custom"; Country = "💡"; Host = $CustomHost }
+        $targets += @{ Id = "CUSTOM"; Provider = "Custom"; Country = "рџ’Ў"; Host = $CustomHost }
     } else {
         foreach ($entry in $suite) {
             $targets += @{ Id = $entry.Id; Country = $entry.Country; Provider = $entry.Provider; Host = $entry.Host }
@@ -366,9 +366,7 @@ if ($hasErrors) {
     Write-Host "Fix the errors above and rerun." -ForegroundColor Yellow
     if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
         Write-Host "Press any key to exit..." -ForegroundColor Yellow
-        try {
-            [void][System.Console]::ReadKey($true)
-        } catch {}
+        [void][System.Console]::ReadKey($true)
     }
     exit 1
 }
@@ -384,10 +382,6 @@ $globalResults = @()
 
 # Select top-level test type (standard vs DPI checkers)
 function Read-TestType {
-    if ($env:GUI_MODE -eq "1") {
-        if ($env:TEST_TYPE -eq 'dpi') { return 'dpi' }
-        return 'standard'
-    }
     while ($true) {
         Write-Host ""
         Write-Host "Select test type:" -ForegroundColor Cyan
@@ -404,10 +398,6 @@ function Read-TestType {
 
 # Select test mode: all configs or custom subset
 function Read-ModeSelection {
-    if ($env:GUI_MODE -eq "1") {
-        if ($env:RUN_MODE -eq 'select') { return 'select' }
-        return 'all'
-    }
     while ($true) {
         Write-Host ""
         Write-Host "Select test run mode:" -ForegroundColor Cyan
@@ -424,43 +414,6 @@ function Read-ModeSelection {
 
 function Read-ConfigSelection {
     param([array]$allFiles)
-
-    if ($env:GUI_MODE -eq "1") {
-        $selectionInput = $env:SELECTED_INDICES
-        if (-not $selectionInput) {
-            return $allFiles
-        }
-        $trimmed = $selectionInput.Trim()
-        if ($trimmed -eq '0') {
-            return $allFiles
-        }
-        $parts = $selectionInput -split '[,\s]+' | Where-Object { $_ -match '^\d+(-\d+)?$' }
-        if ($parts.Count -eq 0) {
-            return $allFiles
-        }
-        $selectedIndices = @()
-        foreach ($part in $parts) {
-            if ($part -match '^(\d+)-(\d+)$') {
-                $start = [int]$matches[1]
-                $end = [int]$matches[2]
-                $start = [Math]::Max($start, 1)
-                $end = [Math]::Min($end, $allFiles.Count)
-                for ($i = $start; $i -le $end; $i++) {
-                    $selectedIndices += $i
-                }
-            } else {
-                $num = [int]$part
-                if ($num -ge 1 -and $num -le $allFiles.Count) {
-                    $selectedIndices += $num
-                }
-            }
-        }
-        $valid = $selectedIndices | Sort-Object -Unique | Where-Object { $_ -ge 1 -and $_ -le $allFiles.Count }
-        if ($valid.Count -eq 0) {
-            return $allFiles
-        }
-        return $valid | ForEach-Object { $allFiles[$_ - 1] }
-    }
 
     while ($true) {
         Write-Host "" 
@@ -535,14 +488,13 @@ function Read-ConfigSelection {
 }
 
 while ($true) {
-    try {
-        $globalResults = @()
-        $testType = Read-TestType
-        $mode = Read-ModeSelection
-        if ($mode -eq 'select') {
-            $selected = Read-ConfigSelection -allFiles $batFiles
-            $batFiles = @($selected)
-        }
+    $globalResults = @()
+$testType = Read-TestType
+$mode = Read-ModeSelection
+if ($mode -eq 'select') {
+    $selected = Read-ConfigSelection -allFiles $batFiles
+    $batFiles = @($selected)
+}
 
 # Load targets once for standard mode
 $targetList = @()
@@ -596,9 +548,7 @@ if (-not $batFiles -or $batFiles.Count -eq 0) {
     Write-Host "[ERROR] No general*.bat files found" -ForegroundColor Red
     if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
         Write-Host "Press any key to exit..." -ForegroundColor Yellow
-        try {
-            [void][System.Console]::ReadKey($true)
-        } catch {}
+        [void][System.Console]::ReadKey($true)
     }
     exit 1
 }
@@ -846,36 +796,10 @@ try {
         }
 
         $globalResults += @{ Config = $file.Name; Type = 'standard'; Results = $targetResults }
-        $okCount = 0
-        $errCount = 0
-        $unsupCount = 0
-        foreach ($targetRes in $targetResults) {
-            if ($targetRes.IsUrl) {
-                foreach ($tok in $targetRes.HttpTokens) {
-                    if ($tok -match "OK") { $okCount++ }
-                    elseif ($tok -match "SSL" -or $tok -match "ERROR") { $errCount++ }
-                    elseif ($tok -match "UNSUP") { $unsupCount++ }
-                }
-            }
-        }
-        Write-Host "$($file.Name) : HTTP OK: $okCount, ERR: $errCount, UNSUP: $unsupCount" -ForegroundColor Yellow
     } else {
         Write-Host "  > Running DPI checkers..." -ForegroundColor DarkGray
         $dpiResults = Invoke-DpiSuite -Targets $dpiTargets -TimeoutSeconds $dpiTimeoutSeconds -RangeBytes $dpiRangeBytes -MaxParallel $dpiMaxParallel
         $globalResults += @{ Config = $file.Name; Type = 'dpi'; Results = $dpiResults }
-        $okCount = 0
-        $failCount = 0
-        $unsupCount = 0
-        $blockedCount = 0
-        foreach ($targetRes in $dpiResults) {
-            foreach ($line in $targetRes.Lines) {
-                if ($line.Status -eq "OK") { $okCount++ }
-                elseif ($line.Status -eq "FAIL") { $failCount++ }
-                elseif ($line.Status -eq "UNSUPPORTED") { $unsupCount++ }
-                elseif ($line.Status -eq "LIKELY_BLOCKED") { $blockedCount++ }
-            }
-        }
-        Write-Host "$($file.Name) : OK: $okCount, FAIL: $failCount, UNSUP: $unsupCount, BLOCKED: $blockedCount" -ForegroundColor Yellow
     }
     
     # Stop
@@ -919,13 +843,18 @@ try {
 
     Write-Host ""
     Write-Host "=== ANALYTICS ===" -ForegroundColor Cyan
+    $maxConfigLen = ($analytics.Keys | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
     foreach ($config in $analytics.Keys) {
         $a = $analytics[$config]
+        $configPadded = $config.PadRight($maxConfigLen)
         if ($a.ContainsKey('PingOK')) {
-            Write-Host "$config : HTTP OK: $($a.OK), ERR: $($a.ERROR), UNSUP: $($a.UNSUP), Ping OK: $($a.PingOK), Fail: $($a.PingFail)" -ForegroundColor Yellow
+            $line = "{0} : HTTP OK: {1,3}, ERR: {2,3}, UNSUP: {3,3}, Ping OK: {4,3}, Fail: {5,3}" -f `
+                $configPadded, $a.OK, $a.ERROR, $a.UNSUP, $a.PingOK, $a.PingFail
         } else {
-            Write-Host "$config : OK: $($a.OK), FAIL: $($a.FAIL), UNSUP: $($a.UNSUPPORTED), BLOCKED: $($a.LIKELY_BLOCKED)" -ForegroundColor Yellow
+            $line = "{0} : OK: {1,3}, FAIL: {2,3}, UNSUP: {3,3}, BLOCKED: {4,3}" -f `
+                $configPadded, $a.OK, $a.FAIL, $a.UNSUPPORTED, $a.LIKELY_BLOCKED
         }
+        Write-Host $line -ForegroundColor Yellow
     }
 
     # Determine best strategy
@@ -997,13 +926,18 @@ try {
 
     # Add analytics
     Add-Content $resultFile "=== ANALYTICS ==="
+    $maxConfigLen = ($analytics.Keys | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
     foreach ($config in $analytics.Keys) {
         $a = $analytics[$config]
+        $configPadded = $config.PadRight($maxConfigLen)
         if ($a.ContainsKey('PingOK')) {
-            Add-Content $resultFile "$config : HTTP OK: $($a.OK), ERR: $($a.ERROR), UNSUP: $($a.UNSUP), Ping OK: $($a.PingOK), Fail: $($a.PingFail)"
+            $line = "{0} : HTTP OK: {1,3}, ERR: {2,3}, UNSUP: {3,3}, Ping OK: {4,3}, Fail: {5,3}" -f `
+                $configPadded, $a.OK, $a.ERROR, $a.UNSUP, $a.PingOK, $a.PingFail
         } else {
-            Add-Content $resultFile "$config : OK: $($a.OK), FAIL: $($a.FAIL), UNSUP: $($a.UNSUPPORTED), BLOCKED: $($a.LIKELY_BLOCKED)"
+            $line = "{0} : OK: {1,3}, FAIL: {2,3}, UNSUP: {3,3}, BLOCKED: {4,3}" -f `
+                $configPadded, $a.OK, $a.FAIL, $a.UNSUPPORTED, $a.LIKELY_BLOCKED
         }
+        Add-Content $resultFile $line
     }
 
     Add-Content $resultFile "Best strategy: $bestConfig"
@@ -1025,21 +959,10 @@ try {
     }
     Remove-Item -Path $ipsetFlagFile -ErrorAction SilentlyContinue
 }
-    } catch {
-        $errorLogDir = Join-Path $PSScriptRoot "test results"
-        if (-not (Test-Path $errorLogDir)) { New-Item -ItemType Directory -Path $errorLogDir | Out-Null }
-        $errorLogFile = Join-Path $errorLogDir "error_log.txt"
-        $errorMsg = "[CRITICAL ERROR] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Exception: $($_.Exception.Message)`n$($_.ScriptStackTrace)"
-        $errorMsg | Out-File $errorLogFile -Append -Encoding UTF8
-        Write-Error $errorMsg
-        break
-    }
 
     if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
         Write-Host "Press any key to close..." -ForegroundColor Yellow
-        try {
-            [void][System.Console]::ReadKey($true)
-        } catch {}
+        [void][System.Console]::ReadKey($true)
     }
     exit
 }
