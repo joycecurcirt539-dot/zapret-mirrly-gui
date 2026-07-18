@@ -95,6 +95,18 @@ public sealed partial class MainWindow : Window
         // Set startup page
         RootNavigationView.SelectedItem = DashboardItem;
         NavigateTo("dashboard");
+
+        // Set up hide update storyboard completed event
+        HideUpdateOverlayStoryboard.Completed += (s, e) =>
+        {
+            UpdateNotificationOverlay.Visibility = Visibility.Collapsed;
+        };
+
+        // Check for updates asynchronously
+        DispatcherQueue.TryEnqueue(async () =>
+        {
+            await CheckForGUIUpdatesOnStartupAsync();
+        });
     }
 
     private IntPtr WindowSubclassCallback(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, uint uIdSubclass, IntPtr dwRefData)
@@ -483,5 +495,86 @@ public sealed partial class MainWindow : Window
             try { _trayWindow.Close(); } catch {}
         }
         System.Environment.Exit(0);
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────────
+    // GUI wrapper update checker and notification handlers
+    // ────────────────────────────────────────────────────────────────────────────────
+    private string _currentDownloadUrl = "";
+    private string _latestVersionTag = "";
+
+    private async System.Threading.Tasks.Task CheckForGUIUpdatesOnStartupAsync()
+    {
+        if (!SettingsManager.Instance.AutoCheckGuiUpdates)
+            return;
+
+        var result = await AppUpdateService.CheckForGuiUpdatesAsync();
+        if (result.UpdateAvailable)
+        {
+            if (SettingsManager.Instance.SkippedGuiVersion == result.LatestVersion)
+                return;
+
+            ShowUpdateModal(result);
+        }
+    }
+
+    public void ShowUpdateModal(GuiUpdateResult update)
+    {
+        _currentDownloadUrl = update.DownloadUrl;
+        _latestVersionTag = update.LatestVersion;
+
+        UpdateTagNameText.Text = $"Версия {update.LatestVersion}";
+        UpdateChangelogText.Text = update.Changelog;
+
+        if (update.IsPrerelease)
+        {
+            UpdateStableBadge.Visibility = Visibility.Collapsed;
+            UpdatePrereleaseBadge.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            UpdateStableBadge.Visibility = Visibility.Visible;
+            UpdatePrereleaseBadge.Visibility = Visibility.Collapsed;
+        }
+
+        UpdateNotificationOverlay.Visibility = Visibility.Visible;
+        ShowUpdateOverlayStoryboard.Begin();
+    }
+
+    private void HideUpdateModal()
+    {
+        HideUpdateOverlayStoryboard.Begin();
+    }
+
+    private void DownloadUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(_currentDownloadUrl))
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = _currentDownloadUrl,
+                    UseShellExecute = true
+                });
+            }
+            catch {}
+        }
+        HideUpdateModal();
+    }
+
+    private void SkipVersion_Click(object sender, RoutedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(_latestVersionTag))
+        {
+            SettingsManager.Instance.SkippedGuiVersion = _latestVersionTag;
+            SettingsManager.Save();
+        }
+        HideUpdateModal();
+    }
+
+    private void CloseUpdateOverlay_Click(object sender, RoutedEventArgs e)
+    {
+        HideUpdateModal();
     }
 }

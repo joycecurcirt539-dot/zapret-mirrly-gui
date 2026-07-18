@@ -16,6 +16,7 @@ public sealed partial class SettingsPage : Page
     private bool _originalRunAtStartup = false;
     private bool _originalMinimizeToTrayOnClose = false;
     private bool _originalMinimizeToTrayOnMinimize = false;
+    private bool _originalAutoCheckGuiUpdates = true;
 
     public SettingsPage()
     {
@@ -82,6 +83,10 @@ public sealed partial class SettingsPage : Page
 
         _originalMinimizeToTrayOnMinimize = SettingsManager.Instance.MinimizeToTrayOnMinimize;
         MinimizeToTrayOnMinimizeToggle.IsOn = _originalMinimizeToTrayOnMinimize;
+
+        // 7. GUI wrapper auto check updates settings
+        _originalAutoCheckGuiUpdates = SettingsManager.Instance.AutoCheckGuiUpdates;
+        AutoCheckGuiUpdatesToggle.IsOn = _originalAutoCheckGuiUpdates;
     }
 
     private string GetActivePresetFromRegistry()
@@ -344,6 +349,10 @@ public sealed partial class SettingsPage : Page
             SettingsManager.Instance.MinimizeToTrayOnMinimize = MinimizeToTrayOnMinimizeToggle.IsOn;
             _originalMinimizeToTrayOnMinimize = MinimizeToTrayOnMinimizeToggle.IsOn;
 
+            // 7. Save GUI wrapper auto check updates settings
+            SettingsManager.Instance.AutoCheckGuiUpdates = AutoCheckGuiUpdatesToggle.IsOn;
+            _originalAutoCheckGuiUpdates = AutoCheckGuiUpdatesToggle.IsOn;
+
             SettingsManager.Save();
 
             // Success Visual Feedback
@@ -394,6 +403,26 @@ public sealed partial class SettingsPage : Page
             DownloadLatestReleaseBtn.Visibility = Visibility.Collapsed;
         }
         CheckAppUpdatesBtn.IsEnabled = true;
+    }
+
+    private async void CheckGuiUpdatesBtn_Click(object sender, RoutedEventArgs e)
+    {
+        CheckGuiUpdatesBtn.IsEnabled = false;
+        GuiUpdateStatusText.Text = "Проверка обновлений...";
+
+        var result = await AppUpdateService.CheckForGuiUpdatesAsync();
+
+        GuiUpdateStatusText.Text = result.StatusText;
+        CheckGuiUpdatesBtn.IsEnabled = true;
+
+        if (result.UpdateAvailable)
+        {
+            var mainWindow = (App.Current as App)?.MainWindowInstance;
+            if (mainWindow != null)
+            {
+                mainWindow.ShowUpdateModal(result);
+            }
+        }
     }
 
     private async void UpdateIPSetListBtn_Click(object sender, RoutedEventArgs e)

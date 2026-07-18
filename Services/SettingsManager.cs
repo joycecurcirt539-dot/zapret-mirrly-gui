@@ -22,6 +22,10 @@ public class AppSettings
     public string TgWsProxyHost { get; set; } = "127.0.0.1";
     public string TgWsProxySecret { get; set; } = "2924fc12c2c0e18a00cd7ddf5a5e5db6";
     public bool TgWsProxyCfProxy { get; set; } = true;
+
+    // GUI update settings
+    public bool AutoCheckGuiUpdates { get; set; } = true;
+    public string SkippedGuiVersion { get; set; } = "";
 }
 
 public static class SettingsManager

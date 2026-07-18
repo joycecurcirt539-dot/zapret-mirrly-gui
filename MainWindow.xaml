@@ -138,5 +138,121 @@
                 Background="Transparent"
                 IsHitTestVisible="True" />
         </Grid>
+
+        <!-- App Update Notification Overlay -->
+        <Grid x:Name="UpdateNotificationOverlay" Visibility="Collapsed" Background="#B3000000" Opacity="0">
+            <Grid.Resources>
+                <!-- Storyboard for fading in/out and scaling -->
+                <Storyboard x:Name="ShowUpdateOverlayStoryboard">
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateNotificationOverlay"
+                        Storyboard.TargetProperty="Opacity"
+                        To="1.0" Duration="0:0:0.25">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateCardScale"
+                        Storyboard.TargetProperty="ScaleX"
+                        To="1.0" Duration="0:0:0.25">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateCardScale"
+                        Storyboard.TargetProperty="ScaleY"
+                        To="1.0" Duration="0:0:0.25">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+                <Storyboard x:Name="HideUpdateOverlayStoryboard">
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateNotificationOverlay"
+                        Storyboard.TargetProperty="Opacity"
+                        To="0.0" Duration="0:0:0.2">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseIn"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateCardScale"
+                        Storyboard.TargetProperty="ScaleX"
+                        To="0.9" Duration="0:0:0.2">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseIn"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateCardScale"
+                        Storyboard.TargetProperty="ScaleY"
+                        To="0.9" Duration="0:0:0.2">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseIn"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </Grid.Resources>
+
+            <Border
+                x:Name="UpdateCard"
+                Width="480"
+                MaxHeight="550"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Style="{StaticResource GlassCardStyle}"
+                Padding="24"
+                RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
+                    <ScaleTransform x:Name="UpdateCardScale" ScaleX="0.9" ScaleY="0.9" />
+                </Border.RenderTransform>
+
+                <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16">
+                    <!-- Title & Glow Icon -->
+                    <Grid Grid.Row="0" ColumnDefinitions="Auto,*">
+                        <Border Width="40" Height="40" CornerRadius="10" Background="#252422" BorderBrush="#3A3834" BorderThickness="1" Margin="0,0,12,0">
+                            <FontIcon Glyph="&#xE896;" FontSize="18" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="Доступно обновление!" FontSize="18" FontWeight="Bold" Foreground="#A79A83" />
+                            <TextBlock x:Name="UpdateTagNameText" Text="Версия v1.0.0" FontSize="12" Opacity="0.7" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Badges -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
+                        <Border x:Name="UpdateStableBadge" BorderBrush="#00F5D4" BorderThickness="1" CornerRadius="4" Padding="6,2" Visibility="Collapsed">
+                            <TextBlock Text="СТАБИЛЬНЫЙ ВЫПУСК" FontSize="10" Foreground="#00F5D4" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border x:Name="UpdatePrereleaseBadge" BorderBrush="#FF9F1C" BorderThickness="1" CornerRadius="4" Padding="6,2" Visibility="Collapsed">
+                            <TextBlock Text="ЭКСПЕРИМЕНТ / ПРЕДРЕЛИЗ" FontSize="10" Foreground="#FF9F1C" FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Changelog Content -->
+                    <Border Grid.Row="2" Background="#0C0B0A" BorderBrush="#252422" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="250">
+                            <TextBlock x:Name="UpdateChangelogText" Text="Описание изменений..." FontSize="13" TextWrapping="Wrap" Opacity="0.9" LineHeight="18" />
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Action Buttons -->
+                    <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,8,0,0">
+                        <Button Grid.Column="0" Click="DownloadUpdate_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" HorizontalAlignment="Stretch">
+                            <TextBlock Text="Установить" />
+                        </Button>
+                        <Button Grid.Column="1" Click="SkipVersion_Click" Height="36" HorizontalAlignment="Stretch">
+                            <TextBlock Text="Пропустить" />
+                        </Button>
+                        <Button Grid.Column="2" Click="CloseUpdateOverlay_Click" Height="36" HorizontalAlignment="Stretch">
+                            <TextBlock Text="Позже" />
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

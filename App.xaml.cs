@@ -7,6 +7,8 @@ public partial class App : Application
 {
     private Window? _window;
 
+    public MainWindow? MainWindowInstance => _window as MainWindow;
+
     public App()
     {
         InitializeComponent();
