@@ -395,6 +395,18 @@
                                 <TextBox x:Name="SettingsProxyHostTextBox" PlaceholderText="127.0.0.1" />
                             </StackPanel>
                         </Border>
+ 
+                        <!-- Card 1.5: Fake TLS SNI Masking Domain -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Домен маскировки Fake TLS" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Доменное имя, под которое маскируется трафик (например, google.com). Позволяет обходить активное блокирование MTProto протокола DPI. Оставьте пустым для обычного режима." VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Text="Влияет на маскировку протокола Fake TLS при подключении к Telegram прокси." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                <TextBox x:Name="SettingsProxyFakeTlsDomainTextBox" PlaceholderText="Например: example.com (пусто = выкл)" />
+                            </StackPanel>
+                        </Border>
 
                         <!-- Card 2: Web Socket Pool Size -->
                         <Border Style="{StaticResource GlassCardStyle}">

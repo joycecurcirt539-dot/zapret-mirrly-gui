@@ -25,6 +25,9 @@ namespace ZapretMirrlyGUI
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+ 
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern uint GetDpiForWindow(IntPtr hwnd);
 
         [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
@@ -145,9 +148,16 @@ namespace ZapretMirrlyGUI
             bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
             int windowWidth = isMenuMode ? 180 : 220;
             int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 226 : 198) : (updateVisible ? 282 : 246);
+ 
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            uint dpi = GetDpiForWindow(hWnd);
+            double scale = dpi / 96.0;
+
+            int physicalWidth = (int)Math.Round(windowWidth * scale);
+            int physicalHeight = (int)Math.Round(windowHeight * scale);
 
             int posX, posY;
-
+ 
             if (isMenuMode)
             {
                 // Position directly at cursor position for context menu feel
@@ -155,28 +165,27 @@ namespace ZapretMirrlyGUI
                 GetCursorPos(out pt);
                 posX = pt.x;
                 posY = pt.y;
-
+ 
                 // Bounds checks to prevent menu opening off-screen
-                if (posX + windowWidth > displayArea.WorkArea.X + screenWidth)
-                    posX = displayArea.WorkArea.X + screenWidth - windowWidth - 8;
-                if (posY + windowHeight > displayArea.WorkArea.Y + screenHeight)
-                    posY = displayArea.WorkArea.Y + screenHeight - windowHeight - 8;
+                if (posX + physicalWidth > displayArea.WorkArea.X + screenWidth)
+                    posX = displayArea.WorkArea.X + screenWidth - physicalWidth - (int)(8 * scale);
+                if (posY + physicalHeight > displayArea.WorkArea.Y + screenHeight)
+                    posY = displayArea.WorkArea.Y + screenHeight - physicalHeight - (int)(8 * scale);
             }
             else
             {
                 // Position at bottom-right corner just above the taskbar
-                posX = displayArea.WorkArea.X + screenWidth - windowWidth - 10;
-                posY = displayArea.WorkArea.Y + screenHeight - windowHeight - 10;
+                posX = displayArea.WorkArea.X + screenWidth - physicalWidth - (int)(10 * scale);
+                posY = displayArea.WorkArea.Y + screenHeight - physicalHeight - (int)(10 * scale);
             }
-
+ 
             // Move, resize, show and focus
-            AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(posX, posY, windowWidth, windowHeight));
+            AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(posX, posY, physicalWidth, physicalHeight));
             AppWindow.Show();
-
-            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+ 
             ShowWindow(hWnd, SW_RESTORE);
             SetForegroundWindow(hWnd);
-
+ 
             UpdateUiState();
             UpdateTrayUpdateStatus();
         }

@@ -166,15 +166,6 @@
                             </Grid>
                         </StackPanel>
 
-                        <!-- Fake TLS SNI Domain -->
-                        <StackPanel Spacing="6">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="Домен маскировки Fake TLS" FontSize="12" Opacity="0.8" />
-                                <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Доменное имя, под которое маскируется трафик (например, google.com). Позволяет обходить активное блокирование MTProto протокола DPI. Оставьте пустым для обычного режима." VerticalAlignment="Center" />
-                            </StackPanel>
-                            <TextBox x:Name="ProxyFakeTlsDomainTextBox" PlaceholderText="Например: example.com (пусто = выкл)" />
-                        </StackPanel>
-
                         <!-- Save Button -->
                         <Button x:Name="SaveSettingsButton" Click="SaveSettingsButton_Click" Content="Сохранить настройки" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     </StackPanel>

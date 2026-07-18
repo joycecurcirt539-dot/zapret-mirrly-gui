@@ -22,6 +22,7 @@ public sealed partial class SettingsPage : Page
     private string _originalTgWsProxyWorkerDomains = "";
     private bool _originalTgWsProxyCfProxy = true;
     private bool _originalTgWsProxyForceTestDc = false;
+    private string _originalTgWsProxyFakeTlsDomain = "";
 
     public SettingsPage()
     {
@@ -96,6 +97,9 @@ public sealed partial class SettingsPage : Page
         // 8. TgWsProxy advanced settings
         _originalTgWsProxyHost = SettingsManager.Instance.TgWsProxyHost;
         SettingsProxyHostTextBox.Text = _originalTgWsProxyHost;
+
+        _originalTgWsProxyFakeTlsDomain = SettingsManager.Instance.TgWsProxyFakeTlsDomain;
+        SettingsProxyFakeTlsDomainTextBox.Text = _originalTgWsProxyFakeTlsDomain;
 
         _originalTgWsProxyPoolSize = SettingsManager.Instance.TgWsProxyPoolSize;
         SettingsProxyPoolSizeTextBox.Text = _originalTgWsProxyPoolSize.ToString();
@@ -393,6 +397,10 @@ public sealed partial class SettingsPage : Page
             if (string.IsNullOrEmpty(proxyHost)) proxyHost = "127.0.0.1";
             SettingsManager.Instance.TgWsProxyHost = proxyHost;
             _originalTgWsProxyHost = proxyHost;
+
+            var fakeTlsDomain = SettingsProxyFakeTlsDomainTextBox.Text.Trim();
+            SettingsManager.Instance.TgWsProxyFakeTlsDomain = fakeTlsDomain;
+            _originalTgWsProxyFakeTlsDomain = fakeTlsDomain;
 
             SettingsManager.Instance.TgWsProxyPoolSize = poolSize;
             _originalTgWsProxyPoolSize = poolSize;

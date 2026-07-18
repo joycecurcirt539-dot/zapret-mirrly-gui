@@ -26,7 +26,6 @@ public sealed partial class TgWsProxyPage : Page
         // Initialize UI settings from SettingsManager
         ProxyPortTextBox.Text = SettingsManager.Instance.TgWsProxyPort.ToString();
         ProxySecretTextBox.Text = SettingsManager.Instance.TgWsProxySecret;
-        ProxyFakeTlsDomainTextBox.Text = SettingsManager.Instance.TgWsProxyFakeTlsDomain;
 
         // Load log history
         var sb = new StringBuilder();
@@ -199,7 +198,6 @@ public sealed partial class TgWsProxyPage : Page
 
         SettingsManager.Instance.TgWsProxyPort = port;
         SettingsManager.Instance.TgWsProxySecret = ProxySecretTextBox.Text.Trim();
-        SettingsManager.Instance.TgWsProxyFakeTlsDomain = ProxyFakeTlsDomainTextBox.Text.Trim();
 
         SettingsManager.Save();
 
