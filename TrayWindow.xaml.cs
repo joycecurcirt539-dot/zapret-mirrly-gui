@@ -119,33 +119,6 @@ namespace ZapretMirrlyGUI
                 VpnPanel.Visibility = Visibility.Collapsed;
                 MenuPanel.Visibility = Visibility.Visible;
  
-                // Sync status texts in MenuPanel
-                if (ZapretService.IsRunning)
-                {
-                    MenuPowerIcon.Glyph = "\uE10A"; // Stop glyph
-                    MenuPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 69, 58)); // Red
-                    MenuPowerText.Text = "Остановить обход";
-                }
-                else
-                {
-                    MenuPowerIcon.Glyph = "\uE7E8"; // Start/Power glyph
-                    MenuPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90)); // Green
-                    MenuPowerText.Text = "Запустить обход";
-                }
-
-                if (TgWsProxyService.IsRunning)
-                {
-                    MenuTgPowerIcon.Glyph = "\uE10A"; // Stop glyph
-                    MenuTgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 69, 58)); // Red
-                    MenuTgPowerText.Text = "Остановить Telegram прокси";
-                }
-                else
-                {
-                    MenuTgPowerIcon.Glyph = "\uE73E"; // Start glyph
-                    MenuTgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90)); // Green
-                    MenuTgPowerText.Text = "Запустить Telegram прокси";
-                }
-
                 if (TgWsProxyService.IsRunning)
                 {
                     MenuConnectTelegramButton.IsEnabled = true;
@@ -162,16 +135,15 @@ namespace ZapretMirrlyGUI
                 VpnPanel.Visibility = Visibility.Visible;
                 MenuPanel.Visibility = Visibility.Collapsed;
             }
-
+ 
             // Calculate size and placement on screen
             var displayArea = Microsoft.UI.Windowing.DisplayArea.Primary;
             int screenWidth = displayArea.WorkArea.Width;
             int screenHeight = displayArea.WorkArea.Height;
-
-            // Dynamically size the VPN panel — taller if update badge is visible
+ 
             bool updateVisible = UpdateBadgeBorder.Visibility == Visibility.Visible;
             int windowWidth = isMenuMode ? 180 : 220;
-            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 252 : 230) : (updateVisible ? 312 : 276);
+            int windowHeight = isMenuMode ? (MenuUpdateButton.Visibility == Visibility.Visible ? 194 : 166) : (updateVisible ? 256 : 220);
 
             int posX, posY;
 
@@ -238,32 +210,6 @@ namespace ZapretMirrlyGUI
                 TgPowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(50, 255, 255, 255));
                 TgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, 255, 255, 255));
             }
- 
-            if (isZapretRunning && isTgRunning)
-            {
-                StatusTextBlock.Text = "ПОДКЛЮЧЕНО";
-                StatusTextBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
-                StatusSubTextBlock.Text = "Обход и прокси Telegram активны";
-            }
-            else if (isZapretRunning)
-            {
-                StatusTextBlock.Text = "ПОДКЛЮЧЕНО";
-                StatusTextBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
-                StatusSubTextBlock.Text = "DPI обход активен";
-            }
-            else if (isTgRunning)
-            {
-                StatusTextBlock.Text = "ПОДКЛЮЧЕНО";
-                StatusTextBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
-                StatusSubTextBlock.Text = "Прокси Telegram активен";
-            }
-            else
-            {
-                StatusTextBlock.Text = "ОТКЛЮЧЕНО";
-                StatusTextBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 69, 58));
-                StatusSubTextBlock.Text = "Трафик идет напрямую";
-            }
- 
             bool anyRunning = isZapretRunning || isTgRunning;
             if (anyRunning)
             {
