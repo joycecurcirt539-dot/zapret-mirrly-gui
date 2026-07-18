@@ -133,7 +133,7 @@ VPN перенаправляет **весь** трафик через чужой
 <details>
 <summary><strong>Работает ли Telegram?</strong></summary>
 
-Zapret Mirrly GUI оптимизирован для YouTube и Discord. Обход Telegram **не гарантируется**. Для Telegram используй [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy) от Flowseal.
+Zapret Mirrly GUI оптимизирован для YouTube и Discord. Обход Telegram **не гарантируется**. Для Telegram используй [tg-ws-proxy на GitHub](https://github.com/Flowseal/tg-ws-proxy) или [зеркало на SourceForge](https://sourceforge.net/projects/tg-ws-proxy/) от Flowseal.
 
 </details>
 
@@ -157,7 +157,7 @@ Zapret Mirrly GUI оптимизирован для YouTube и Discord. Обхо
 
 * **joycecurcirt539-dot** — разработчик графической оболочки Zapret Mirrly GUI и автор экосистемы Mirrly.
 
-* 🏆 **[Flowseal](https://github.com/Flowseal)** — легенда. Именно он сделал обход блокировок доступным каждому с его [`zapret-discord-youtube`](https://github.com/Flowseal/zapret-discord-youtube) — готовое решение «скачал и работает». Также автор [`tg-ws-proxy`](https://github.com/Flowseal/tg-ws-proxy). Zapret Mirrly GUI построен на его сборке.
+* 🏆 **[Flowseal](https://github.com/Flowseal)** — легенда. Именно он сделал обход блокировок доступным каждому с его [`zapret-discord-youtube`](https://github.com/Flowseal/zapret-discord-youtube) (зеркало на [SourceForge](https://sourceforge.net/projects/zapret-discord-youtube/)) — готовое решение «скачал и работает». Также автор [`tg-ws-proxy`](https://github.com/Flowseal/tg-ws-proxy) (зеркало на [SourceForge](https://sourceforge.net/projects/tg-ws-proxy/)). Zapret Mirrly GUI построен на его сборке.
 
 * 🏆 **[bolvan](https://github.com/bolvan)** — легенда. Создатель оригинального движка [`zapret`](https://github.com/bolvan/zapret) и `winws` — низкоуровневого инструмента перехвата и модификации пакетов через WinDivert. Без bolvan не существовало бы ни одного DPI-обходчика в экосистеме.
 

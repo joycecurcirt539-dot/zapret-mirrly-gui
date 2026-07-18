@@ -188,6 +188,10 @@
                                     Content="zapret-discord-youtube"
                                     NavigateUri="https://github.com/Flowseal/zapret-discord-youtube"
                                     Padding="0" />
+                                <HyperlinkButton
+                                    Content="sourceforge/zapret-discord-youtube"
+                                    NavigateUri="https://sourceforge.net/projects/zapret-discord-youtube/"
+                                    Padding="0" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -245,6 +249,10 @@
                                 <HyperlinkButton
                                     Content="github.com/Flowseal/tg-ws-proxy"
                                     NavigateUri="https://github.com/Flowseal/tg-ws-proxy"
+                                    Padding="0" />
+                                <HyperlinkButton
+                                    Content="sourceforge/tg-ws-proxy"
+                                    NavigateUri="https://sourceforge.net/projects/tg-ws-proxy/"
                                     Padding="0" />
                             </StackPanel>
                         </StackPanel>
