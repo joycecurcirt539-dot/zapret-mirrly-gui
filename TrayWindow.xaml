@@ -68,35 +68,34 @@
                     </Border>
 
                     <!-- Power Buttons -->
-                    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8" IsTabStop="False">
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="20" HorizontalAlignment="Center" Width="170" IsTabStop="False">
+                    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12" IsTabStop="False">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="24" HorizontalAlignment="Center" Width="180" IsTabStop="False">
                             <!-- Zapret Toggle -->
-                            <StackPanel Grid.Column="0" Spacing="6" HorizontalAlignment="Center">
-                                <Button x:Name="PowerButton" Click="PowerButton_Click" Width="52" Height="52" CornerRadius="26" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False">
+                            <StackPanel Grid.Column="0" Spacing="8" HorizontalAlignment="Center">
+                                <Button x:Name="PowerButton" Click="PowerButton_Click" Width="56" Height="56" CornerRadius="28" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False" MinWidth="0" MinHeight="0">
                                     <Button.Content>
-                                        <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;" FontSize="18" />
+                                        <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;" FontSize="20" />
                                     </Button.Content>
                                 </Button>
-                                <TextBlock Text="Обход DPI" FontSize="9" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
+                                <TextBlock Text="Обход DPI" FontSize="9.5" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
                             </StackPanel>
-
+ 
                             <!-- Telegram Proxy Toggle -->
-                            <StackPanel Grid.Column="1" Spacing="6" HorizontalAlignment="Center">
-                                <Button x:Name="TgPowerButton" Click="TgPowerButton_Click" Width="52" Height="52" CornerRadius="26" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False">
+                            <StackPanel Grid.Column="1" Spacing="8" HorizontalAlignment="Center">
+                                <Button x:Name="TgPowerButton" Click="TgPowerButton_Click" Width="56" Height="56" CornerRadius="28" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False" MinWidth="0" MinHeight="0">
                                     <Button.Content>
-                                        <FontIcon x:Name="TgPowerIcon" Glyph="&#xE122;" FontSize="18">
+                                        <FontIcon x:Name="TgPowerIcon" Glyph="&#xE122;" FontSize="20">
                                             <FontIcon.RenderTransform>
-                                                <RotateTransform Angle="-45" CenterX="9" CenterY="9" />
+                                                <RotateTransform Angle="-45" CenterX="10" CenterY="10" />
                                             </FontIcon.RenderTransform>
                                         </FontIcon>
                                     </Button.Content>
                                 </Button>
-                                <TextBlock Text="Telegram" FontSize="9" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
+                                <TextBlock Text="Telegram" FontSize="9.5" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Grid>
-
-                        <Button x:Name="ToggleAllButton" Click="ToggleAllButton_Click" HorizontalAlignment="Center" Margin="0,6,0,0" Padding="14,4,14,4" CornerRadius="6" BorderThickness="0" Background="#15FFFFFF">
-                            <TextBlock x:Name="ToggleAllTextBlock" Text="Запустить всё" FontSize="9" FontWeight="SemiBold" Foreground="#A79A83" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        <Button x:Name="ToggleAllButton" Click="ToggleAllButton_Click" HorizontalAlignment="Center" Margin="0,4,0,0" Padding="16,5,16,5" CornerRadius="6" BorderThickness="0" Background="#15FFFFFF">
+                            <TextBlock x:Name="ToggleAllTextBlock" Text="Запустить всё" FontSize="9.5" FontWeight="SemiBold" Foreground="#A79A83" VerticalAlignment="Center" HorizontalAlignment="Center" />
                         </Button>
                     </StackPanel>
 
