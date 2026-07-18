@@ -76,7 +76,10 @@
                             
                             <TextBlock Text="Правило безопасности номер один в мире программного обеспечения: не верьте никому на слово — в том числе и мне, разработчику Mirrly GUI. Единственная гарантия чистоты софта — это полностью открытый исходный код (Open Source)." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" TextWrapping="Wrap" />
                             
-                            <TextBlock Text="• Оригинальный zapret: Это надежный проект с полностью открытым исходным кодом. Он абсолютно прозрачен для аудита." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                            <TextBlock Text="• bol-van (original zapret): Создатель оригинального движка обхода блокировок DPI, ставшего стандартом прозрачности и эффективности." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                            <TextBlock Text="• Flowseal (сборки и прокси): Разработчик популярных конфигураций zapret-discord-youtube и прокси tg-ws-proxy, сделавший обход доступным широкой аудитории." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                            <TextBlock Text="• ValdikSS (GoodbyeDPI): Легендарный исследователь сетевых технологий в РФ и автор утилиты GoodbyeDPI." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                            <TextBlock Text="• basil00 (WinDivert): Автор мощного драйвера перехвата сетевых пакетов ядра Windows, используемого в GoodbyeDPI и zapret." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                             <TextBlock Text="• Оболочка Mirrly GUI: Исходный код этой графической программы также полностью открыт на GitHub. Любой независимый программист может проверить каждую строчку, скомпилировать приложение самостоятельно и убедиться, что в нем нет никаких скрытых угроз." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                             <TextBlock Text="• Архитектура: Создание Mirrly GUI — это моя личная инициатива, основанная на желании сделать использование открытых инструментов обхода DPI максимально удобным и простым для каждого пользователя через красивый графический интерфейс." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                         </StackPanel>
@@ -121,20 +124,46 @@
                     </Border>
 
                     <!-- Action Buttons -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,0">
-                        <Button Grid.Column="0" Click="OpenOriginalZapretGithub_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="42" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xEE40;" FontSize="14" />
-                                <TextBlock Text="GitHub bol-van (zapret)" />
-                            </StackPanel>
-                        </Button>
-                        <Button Grid.Column="1" Click="OpenMirrlyGithub_Click" Height="42" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xEE40;" FontSize="14" />
-                                <TextBlock Text="GitHub Mirrly GUI" />
-                            </StackPanel>
-                        </Button>
-                    </Grid>
+                    <StackPanel Spacing="10" Margin="0,8,0,0">
+                        <TextBlock Text="Ссылки на доверенные проекты:" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Foreground="#A79A83" />
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <!-- Row 0 -->
+                            <Button Grid.Row="0" Grid.Column="0" Click="OpenOriginalZapretGithub_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="40" HorizontalAlignment="Stretch">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xEE40;" FontSize="14" />
+                                    <TextBlock Text="GitHub bol-van (zapret)" />
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="0" Grid.Column="1" Click="OpenFlowsealGithub_Click" Height="40" HorizontalAlignment="Stretch">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xEE40;" FontSize="14" />
+                                    <TextBlock Text="GitHub Flowseal (Сборки)" />
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Row 1 -->
+                            <Button Grid.Row="1" Grid.Column="0" Click="OpenGoodbyeDpiGithub_Click" Height="40" HorizontalAlignment="Stretch">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xEE40;" FontSize="14" />
+                                    <TextBlock Text="GitHub ValdikSS (GoodbyeDPI)" />
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="1" Click="OpenWinDivertGithub_Click" Height="40" HorizontalAlignment="Stretch">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE72C;" FontSize="14" />
+                                    <TextBlock Text="GitHub basil00 (WinDivert)" />
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Row 2 -->
+                            <Button Grid.Row="2" Grid.Column="0" Click="OpenMirrlyGithub_Click" Height="40" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xEE40;" FontSize="14" />
+                                    <TextBlock Text="Исходный код Mirrly GUI на GitHub" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
 
                 </StackPanel>
 
@@ -199,7 +228,7 @@
                                 <TextBlock Text="Инструкция по ручному обновлению" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
                             </StackPanel>
                             
-                            <TextBlock Text="Для обновления встроенной утилиты zapret (базовая версия в сборке: 1.9.9a) выполните следующие шаги:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" TextWrapping="Wrap" />
+                            <TextBlock Text="Для обновления встроенной утилиты zapret (базовая версия в сборке: 1.9.9d) выполните следующие шаги:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" TextWrapping="Wrap" />
                             
                             <StackPanel Spacing="10" Margin="4,4,0,0">
                                 
