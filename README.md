@@ -224,7 +224,7 @@ Zapret Mirrly GUI оптимизирован для YouTube и Discord. Обхо
 
 * 🏆 **[bol-van](https://github.com/bol-van)** — легенда. Создатель оригинального движка [`zapret`](https://github.com/bol-van/zapret) и `winws` — низкоуровневого инструмента перехвата и модификации пакетов через WinDivert. Без bol-van не существовало бы ни одного DPI-обходчика в экосистеме.
 
-* 🏆 **[basil00 (WinDivert)](https://github.com/basil00/Divert)** — за надёжный драйвер перехвата сетевых пакетов в Windows.
+* 🏆 **[basil00 (WinDivert)](https://github.com/basil00/Divert)** — легенда. Создатель драйвера и библиотеки **WinDivert** (Windows Packet Divert). Этот инструмент позволяет захватывать, модифицировать и сбрасывать сетевые пакеты на уровне ядра Windows из пользовательского режима. Без его разработок низкоуровневый перехват трафика в движках GoodbyeDPI и winws (zapret) был бы невозможен без написания собственных сложных драйверов ядра.
 
 ---
 

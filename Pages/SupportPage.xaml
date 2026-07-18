@@ -298,6 +298,65 @@
                         </StackPanel>
                     </Grid>
                 </Border>
+
+                <!-- basil00 WinDivert card -->
+                <Border Style="{StaticResource GlassCardStyle}" Padding="20">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border
+                            Width="56" Height="56"
+                            CornerRadius="14"
+                            BorderThickness="1"
+                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                            Background="Transparent">
+                            <FontIcon
+                                Glyph="&#xE72C;"
+                                FontSize="24"
+                                Foreground="{StaticResource BrandElectricBrush}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Spacing="12">
+                            <StackPanel Spacing="6">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock
+                                        Text="basil00 / WinDivert"
+                                        Style="{StaticResource MirrlyTextMediumStyle}"
+                                        FontWeight="SemiBold" />
+                                    <Border
+                                        BorderBrush="{StaticResource BrandElectricBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="6,2">
+                                        <TextBlock
+                                            Text="Легенда"
+                                            Style="{StaticResource MirrlyTextSmallStyle}"
+                                            FontSize="10"
+                                            Foreground="{StaticResource BrandElectricBrush}"
+                                            FontWeight="SemiBold" />
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock
+                                    Text="basil00 — автор и создатель драйвера ядра и библиотеки WinDivert (Windows Packet Divert). WinDivert позволяет захватывать, фильтровать, изменять и повторно внедрять сетевые пакеты в стек Windows непосредственно из пользовательского режима. Без этой фундаментальной разработки низкоуровневый перехват пакетов в движках GoodbyeDPI и winws (zapret) был бы технически невозможен без написания сторонних сетевых драйверов."
+                                    Style="{StaticResource MirrlyTextSmallStyle}"
+                                    Opacity="0.75"
+                                    TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="14">
+                                <HyperlinkButton
+                                    Content="github.com/basil00/Divert"
+                                    NavigateUri="https://github.com/basil00/Divert"
+                                    Padding="0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </StackPanel>
 
             <!-- ══════════════════════ MIRRLY ECOSYSTEM ══════════════════════ -->
