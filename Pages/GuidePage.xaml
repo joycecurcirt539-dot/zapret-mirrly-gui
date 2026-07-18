@@ -125,7 +125,7 @@
                         <Button Grid.Column="0" Click="OpenOriginalZapretGithub_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="42" HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xEE40;" FontSize="14" />
-                                <TextBlock Text="GitHub bolvan (zapret)" />
+                                <TextBlock Text="GitHub bol-van (zapret)" />
                             </StackPanel>
                         </Button>
                         <Button Grid.Column="1" Click="OpenMirrlyGithub_Click" Height="42" HorizontalAlignment="Stretch">

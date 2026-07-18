@@ -45,7 +45,7 @@
 
 ## Zapret Mirrly GUI v1.0.0
 
-Первый публичный релиз — GUI для утилиты обхода DPI, построенный на сборке **Flowseal** ([zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube)) и оригинальном движке **bolvan** ([zapret](https://github.com/bolvan/zapret)).
+Первый публичный релиз — GUI для утилиты обхода DPI, построенный на сборке **Flowseal** ([zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube)) и оригинальном движке **bol-van** ([zapret](https://github.com/bol-van/zapret)).
 
 ---
 
@@ -71,4 +71,4 @@
 
 ### Легенды, без которых это невозможно
 - **[Flowseal](https://github.com/Flowseal)** — создатель `zapret-discord-youtube` и `tg-ws-proxy`
-- **[bolvan](https://github.com/bolvan)** — создатель оригинального движка `zapret` и `winws`
+- **[bol-van](https://github.com/bol-van)** — создатель оригинального движка `zapret` и `winws`

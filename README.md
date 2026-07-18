@@ -222,7 +222,7 @@ Zapret Mirrly GUI оптимизирован для YouTube и Discord. Обхо
 
 * 🏆 **[Flowseal](https://github.com/Flowseal)** — легенда. Именно он сделал обход блокировок доступным каждому с его [`zapret-discord-youtube`](https://github.com/Flowseal/zapret-discord-youtube) (зеркало на [SourceForge](https://sourceforge.net/projects/zapret-discord-youtube/)) — готовое решение «скачал и работает». Также автор [`tg-ws-proxy`](https://github.com/Flowseal/tg-ws-proxy) (зеркало на [SourceForge](https://sourceforge.net/projects/tg-ws-proxy/)). Zapret Mirrly GUI построен на его сборке.
 
-* 🏆 **[bolvan](https://github.com/bolvan)** — легенда. Создатель оригинального движка [`zapret`](https://github.com/bolvan/zapret) и `winws` — низкоуровневого инструмента перехвата и модификации пакетов через WinDivert. Без bolvan не существовало бы ни одного DPI-обходчика в экосистеме.
+* 🏆 **[bol-van](https://github.com/bol-van)** — легенда. Создатель оригинального движка [`zapret`](https://github.com/bol-van/zapret) и `winws` — низкоуровневого инструмента перехвата и модификации пакетов через WinDivert. Без bol-van не существовало бы ни одного DPI-обходчика в экосистеме.
 
 * **Разработчики WinDivert** — за надёжный драйвер перехвата сетевых пакетов в Windows.
 

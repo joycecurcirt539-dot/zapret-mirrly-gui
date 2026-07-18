@@ -14,7 +14,7 @@ public sealed partial class GuidePage : Page
 
     private void OpenOriginalZapretGithub_Click(object sender, RoutedEventArgs e)
     {
-        OpenUrl("https://github.com/bolvan/zapret");
+        OpenUrl("https://github.com/bol-van/zapret");
     }
 
     private void OpenMirrlyGithub_Click(object sender, RoutedEventArgs e)

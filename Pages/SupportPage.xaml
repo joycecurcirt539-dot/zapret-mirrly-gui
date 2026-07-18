@@ -262,7 +262,7 @@
                             <StackPanel Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <TextBlock
-                                        Text="bolvan / zapret"
+                                        Text="bol-van / zapret"
                                         Style="{StaticResource MirrlyTextMediumStyle}"
                                         FontWeight="SemiBold" />
                                     <Border
@@ -279,7 +279,7 @@
                                     </Border>
                                 </StackPanel>
                                 <TextBlock
-                                    Text="bolvan — создатель оригинального движка zapret, на котором держится весь экосистемный стек обхода DPI в России. Его winws перехватывает сетевые пакеты через WinDivert и модифицирует заголовки, обходя алгоритмы провайдеров. Без bolvan не было бы ни zapret-discord-youtube, ни этого приложения."
+                                    Text="bol-van — создатель оригинального движка zapret, на котором держится весь экосистемный стек обхода DPI в России. Его winws перехватывает сетевые пакеты через WinDivert и модифицирует заголовки, обходя алгоритмы провайдеров. Без bol-van не было бы ни zapret-discord-youtube, ни этого приложения."
                                     Style="{StaticResource MirrlyTextSmallStyle}"
                                     Opacity="0.75"
                                     TextWrapping="WrapWholeWords" />
@@ -287,12 +287,12 @@
 
                             <StackPanel Orientation="Horizontal" Spacing="14">
                                 <HyperlinkButton
-                                    Content="github.com/bolvan/zapret"
-                                    NavigateUri="https://github.com/bolvan/zapret"
+                                    Content="github.com/bol-van/zapret"
+                                    NavigateUri="https://github.com/bol-van/zapret"
                                     Padding="0" />
                                 <HyperlinkButton
                                     Content="zapret2"
-                                    NavigateUri="https://github.com/bolvan/zapret2"
+                                    NavigateUri="https://github.com/bol-van/zapret2"
                                     Padding="0" />
                             </StackPanel>
                         </StackPanel>
