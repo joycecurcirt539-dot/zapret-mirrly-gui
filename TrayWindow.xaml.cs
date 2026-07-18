@@ -73,7 +73,7 @@ namespace ZapretMirrlyGUI
             {
                 overlappedPresenter.IsResizable = false;
                 overlappedPresenter.IsAlwaysOnTop = true;
-                overlappedPresenter.SetBorderAndTitleBar(false, false); // false, false removes OS borders completely
+                overlappedPresenter.SetBorderAndTitleBar(true, false); // hasBorder: true enables Mica
             }
 
             // DWM custom attributes: Set border color to blend with window background (removing the white line)
