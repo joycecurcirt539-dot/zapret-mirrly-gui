@@ -82,7 +82,6 @@ public sealed partial class DashboardPage : Page
         string iconGlyph;
         string statusTitle, serviceNote;
         string btnText;
-        string btnGlyph;
 
         if (isRunning)
         {
@@ -93,7 +92,6 @@ public sealed partial class DashboardPage : Page
             statusTitle = "Обход активен";
             serviceNote = "Запущен напрямую через GUI";
             btnText  = "Остановить обход";
-            btnGlyph = "\uE71A";
         }
         else if (serviceStatus == "RUNNING")
         {
@@ -104,7 +102,6 @@ public sealed partial class DashboardPage : Page
             statusTitle = "Обход активен";
             serviceNote = "Работает через службу Windows";
             btnText  = "Запустить обход";
-            btnGlyph = "\uE768";
         }
         else if (serviceStatus == "START_PENDING")
         {
@@ -115,7 +112,6 @@ public sealed partial class DashboardPage : Page
             statusTitle = "Запуск службы...";
             serviceNote = "Служба Windows инициализируется";
             btnText  = "Запустить обход";
-            btnGlyph = "\uE768";
         }
         else
         {
@@ -126,7 +122,6 @@ public sealed partial class DashboardPage : Page
             statusTitle = "Обход не запущен";
             serviceNote = $"Автозапуск через службу: {serviceStatus}";
             btnText  = "Запустить обход";
-            btnGlyph = "\uE768";
         }
 
         StatusOrbBg.Color = orbOuter;
@@ -136,7 +131,6 @@ public sealed partial class DashboardPage : Page
         StatusText.Text = statusTitle;
         ServiceStatusText.Text = serviceNote;
 
-        ActionBypassIcon.Glyph = btnGlyph;
         ActionBypassText.Text = btnText;
 
         // Disable button during diagnostics
@@ -248,8 +242,5 @@ public sealed partial class DashboardPage : Page
         }
     }
 
-    private void RefreshStatusButton_Click(object sender, RoutedEventArgs e)
-    {
-        UpdateUIStatus();
-    }
+
 }

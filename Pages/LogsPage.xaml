@@ -51,35 +51,23 @@
                 </ComboBox>
 
                 <!-- Action Button: Copy -->
-                <Button Grid.Column="2" x:Name="CopyLogsButton" Click="CopyLogsButton_Click" Height="36" ToolTipService.ToolTip="Копировать отфильтрованный лог">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8C8;" FontSize="13" />
-                        <TextBlock Text="Копировать" />
-                    </StackPanel>
+                <Button Grid.Column="2" x:Name="CopyLogsButton" Click="CopyLogsButton_Click" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Копировать отфильтрованный лог">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="16" />
                 </Button>
 
                 <!-- Action Button: Open in Notepad -->
-                <Button Grid.Column="3" x:Name="OpenInNotepadButton" Click="OpenInNotepadButton_Click" Height="36" ToolTipService.ToolTip="Открыть весь лог во внешнем Блокноте">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE7C3;" FontSize="13" />
-                        <TextBlock Text="В Блокноте" />
-                    </StackPanel>
+                <Button Grid.Column="3" x:Name="OpenInNotepadButton" Click="OpenInNotepadButton_Click" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Открыть весь лог во внешнем Блокноте">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8E5;" FontSize="16" />
                 </Button>
 
                 <!-- Action Button: Export -->
-                <Button Grid.Column="4" x:Name="ExportButton" Click="ExportButton_Click" Height="36" ToolTipService.ToolTip="Экспортировать логи в текстовый файл">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE105;" FontSize="13" />
-                        <TextBlock Text="Экспорт..." />
-                    </StackPanel>
+                <Button Grid.Column="4" x:Name="ExportButton" Click="ExportButton_Click" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Экспортировать логи в текстовый файл">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74E;" FontSize="16" />
                 </Button>
 
                 <!-- Action Button: Clear -->
-                <Button Grid.Column="5" x:Name="ClearLogsButton" Click="ClearLogsButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" ToolTipService.ToolTip="Очистить буфер логов">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE74D;" FontSize="13" />
-                        <TextBlock Text="Очистить" />
-                    </StackPanel>
+                <Button Grid.Column="5" x:Name="ClearLogsButton" Click="ClearLogsButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Очистить буфер логов">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="16" />
                 </Button>
             </Grid>
         </Border>

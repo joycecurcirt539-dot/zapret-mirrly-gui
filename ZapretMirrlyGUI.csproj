@@ -7,6 +7,9 @@
     <AssemblyName>ZapretMirrlyGUI</AssemblyName>
     <Product>ZapretMirrlyGUI</Product>
     <Title>Zapret Mirrly GUI</Title>
+    <Version>1.1.1</Version>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <FileVersion>1.1.1.0</FileVersion>
     <RootNamespace>ZapretMirrlyGUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>

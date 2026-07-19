@@ -76,17 +76,15 @@
                         <Grid Grid.Row="1" Padding="24,0,24,20" ColumnDefinitions="*,*">
                             <!-- Toggle Button -->
                             <Button Grid.Column="0" x:Name="ActionBypassButton" Click="ActionBypassButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48" Margin="0,0,8,0">
-                                <Grid ColumnDefinitions="Auto,*,Auto">
-                                    <FontIcon Grid.Column="0" x:Name="ActionBypassIcon" Glyph="&#xE768;" FontSize="16" Margin="0,0,10,0" />
-                                    <TextBlock Grid.Column="1" x:Name="ActionBypassText" Text="Запустить прокси" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" x:Name="ActionBypassText" Text="Запустить прокси" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
                                 </Grid>
                             </Button>
 
                             <!-- Telegram Connect Link -->
                             <Button Grid.Column="1" x:Name="ConnectTelegramButton" Click="ConnectTelegramButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Background="#1F2A38" BorderBrush="#2D3B4C" HorizontalAlignment="Stretch" Height="48" Margin="8,0,0,0" IsEnabled="False">
-                                <Grid ColumnDefinitions="Auto,*,Auto">
-                                    <FontIcon Grid.Column="0" Glyph="&#xE73E;" FontSize="16" Margin="0,0,10,0" />
-                                    <TextBlock Grid.Column="1" Text="Подключить Telegram" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="Подключить Telegram" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
                                 </Grid>
                             </Button>
                         </Grid>
@@ -113,14 +111,11 @@
                             <TextBlock Text="ЛОГИ РАБОТЫ TGWSROOT" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                            <Button x:Name="CopyLogButton" Click="CopyLogButton_Click" Padding="6" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
-                                <FontIcon Glyph="&#xE8C8;" FontSize="11" />
+                            <Button x:Name="CopyLogButton" Click="CopyLogButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="13" />
                             </Button>
-                            <Button x:Name="ClearLogButton" Click="ClearLogButton_Click" Padding="8,4" Height="26" FontSize="11">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon Glyph="&#xE74D;" FontSize="11" />
-                                    <TextBlock Text="Очистить" FontSize="11" />
-                                </StackPanel>
+                            <Button x:Name="ClearLogButton" Click="ClearLogButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Очистить журнал">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="13" />
                             </Button>
                         </StackPanel>
                     </Grid>
@@ -161,8 +156,8 @@
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                 <TextBox Grid.Column="0" x:Name="ProxySecretTextBox" Text="2924fc12c2c0e18a00cd7ddf5a5e5db6" PlaceholderText="32-значный hex-секрет" />
                                 <Button Grid.Column="1" Click="RegenerateSecretButton_Click" ToolTipService.ToolTip="Сгенерировать случайный секрет" Height="32">
-                                    <FontIcon Glyph="&#xE72C;" FontSize="12" />
-                                </Button>
+<TextBlock Text="Новый" FontSize="11" />
+</Button>
                             </Grid>
                         </StackPanel>
 

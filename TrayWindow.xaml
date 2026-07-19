@@ -49,11 +49,7 @@
                                 IsTabStop="False"
                                 Click="UpdateBadgeButton_Click"
                                 HorizontalAlignment="Stretch">
-                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                <FontIcon Grid.Column="0" Glyph="&#xE896;" FontSize="10" Foreground="#FF9F1C" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock x:Name="UpdateBadgeText" Grid.Column="1" Text="Доступно обновление" FontSize="10" FontWeight="SemiBold" Foreground="#FF9F1C" VerticalAlignment="Center"/>
-                                <FontIcon Grid.Column="2" Glyph="&#xE76C;" FontSize="9" Foreground="#80FF9F1C" VerticalAlignment="Center" Margin="6,0,0,0"/>
-                            </Grid>
+                            <TextBlock x:Name="UpdateBadgeText" Text="Доступно обновление" FontSize="10" FontWeight="SemiBold" Foreground="#FF9F1C" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Button>
                     </Border>
 
@@ -62,9 +58,7 @@
                         <!-- Zapret Toggle -->
                         <StackPanel Grid.Column="0" Spacing="8" HorizontalAlignment="Center">
                             <Button x:Name="PowerButton" Click="PowerButton_Click" Width="56" Height="56" CornerRadius="28" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False" MinWidth="0" MinHeight="0">
-                                <Button.Content>
-                                    <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;" FontSize="20" />
-                                </Button.Content>
+                                <FontIcon x:Name="PowerIcon" FontFamily="Segoe Fluent Icons" Glyph="&#xE7E8;" FontSize="20" Foreground="#B4FFFFFF" />
                             </Button>
                             <TextBlock Text="Обход DPI" FontSize="9.5" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
                         </StackPanel>
@@ -72,13 +66,11 @@
                         <!-- Telegram Proxy Toggle -->
                         <StackPanel Grid.Column="1" Spacing="8" HorizontalAlignment="Center">
                             <Button x:Name="TgPowerButton" Click="TgPowerButton_Click" Width="56" Height="56" CornerRadius="28" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False" MinWidth="0" MinHeight="0">
-                                <Button.Content>
-                                    <FontIcon x:Name="TgPowerIcon" Glyph="&#xE122;" FontSize="20">
-                                        <FontIcon.RenderTransform>
-                                            <RotateTransform Angle="-45" CenterX="10" CenterY="10" />
-                                        </FontIcon.RenderTransform>
-                                    </FontIcon>
-                                </Button.Content>
+                                <FontIcon x:Name="TgPowerIcon" FontFamily="Segoe Fluent Icons" Glyph="&#xE724;" FontSize="20" Foreground="#B4FFFFFF" RenderTransformOrigin="0.5,0.5">
+                                    <FontIcon.RenderTransform>
+                                        <RotateTransform Angle="-45" />
+                                    </FontIcon.RenderTransform>
+                                </FontIcon>
                             </Button>
                             <TextBlock Text="Telegram" FontSize="9.5" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
                         </StackPanel>
@@ -95,23 +87,19 @@
                                 <TextBlock Text="АКТИВНЫЙ ПРЕСЕТ" FontSize="7" FontWeight="Bold" Foreground="#8E8E93" />
                                 <TextBlock x:Name="ActivePresetNameText" Text="general.bat" FontSize="10" FontWeight="SemiBold" Foreground="#FFFFFF" />
                             </StackPanel>
-                            <FontIcon Grid.Column="1" Glyph="&#xE8B7;" FontSize="11" Foreground="#8E8E93" VerticalAlignment="Center" />
+                            <Viewbox Grid.Column="1" Width="11" Height="11" VerticalAlignment="Center">
+                                <Path Data="M7 10l5 5 5-5z" Fill="#8E8E93" Stretch="Uniform" />
+                            </Viewbox>
                         </Grid>
                     </Border>
 
                     <!-- Footer Buttons -->
                     <Grid ColumnDefinitions="*,*" IsTabStop="False">
                         <Button Grid.Column="0" Click="OpenFullAppButton_Click" HorizontalAlignment="Stretch" Margin="0,0,4,0" Height="26" Padding="0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
-                            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE7F4;" FontSize="9" />
-                                <TextBlock Text="Открыть" FontSize="10" />
-                            </StackPanel>
+                            <TextBlock Text="Открыть" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Button>
                         <Button Grid.Column="1" Click="ExitAppButton_Click" HorizontalAlignment="Stretch" Margin="4,0,0,0" Background="#22FF453A" BorderThickness="0" Height="26" Padding="0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
-                            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE10A;" FontSize="9" Foreground="#FF453A" />
-                                <TextBlock Text="Выйти" FontSize="10" Foreground="#FF453A" />
-                            </StackPanel>
+                            <TextBlock Text="Выйти" FontSize="10" Foreground="#FF453A" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Button>
                     </Grid>
                 </StackPanel>
@@ -121,17 +109,20 @@
                     <!-- Main Actions Group -->
                     <Button Click="OpenFullAppButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE7F4;" FontSize="11" Foreground="#A79A83" />
+                            <Viewbox Width="11" Height="11">
+                                <Path Data="M20,2H4C2.9,2 2,2.9 2,4v12c0,1.1 0.9,2 2,2h14l4,4V4C22,2.9 21.1,2 20,2z M10,14V7l5,3.5L10,14z" Fill="#A79A83" Stretch="Uniform" />
+                            </Viewbox>
                             <TextBlock Text="Открыть Mirrly" FontSize="11" Foreground="#FFFFFF" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="MenuConnectTelegramButton" Click="ConnectTelegramButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE122;" FontSize="11" Foreground="#A79A83">
-                                <FontIcon.RenderTransform>
-                                    <RotateTransform Angle="-45" CenterX="5.5" CenterY="5.5" />
-                                </FontIcon.RenderTransform>
-                            </FontIcon>
+                            <Viewbox Width="11" Height="11" RenderTransformOrigin="0.5,0.5">
+                                <Viewbox.RenderTransform>
+                                    <RotateTransform Angle="-45" />
+                                </Viewbox.RenderTransform>
+                                <Path Data="M2.01,21L23,12 2.01,3 2,10l15,2 -15,2z" Fill="#A79A83" Stretch="Uniform" />
+                            </Viewbox>
                             <TextBlock Text="Подключить Telegram" FontSize="11" Foreground="#FFFFFF" />
                         </StackPanel>
                     </Button>
@@ -143,7 +134,9 @@
                     </Button>
                     <Button Click="MenuDiagnosticsButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE9D2;" FontSize="11" Foreground="#A79A83" />
+                            <Viewbox Width="11" Height="11">
+                                <Path Data="M 16 3 L 10.4 17.6 L 7.5 10 L 2 10 L 2 12 L 6 12 L 9.6 21.4 L 15.5 6 L 18 12 L 22 12 L 22 10 L 19.5 10 Z" Fill="#A79A83" Stretch="Uniform" />
+                            </Viewbox>
                             <TextBlock Text="Запустить диагностику" FontSize="11" Foreground="#FFFFFF" />
                         </StackPanel>
                     </Button>
@@ -153,13 +146,17 @@
                     <!-- Bottom Settings & System Group -->
                     <Button Click="OpenSettingsButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE713;" FontSize="11" Foreground="#A79A83" />
+                            <Viewbox Width="11" Height="11">
+                                <Path Data="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" Fill="#A79A83" Stretch="Uniform" />
+                            </Viewbox>
                             <TextBlock Text="Настройки" FontSize="11" Foreground="#FFFFFF" />
                         </StackPanel>
                     </Button>
                     <Button Click="ExitAppButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE10A;" FontSize="11" Foreground="#FF453A" />
+                            <Viewbox Width="11" Height="11">
+                                <Path Data="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z" Fill="#FF453A" Stretch="Uniform" />
+                            </Viewbox>
                             <TextBlock Text="Выход" FontSize="11" Foreground="#FF453A" />
                         </StackPanel>
                     </Button>
@@ -178,7 +175,9 @@
                             IsTabStop="False"
                             Visibility="Collapsed">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE896;" FontSize="11" Foreground="#FF9F1C" />
+                            <Viewbox Width="11" Height="11">
+                                <Path Data="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" Fill="#FF9F1C" Stretch="Uniform" />
+                            </Viewbox>
                             <TextBlock x:Name="MenuUpdateText" Text="Обновить" FontSize="11" Foreground="#FF9F1C" />
                         </StackPanel>
                     </Button>

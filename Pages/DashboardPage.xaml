@@ -25,7 +25,7 @@
 
             <!-- Header -->
             <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,24">
-                <TextBlock Text="Хаб управления" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
+                <TextBlock Text="DPI обход discord + youtube" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
                 <TextBlock Text="Запуск локального обхода DPI и мониторинг состояния соединения" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
             </StackPanel>
 
@@ -72,19 +72,15 @@
                             <TextBlock x:Name="ServiceStatusText" Text="Автозапуск через службу: не настроен" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
                         </StackPanel>
 
-                        <!-- Refresh -->
-                        <Button Grid.Column="2" x:Name="RefreshStatusButton" Click="RefreshStatusButton_Click" VerticalAlignment="Top" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Обновить статус">
-                            <FontIcon Glyph="&#xE72C;" FontSize="13" />
-                        </Button>
+                        <!-- Refresh button removed by user request -->
                     </Grid>
 
                     <!-- Bottom band: Launch button -->
                     <Grid Grid.Row="1" x:Name="MonitorActionBar" Padding="24,0,24,20">
                         <Button x:Name="ActionBypassButton" Click="ActionBypassButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48">
-                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                <FontIcon Grid.Column="0" x:Name="ActionBypassIcon" Glyph="&#xE768;" FontSize="16" Margin="0,0,10,0" />
-                                <TextBlock Grid.Column="1" x:Name="ActionBypassText" Text="Запустить обход" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
-                                <ProgressRing Grid.Column="2" x:Name="ActionBypassProgressRing" IsActive="False" Width="20" Height="20" Foreground="White" Margin="10,0,0,0" Visibility="Collapsed" />
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" HorizontalAlignment="Center" x:Name="ActionBypassText" Text="Запустить обход" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                                <ProgressRing Grid.Column="1" x:Name="ActionBypassProgressRing" IsActive="False" Width="20" Height="20" Foreground="White" Margin="10,0,0,0" Visibility="Collapsed" />
                             </Grid>
                         </Button>
                     </Grid>
@@ -111,14 +107,11 @@
                             <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Окно вывода логов утилиты winws.exe. Показывает сообщения о старте, загрузке списков сайтов, перехвате пакетов и ошибках." VerticalAlignment="Center" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                            <Button x:Name="CopyLogButton" Click="CopyLogButton_Click" Padding="6" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
-                                <FontIcon Glyph="&#xE8C8;" FontSize="11" />
+                            <Button x:Name="CopyLogButton" Click="CopyLogButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="13" />
                             </Button>
-                            <Button x:Name="ClearLogButton" Click="ClearLogButton_Click" Padding="8,4" Height="26" FontSize="11">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon Glyph="&#xE74D;" FontSize="11" />
-                                    <TextBlock Text="Очистить" FontSize="11" />
-                                </StackPanel>
+                            <Button x:Name="ClearLogButton" Click="ClearLogButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Очистить журнал">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="13" />
                             </Button>
                         </StackPanel>
                     </Grid>
@@ -170,8 +163,8 @@
                                 <TextBlock Text="АРГУМЕНТЫ КОМАНДНОЙ СТРОКИ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
                                 <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Технические параметры ядра winws.exe. Формируются автоматически на основе выбранного пресета (фильтры портов, списки адресов и методы расщепления пакетов)." VerticalAlignment="Center" />
                             </StackPanel>
-                            <Button Grid.Column="1" x:Name="CopyArgsButton" Click="CopyArgsButton_Click" Padding="6" Height="26" Width="26" ToolTipService.ToolTip="Копировать аргументы командной строки">
-                                <FontIcon Glyph="&#xE8C8;" FontSize="11" />
+                            <Button Grid.Column="1" x:Name="CopyArgsButton" Click="CopyArgsButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать аргументы командной строки">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="13" />
                             </Button>
                         </Grid>
                     </Border>

@@ -86,7 +86,6 @@ public sealed partial class TgWsProxyPage : Page
             StatusText.Text = "Прокси-сервер запущен";
             ServiceStatusText.Text = $"Локальный прокси слушает порт {SettingsManager.Instance.TgWsProxyPort}";
 
-            ActionBypassIcon.Glyph = "\xE71A"; // Stop icon
             ActionBypassText.Text = "Остановить прокси";
             ConnectTelegramButton.IsEnabled = true;
 
@@ -102,7 +101,6 @@ public sealed partial class TgWsProxyPage : Page
             StatusText.Text = "Прокси-сервер не запущен";
             ServiceStatusText.Text = "Работает параллельно с основным обходом";
 
-            ActionBypassIcon.Glyph = "\xE768"; // Play icon
             ActionBypassText.Text = "Запустить прокси";
             ConnectTelegramButton.IsEnabled = false;
 

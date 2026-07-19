@@ -98,17 +98,15 @@
 
                                             <!-- Play Trigger -->
                                             <Button Grid.Column="4" x:Name="PlayButton" Click="PlayButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" Width="100" VerticalAlignment="Bottom">
-                                                <Grid ColumnDefinitions="Auto,*,Auto">
-                                                    <FontIcon Grid.Column="0" Glyph="&#xE768;" FontSize="12" Margin="0,0,8,0" />
-                                                    <TextBlock Grid.Column="1" Text="Запуск" VerticalAlignment="Center" />
-                                                    <ProgressRing Grid.Column="2" x:Name="PlayProgressRing" IsActive="False" Width="16" Height="16" Foreground="White" Margin="8,0,0,0" Visibility="Collapsed" />
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="Запуск" VerticalAlignment="Center" />
+                                                    <ProgressRing Grid.Column="1" x:Name="PlayProgressRing" IsActive="False" Width="16" Height="16" Foreground="White" Margin="8,0,0,0" Visibility="Collapsed" />
                                                 </Grid>
                                             </Button>
 
                                             <!-- Stop Trigger -->
                                             <Button Grid.Column="5" x:Name="StopButton" Click="StopButton_Click" IsEnabled="False" Height="36" Width="80" VerticalAlignment="Bottom">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon Glyph="&#xE71A;" FontSize="12" />
+                                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                                                     <TextBlock Text="Стоп" />
                                                 </StackPanel>
                                             </Button>
@@ -145,18 +143,12 @@
                                             <TextBlock x:Name="StatusStripTextBlock" Text="Готово" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.7" VerticalAlignment="Center" />
                                         </StackPanel>
 
-                                        <Button Grid.Column="1" x:Name="ViewLogsButton" Click="ViewLogsButton_Click" Height="28" Padding="12,0" Margin="0,0,8,0" ToolTipService.ToolTip="Перейти к журналу логов">
-                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                <FontIcon Glyph="&#xE9D9;" FontSize="11" />
-                                                <TextBlock Text="Логи" FontSize="11" />
-                                            </StackPanel>
+                                        <Button Grid.Column="1" x:Name="ViewLogsButton" Click="ViewLogsButton_Click" Height="28" Width="28" Padding="0" Margin="0,0,8,0" ToolTipService.ToolTip="Перейти к журналу логов">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8FD;" FontSize="14" />
                                         </Button>
 
-                                        <Button Grid.Column="2" x:Name="CopyConsoleButton" Click="CopyConsoleButton_Click" Height="28" Padding="12,0" ToolTipService.ToolTip="Копировать лог диагностики в буфер">
-                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                <FontIcon Glyph="&#xE8C8;" FontSize="11" />
-                                                <TextBlock Text="Копировать" FontSize="11" />
-                                            </StackPanel>
+                                        <Button Grid.Column="2" x:Name="CopyConsoleButton" Click="CopyConsoleButton_Click" Height="28" Width="28" Padding="0" ToolTipService.ToolTip="Копировать лог диагностики в буфер">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="14" />
                                         </Button>
                                     </Grid>
 
@@ -384,10 +376,7 @@
                                         <TextBlock Text="Анализ сетевой подсистемы Windows, выявление конфликтующих драйверов, фонового ПО и чистка кэша." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
 
                                         <Button x:Name="RunSystemDiagnosticsBtn" Click="RunSystemDiagnosticsBtn_Click" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="44" Margin="0,8,0,0">
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <FontIcon Glyph="&#xE9D2;" FontSize="14" />
-                                                <TextBlock Text="Запустить проверку" FontWeight="SemiBold" />
-                                            </StackPanel>
+                                             <TextBlock Text="Запустить проверку" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Button>
                                     </StackPanel>
                                 </Border>
@@ -397,17 +386,11 @@
                                         <TextBlock Text="АВТОМАТИЧЕСКИЕ ДЕЙСТВИЯ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
                                         
                                         <Button x:Name="FixSystemConflictsBtn" Click="FixSystemConflictsBtn_Click" HorizontalAlignment="Stretch" Height="38">
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <FontIcon Glyph="&#xE73E;" FontSize="12" />
-                                                <TextBlock Text="Устранить конфликты ПО" />
-                                            </StackPanel>
+                                            <TextBlock Text="Устранить конфликты ПО" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Button>
 
                                         <Button x:Name="ClearDiscordCacheBtn" Click="ClearDiscordCacheBtn_Click" HorizontalAlignment="Stretch" Height="38" Margin="0,4,0,0">
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <FontIcon Glyph="&#xE9F5;" FontSize="12" />
-                                                <TextBlock Text="Очистить кэш Discord" />
-                                            </StackPanel>
+                                            <TextBlock Text="Очистить кэш Discord" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Button>
                                     </StackPanel>
                                 </Border>

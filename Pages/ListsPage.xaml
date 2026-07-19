@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="ZapretMirrlyGUI.Pages.ListsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -24,7 +24,9 @@
             <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,24">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <TextBlock Text="Списки обхода" Style="{StaticResource PremiumPageTitleStyle}" FontSize="20" />
-                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Список текстовых файлов с доменными именами и IP-адресами, считываемых winws.exe при старте. Вы можете редактировать списки разблокируемых доменов и исключений." VerticalAlignment="Center" />
+                    <Viewbox Width="14" Height="14" VerticalAlignment="Center" ToolTipService.ToolTip="Список текстовых файлов с доменными именами и IP-адресами, считываемых winws.exe при старте. Вы можете редактировать списки разблокируемых доменов и исключений.">
+                        <Path Data="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" Fill="#8A8A8F" Stretch="Uniform" />
+                    </Viewbox>
                 </StackPanel>
                 <TextBlock Text="Конфигурация доменов и IP" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
             </StackPanel>
@@ -45,6 +47,8 @@
                     <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#A79A83" />
                     <!-- Explicit corner radius override for ListViewItem background template -->
                     <CornerRadius x:Key="ListViewItemCornerRadius">6</CornerRadius>
+                    
+                    <local:StringToGeometryConverter x:Key="StringToGeoConverter" xmlns:local="using:ZapretMirrlyGUI.Pages" />
                 </ListView.Resources>
                 
                 <ListView.ItemContainerStyle>
@@ -60,8 +64,9 @@
                     <DataTemplate>
                         <Grid ColumnDefinitions="Auto,*">
                             <!-- Icon (Default slate, inherits gold on selection due to omitted Foreground override) -->
-                            <FontIcon Grid.Column="0" Glyph="{Binding IconGlyph}" FontSize="16"
-                                      Margin="0,0,12,0" VerticalAlignment="Center" />
+                            <Viewbox Grid.Column="0" Width="16" Height="16" Margin="0,0,12,0" VerticalAlignment="Center">
+                                <Path Data="{Binding IconData, Converter={StaticResource StringToGeoConverter}}" Fill="#8A8A8F" Stretch="Uniform" />
+                            </Viewbox>
                             <!-- Text -->
                             <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DisplayName}"
@@ -96,7 +101,9 @@
                 <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,16,0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock x:Name="ActiveListTitleTextBlock" Text="Выберите список" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" FontWeight="Bold" />
-                        <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Правила редактирования:&#x0a;1. Каждый адрес или домен вводится с новой строки (например, youtube.com).&#x0a;2. Указывайте домен без http, https, слешей или путей (например, googlevideo.com, а не https://googlevideo.com/).&#x0a;3. Символ # в начале строки отключает домен (комментарий).&#x0a;&#x0a;ВАЖНО: После внесения изменений сохраните список (кнопка внизу) и перезапустите обход в Хабе управления (Остановить и затем Запустить снова), чтобы изменения применились." VerticalAlignment="Center" />
+                        <Viewbox Width="14" Height="14" VerticalAlignment="Center" ToolTipService.ToolTip="Правила редактирования:&#x0a;1. Каждый адрес или домен вводится с новой строки (например, youtube.com).&#x0a;2. Указывайте домен без http, https, слешей или путей (например, googlevideo.com, а не https://googlevideo.com/).&#x0a;3. Символ # в начале строки отключает домен (комментарий).&#x0a;&#x0a;ВАЖНО: После внесения изменений сохраните список (кнопка внизу) и перезапустите обход в Хабе управления (Остановить и затем Запустить снова), чтобы изменения применились.">
+                            <Path Data="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" Fill="#8A8A8F" Stretch="Uniform" />
+                        </Viewbox>
                     </StackPanel>
                     <TextBlock x:Name="ActiveListSubtitleTextBlock" Text="Описание назначения и правил списка" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                 </StackPanel>
@@ -105,7 +112,6 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <Button x:Name="SortAlphabeticallyButton" Click="SortAlphabeticallyButton_Click" Height="36" ToolTipService.ToolTip="Сортировка по алфавиту. Сдвигает комментарии с решеткой (#) наверх, а все доменные адреса сортирует по возрастанию для удобства чтения.">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE8CB;" FontSize="14" />
                             <TextBlock Text="Сортировать" />
                         </StackPanel>
                     </Button>
@@ -125,14 +131,12 @@
 
                 <Button Grid.Column="1" x:Name="RevertButton" Click="RevertButton_Click" Margin="0,0,8,0" Height="36" ToolTipService.ToolTip="Сбросить все изменения в редакторе до состояния последней сохраненной версии с диска.">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE7A7;" />
                         <TextBlock Text="Сбросить" />
                     </StackPanel>
                 </Button>
 
                 <Button Grid.Column="2" x:Name="SaveChangesButton" Click="SaveChangesButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" ToolTipService.ToolTip="Записать изменения на диск. Потребуется остановить и снова запустить обход в Хабе управления, чтобы правила вступили в силу.">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE74E;" />
                         <TextBlock Text="Сохранить список" />
                     </StackPanel>
                 </Button>
