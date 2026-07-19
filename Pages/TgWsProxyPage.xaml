@@ -82,7 +82,7 @@
                             </Button>
 
                             <!-- Telegram Connect Link -->
-                            <Button Grid.Column="1" x:Name="ConnectTelegramButton" Click="ConnectTelegramButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Background="#1F2A38" BorderBrush="#2D3B4C" HorizontalAlignment="Stretch" Height="48" Margin="8,0,0,0" IsEnabled="False">
+                            <Button Grid.Column="1" x:Name="ConnectTelegramButton" Click="ConnectTelegramButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Background="{ThemeResource ConnectTelegramBackground}" BorderBrush="{ThemeResource ConnectTelegramBorder}" Foreground="{ThemeResource ConnectTelegramForeground}" HorizontalAlignment="Stretch" Height="48" Margin="8,0,0,0" IsEnabled="False">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="Подключить Telegram" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
                                 </Grid>
@@ -93,7 +93,7 @@
             </StackPanel>
 
             <!-- ─── LAUNCH LOG ─── -->
-            <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Background="#09090B" BorderBrush="#1A1A1A" Padding="0">
+            <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -101,7 +101,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Log header -->
-                    <Grid Grid.Row="0" Padding="16,12" Background="#0D0D0F" BorderBrush="#1F1F1F">
+                    <Grid Grid.Row="0" Padding="16,12" Background="{ThemeResource WidgetCardBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -122,7 +122,7 @@
 
                     <!-- Log output -->
                     <ScrollViewer Grid.Row="1" x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
-                        <TextBlock x:Name="LaunchLogTextBlock" FontFamily="Consolas" FontSize="11" Foreground="#C0B89A" TextWrapping="Wrap" />
+                        <TextBlock x:Name="LaunchLogTextBlock" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
                     </ScrollViewer>
                 </Grid>
             </Border>

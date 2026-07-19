@@ -31,6 +31,30 @@ public class AppSettings
     public bool AutoCheckGuiUpdates { get; set; } = true;
     public string SkippedGuiVersion { get; set; } = "";
     public DateTime SkippedGuiVersionTime { get; set; } = DateTime.MinValue;
+
+    // Custom launch parameters
+    public string CustomWinwsArgs { get; set; } = "";
+
+    // Traffic Filter settings
+    public bool AutoHostlist { get; set; } = false;
+    public string BindInterface { get; set; } = "default";
+    public string IpProtocolMode { get; set; } = "both";
+
+    // Folders & Files settings
+    public bool UseAutoPaths { get; set; } = true;
+    public string CustomZapretRoot { get; set; } = "";
+    public string CustomListsPath { get; set; } = "";
+    public string CustomBackupPath { get; set; } = "";
+
+    // Databases & lists auto update settings
+    public bool AutoUpdateDatabase { get; set; } = false;
+
+    // Window Backdrops
+    public string AppBackdropType { get; set; } = "Mica"; // Mica, Acrylic, None
+    public string TrayBackdropType { get; set; } = "Acrylic"; // Mica, Acrylic, None
+
+    // Themes
+    public string AppTheme { get; set; } = "Standard"; // Standard, Light, Dark
 }
 
 public static class SettingsManager

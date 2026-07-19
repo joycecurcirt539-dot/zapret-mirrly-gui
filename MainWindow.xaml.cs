@@ -47,6 +47,8 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ApplyThemeSettings();
+        ApplyBackdropSettings();
 
         AppWindow.Title = "Zapret Mirrly GUI";
 
@@ -115,6 +117,13 @@ public sealed partial class MainWindow : Window
         DispatcherQueue.TryEnqueue(async () =>
         {
             await CheckForGUIUpdatesOnStartupAsync();
+            if (SettingsManager.Instance.AutoUpdateDatabase)
+            {
+                await Task.Run(async () =>
+                {
+                    try { await ZapretService.UpdateIpsetListAsync(); } catch {}
+                });
+            }
         });
     }
 
@@ -617,13 +626,98 @@ public sealed partial class MainWindow : Window
             UpdatePrereleaseBadge.Visibility = Visibility.Collapsed;
         }
 
+        // Dynamic Highlights Parsing (Anti-Clickbait)
+        string changelogLower = (update.Changelog ?? "").ToLower();
+        bool hasFeatures = changelogLower.Contains("добавлен") || changelogLower.Contains("новое") || changelogLower.Contains("добавил") || changelogLower.Contains("feature") || changelogLower.Contains("added") || changelogLower.Contains("реализован") || changelogLower.Contains("поддерж");
+        bool hasSpeed = changelogLower.Contains("скорост") || changelogLower.Contains("быстро") || changelogLower.Contains("ускор") || changelogLower.Contains("оптимизац") || changelogLower.Contains("производител") || changelogLower.Contains("speed") || changelogLower.Contains("performance") || changelogLower.Contains("fast") || changelogLower.Contains("улучшен сетев");
+        bool hasFixes = changelogLower.Contains("исправлен") || changelogLower.Contains("ошибк") || changelogLower.Contains("баг") || changelogLower.Contains("конфликт") || changelogLower.Contains("вылет") || changelogLower.Contains("краш") || changelogLower.Contains("fix") || changelogLower.Contains("bug") || changelogLower.Contains("error") || changelogLower.Contains("исправлен") || changelogLower.Contains("зависа");
+
+        // Fallback: if nothing matched, set stability to true
+        if (!hasFeatures && !hasSpeed && !hasFixes)
+        {
+            hasFixes = true;
+        }
+
+        // 1. Features
+        if (hasFeatures)
+        {
+            FeatureHighlightRow.Opacity = 1.0;
+            FeatureHighlightIconBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 44, 41, 37)); // active gold
+            FeatureHighlightTitle.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 226, 221, 213)); // #E2DDD5
+            FeatureHighlightDesc.Text = "Добавлены новые возможности";
+            FeatureHighlightBadge.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 61, 58, 53)); // #3D3A35
+            FeatureHighlightBadgeText.Text = "НОВОЕ";
+            FeatureHighlightBadgeText.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 215, 0)); // Gold
+        }
+        else
+        {
+            FeatureHighlightRow.Opacity = 0.35;
+            FeatureHighlightIconBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 24, 23, 21)); // inactive
+            FeatureHighlightTitle.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 160, 155, 146)); // muted #A09B92
+            FeatureHighlightDesc.Text = "В этом релизе без новых функций";
+            FeatureHighlightBadge.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 27, 26, 25)); // dark grey
+            FeatureHighlightBadgeText.Text = "НЕТ";
+            FeatureHighlightBadgeText.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 120, 115, 110)); // dark muted grey
+        }
+
+        // 2. Speed
+        if (hasSpeed)
+        {
+            SpeedHighlightRow.Opacity = 1.0;
+            SpeedHighlightIconBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 37, 40, 42)); // active cyan
+            SpeedHighlightTitle.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 226, 221, 213));
+            SpeedHighlightDesc.Text = "Оптимизация и быстрый обход";
+            SpeedHighlightBadge.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 29, 42, 43)); // #1D2A2B
+            SpeedHighlightBadgeText.Text = "УСКОРЕНО";
+            SpeedHighlightBadgeText.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 245, 212)); // Cyan
+        }
+        else
+        {
+            SpeedHighlightRow.Opacity = 0.35;
+            SpeedHighlightIconBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 21, 22, 23));
+            SpeedHighlightTitle.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 160, 155, 146));
+            SpeedHighlightDesc.Text = "Показатели скорости без изменений";
+            SpeedHighlightBadge.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 27, 26, 25));
+            SpeedHighlightBadgeText.Text = "НЕТ";
+            SpeedHighlightBadgeText.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 120, 115, 110));
+        }
+
+        // 3. Stability
+        if (hasFixes)
+        {
+            StabilityHighlightRow.Opacity = 1.0;
+            StabilityHighlightIconBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 43, 36, 37)); // active orange/amber
+            StabilityHighlightTitle.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 226, 221, 213));
+            StabilityHighlightDesc.Text = "Исправлены системные ошибки";
+            StabilityHighlightBadge.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 52, 35, 35)); // #342323
+            StabilityHighlightBadgeText.Text = "АКТИВНО";
+            StabilityHighlightBadgeText.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 159, 28)); // Amber
+        }
+        else
+        {
+            StabilityHighlightRow.Opacity = 0.35;
+            StabilityHighlightIconBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 24, 22, 22));
+            StabilityHighlightTitle.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 160, 155, 146));
+            StabilityHighlightDesc.Text = "Критических багов не обнаружено";
+            StabilityHighlightBadge.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 27, 26, 25));
+            StabilityHighlightBadgeText.Text = "НЕТ";
+            StabilityHighlightBadgeText.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 120, 115, 110));
+        }
+
+        // Hide the subtitle header as requested ("не пиши крупный релиз")
+        SidebarSubtitleText.Visibility = Visibility.Collapsed;
+
+
+
         UpdateNotificationOverlay.Visibility = Visibility.Visible;
         ShowUpdateOverlayStoryboard.Begin();
+        ScanlineStoryboard.Begin(); // Start the scanline sweep loop
     }
 
     private void HideUpdateModal()
     {
         HideUpdateOverlayStoryboard.Begin();
+        ScanlineStoryboard.Stop(); // Stop scanline sweep loop
     }
 
     private void DownloadUpdate_Click(object sender, RoutedEventArgs e)
@@ -658,7 +752,6 @@ public sealed partial class MainWindow : Window
     {
         HideUpdateModal();
     }
-
     private void PopulateRichTextBlockWithMarkdown(RichTextBlock rtb, string markdown)
     {
         rtb.Blocks.Clear();
@@ -671,6 +764,53 @@ public sealed partial class MainWindow : Window
         {
             var trimmedLine = line.Trim();
 
+            // 0. Blockquotes (e.g. > Quote text)
+            if (trimmedLine.StartsWith(">"))
+            {
+                string quoteText = trimmedLine.TrimStart('>').Trim();
+                var quoteParagraph = new Paragraph { Margin = new Thickness(16, 8, 0, 8) };
+                
+                var quoteBar = new Run 
+                { 
+                    Text = "┃  ", 
+                    FontWeight = Microsoft.UI.Text.FontWeights.Bold, 
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 167, 154, 131)) // #A79A83
+                };
+                quoteParagraph.Inlines.Add(quoteBar);
+
+                var quoteContent = new Italic { Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, 226, 221, 213)) };
+                ParseInlineMarkdown(quoteContent.Inlines, quoteText);
+                
+                quoteParagraph.Inlines.Add(quoteContent);
+                rtb.Blocks.Add(quoteParagraph);
+                currentParagraph = null;
+                continue;
+            }
+
+            // 0b. Sub-bullet list chevrons (e.g. - > Subitem or * > Subitem)
+            if (trimmedLine.StartsWith("- >") || trimmedLine.StartsWith("* >") || trimmedLine.StartsWith("-&gt;") || trimmedLine.StartsWith("*&gt;"))
+            {
+                string itemText = trimmedLine.Substring(trimmedLine.Contains("&gt;") ? trimmedLine.IndexOf("&gt;") + 4 : 3).Trim();
+                var listParagraph = new Paragraph { Margin = new Thickness(32, 4, 0, 4) }; // indented further
+                
+                // Add right chevron
+                var chevronRun = new Run 
+                { 
+                    Text = "›  ", 
+                    FontWeight = Microsoft.UI.Text.FontWeights.Bold, 
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 167, 154, 131)) // #A79A83
+                };
+                listParagraph.Inlines.Add(chevronRun);
+
+                var contentItalic = new Italic { Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(220, 226, 221, 213)) };
+                ParseInlineMarkdown(contentItalic.Inlines, itemText);
+                listParagraph.Inlines.Add(contentItalic);
+
+                rtb.Blocks.Add(listParagraph);
+                currentParagraph = null;
+                continue;
+            }
+
             // 1. Headers (e.g. ### Header or ## Header)
             if (trimmedLine.StartsWith("#"))
             {
@@ -678,13 +818,13 @@ public sealed partial class MainWindow : Window
                 while (depth < trimmedLine.Length && trimmedLine[depth] == '#') depth++;
                 string headerText = trimmedLine.Substring(depth).Trim();
 
-                var headerParagraph = new Paragraph { Margin = new Thickness(0, depth == 1 ? 16 : 10, 0, 4) };
+                var headerParagraph = new Paragraph { Margin = new Thickness(0, depth == 1 ? 22 : 14, 0, 8) };
                 var run = new Run 
                 { 
                     Text = headerText, 
-                    FontSize = depth == 1 ? 18 : (depth == 2 ? 15 : 13.5), 
+                    FontSize = depth == 1 ? 17 : (depth == 2 ? 15 : 13.5), 
                     FontWeight = Microsoft.UI.Text.FontWeights.Bold,
-                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 167, 154, 131)) // matching #A79A83
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 246, 242, 234)) // #F6F2EA warm white
                 };
                 headerParagraph.Inlines.Add(run);
                 rtb.Blocks.Add(headerParagraph);
@@ -695,12 +835,12 @@ public sealed partial class MainWindow : Window
             // 2. Horizontal Rule (e.g. ---)
             if (trimmedLine == "---" || trimmedLine == "***")
             {
-                var ruleParagraph = new Paragraph { Margin = new Thickness(0, 10, 0, 10) };
+                var ruleParagraph = new Paragraph { Margin = new Thickness(0, 16, 0, 16) };
                 var inlineContainer = new InlineUIContainer();
                 var lineBorder = new Border 
                 { 
                     Height = 1, 
-                    Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(24, 255, 255, 255)),
+                    Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(32, 167, 154, 131)), // subtle gold-tinted rule
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     Width = rtb.ActualWidth > 0 ? rtb.ActualWidth : 580 // fallback
                 };
@@ -715,10 +855,10 @@ public sealed partial class MainWindow : Window
             if (trimmedLine.StartsWith("* ") || trimmedLine.StartsWith("- ") || trimmedLine.StartsWith("• "))
             {
                 var itemText = trimmedLine.Substring(2).Trim();
-                var listParagraph = new Paragraph { Margin = new Thickness(16, 2, 0, 2) };
+                var listParagraph = new Paragraph { Margin = new Thickness(16, 4, 0, 4) };
                 
                 // Add bullet dot
-                var bulletRun = new Run { Text = "•  ", FontWeight = Microsoft.UI.Text.FontWeights.Bold, Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, 167, 154, 131)) };
+                var bulletRun = new Run { Text = "•  ", FontWeight = Microsoft.UI.Text.FontWeights.Bold, Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 167, 154, 131)) }; // #A79A83
                 listParagraph.Inlines.Add(bulletRun);
 
                 ParseInlineMarkdown(listParagraph.Inlines, itemText);
@@ -727,22 +867,41 @@ public sealed partial class MainWindow : Window
                 continue;
             }
 
-            // 4. Empty line
+            // 4. Numbered list item (e.g. 1. Item)
+            if (trimmedLine.Length > 2 && char.IsDigit(trimmedLine[0]))
+            {
+                int dotIndex = trimmedLine.IndexOf('.');
+                if (dotIndex > 0 && dotIndex < trimmedLine.Length - 1 && trimmedLine[dotIndex + 1] == ' ' && IsAllDigits(trimmedLine.Substring(0, dotIndex)))
+                {
+                    var numberPrefix = trimmedLine.Substring(0, dotIndex + 2);
+                    var itemText = trimmedLine.Substring(dotIndex + 2).Trim();
+                    var listParagraph = new Paragraph { Margin = new Thickness(16, 4, 0, 4) };
+                    
+                    var numRun = new Run { Text = numberPrefix + " ", FontWeight = Microsoft.UI.Text.FontWeights.Bold, Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 167, 154, 131)) }; // #A79A83
+                    listParagraph.Inlines.Add(numRun);
+
+                    ParseInlineMarkdown(listParagraph.Inlines, itemText);
+                    rtb.Blocks.Add(listParagraph);
+                    currentParagraph = null;
+                    continue;
+                }
+            }
+
+            // 5. Empty line
             if (string.IsNullOrWhiteSpace(line))
             {
                 currentParagraph = null;
                 continue;
             }
 
-            // 5. Normal text paragraph
+            // 6. Normal text paragraph
             if (currentParagraph == null)
             {
-                currentParagraph = new Paragraph { Margin = new Thickness(0, 4, 0, 4) };
+                currentParagraph = new Paragraph { Margin = new Thickness(0, 6, 0, 6) };
                 rtb.Blocks.Add(currentParagraph);
             }
             else
             {
-                // Add line break between lines in the same paragraph
                 currentParagraph.Inlines.Add(new LineBreak());
             }
 
@@ -752,9 +911,61 @@ public sealed partial class MainWindow : Window
 
     private void ParseInlineMarkdown(Microsoft.UI.Xaml.Documents.InlineCollection inlines, string text)
     {
+        if (string.IsNullOrEmpty(text)) return;
+        
         int i = 0;
         while (i < text.Length)
         {
+            // Inline code `code`
+            if (text[i] == '`')
+            {
+                int end = text.IndexOf('`', i + 1);
+                if (end != -1)
+                {
+                    var codeText = text.Substring(i + 1, end - (i + 1));
+                    var codeRun = new Run 
+                    { 
+                        Text = codeText,
+                        FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
+                        FontSize = 12.5,
+                        Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 192, 180, 159)) // light gold-bronze #C0B49F
+                    };
+                    inlines.Add(codeRun);
+                    i = end + 1;
+                    continue;
+                }
+            }
+
+            // Hyperlink [Link Text](url)
+            if (text[i] == '[')
+            {
+                int endText = text.IndexOf("](", i + 1);
+                if (endText != -1)
+                {
+                    int endUrl = text.IndexOf(')', endText + 2);
+                    if (endUrl != -1)
+                    {
+                        var linkText = text.Substring(i + 1, endText - (i + 1));
+                        var urlStr = text.Substring(endText + 2, endUrl - (endText + 2));
+                        
+                        try
+                        {
+                            var hyperlink = new Hyperlink { NavigateUri = new Uri(urlStr) };
+                            hyperlink.Inlines.Add(new Run { Text = linkText });
+                            hyperlink.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 245, 212)); // cyan #00F5D4
+                            inlines.Add(hyperlink);
+                            i = endUrl + 1;
+                            continue;
+                        }
+                        catch
+                        {
+                            // Fallback if URL parsing fails
+                        }
+                    }
+                }
+            }
+
+            // Bold **
             if (text.Substring(i).StartsWith("**"))
             {
                 int end = text.IndexOf("**", i + 2);
@@ -762,29 +973,69 @@ public sealed partial class MainWindow : Window
                 {
                     var boldText = text.Substring(i + 2, end - (i + 2));
                     var bold = new Bold();
-                    bold.Inlines.Add(new Run { Text = boldText });
+                    ParseInlineMarkdown(bold.Inlines, boldText);
                     inlines.Add(bold);
                     i = end + 2;
                     continue;
                 }
             }
             
-            if (text[i] == '*')
+            // Bold __
+            if (text.Substring(i).StartsWith("__"))
+            {
+                int end = text.IndexOf("__", i + 2);
+                if (end != -1)
+                {
+                    var boldText = text.Substring(i + 2, end - (i + 2));
+                    var bold = new Bold();
+                    ParseInlineMarkdown(bold.Inlines, boldText);
+                    inlines.Add(bold);
+                    i = end + 2;
+                    continue;
+                }
+            }
+
+            // Italic *
+            if (text[i] == '*' && i + 1 < text.Length && text[i + 1] != '*')
             {
                 int end = text.IndexOf('*', i + 1);
                 if (end != -1)
                 {
                     var italicText = text.Substring(i + 1, end - (i + 1));
                     var italic = new Italic();
-                    italic.Inlines.Add(new Run { Text = italicText });
+                    ParseInlineMarkdown(italic.Inlines, italicText);
                     inlines.Add(italic);
                     i = end + 1;
                     continue;
                 }
             }
 
-            // Append regular character/word
-            int nextSpecial = text.IndexOf('*', i);
+            // Italic _
+            if (text[i] == '_' && i + 1 < text.Length && text[i + 1] != '_')
+            {
+                int end = text.IndexOf('_', i + 1);
+                if (end != -1)
+                {
+                    var italicText = text.Substring(i + 1, end - (i + 1));
+                    var italic = new Italic();
+                    ParseInlineMarkdown(italic.Inlines, italicText);
+                    inlines.Add(italic);
+                    i = end + 1;
+                    continue;
+                }
+            }
+
+            // Normal text chunk - search starting from k = i + 1 (crucial to prevent infinite loops!)
+            int nextSpecial = -1;
+            for (int k = i + 1; k < text.Length; k++)
+            {
+                if (text[k] == '*' || text[k] == '_' || text[k] == '`' || text[k] == '[')
+                {
+                    nextSpecial = k;
+                    break;
+                }
+            }
+
             if (nextSpecial == -1)
             {
                 inlines.Add(new Run { Text = text.Substring(i) });
@@ -792,9 +1043,184 @@ public sealed partial class MainWindow : Window
             }
             else
             {
-                inlines.Add(new Run { Text = text.Substring(i, nextSpecial - i) });
+                if (nextSpecial > i)
+                {
+                    inlines.Add(new Run { Text = text.Substring(i, nextSpecial - i) });
+                }
                 i = nextSpecial;
             }
+        }
+    }
+
+    private bool IsAllDigits(string str)
+    {
+        if (string.IsNullOrEmpty(str)) return false;
+        foreach (char c in str)
+        {
+            if (!char.IsDigit(c)) return false;
+        }
+        return true;
+    }
+
+    public void ApplyBackdropSettings()
+    {
+        var type = SettingsManager.Instance.AppBackdropType;
+        var theme = SettingsManager.Instance.AppTheme;
+
+        if (type == "Mica")
+        {
+            // Light theme uses Base (lighter Mica), Standard/Dark use BaseAlt (deeper Mica)
+            var kind = (theme == "Light")
+                ? Microsoft.UI.Composition.SystemBackdrops.MicaKind.Base
+                : Microsoft.UI.Composition.SystemBackdrops.MicaKind.BaseAlt;
+            this.SystemBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop { Kind = kind };
+            if (RootGrid != null)
+            {
+                RootGrid.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+            }
+        }
+        else if (type == "Acrylic")
+        {
+            this.SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
+            if (RootGrid != null)
+            {
+                RootGrid.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+            }
+        }
+        else
+        {
+            this.SystemBackdrop = null;
+            if (RootGrid != null)
+            {
+                if (theme == "Light")
+                {
+                    RootGrid.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 243, 243, 245));
+                }
+                else if (theme == "Amoled")
+                {
+                    RootGrid.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0));
+                }
+                else
+                {
+                    RootGrid.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 18, 18, 19));
+                }
+            }
+        }
+
+        if (_trayWindow != null)
+        {
+            try { _trayWindow.ApplyBackdropSettings(); } catch {}
+        }
+    }
+
+    private void ApplyThemeResources()
+    {
+        var theme = SettingsManager.Instance.AppTheme;
+        var backdrop = SettingsManager.Instance.AppBackdropType;
+
+        void ApplyToDictionary(ResourceDictionary dict)
+        {
+            if (theme == "Amoled")
+            {
+                // Black Graphite (AMOLED) resource overrides - 100% pitch black everywhere
+                dict["WindowBackgroundBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0));
+                dict["TrayWindowBackground"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(30, 0, 0, 0));
+                dict["TrayWindowOpaqueBackground"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0));
+                
+                // Plaques/cards are completely transparent (absence of background)
+                dict["CardBackgroundBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                dict["CardBorderBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 24, 24, 25));
+                dict["WidgetCardBackgroundBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                dict["WidgetCardBorderBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 20, 20, 21));
+                dict["ConsoleBackgroundBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0));
+                dict["ConsoleBorderBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 16, 16, 17));
+
+                // If backdrop is enabled (Mica/Acrylic), navigation backgrounds must be transparent to let it show through.
+                // If backdrop is disabled, navigation backgrounds must be solid black.
+                var navBackground = (backdrop == "Mica" || backdrop == "Acrylic")
+                    ? Microsoft.UI.Colors.Transparent
+                    : Windows.UI.Color.FromArgb(255, 0, 0, 0);
+
+                var navBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(navBackground);
+                dict["NavigationViewContentBackground"] = navBrush;
+                dict["NavigationViewContentGridBackground"] = navBrush;
+                dict["NavigationViewPaneBackground"] = navBrush;
+                dict["NavigationViewExpandedPaneBackground"] = navBrush;
+                dict["NavigationViewDefaultPaneBackground"] = navBrush;
+                dict["NavigationViewListBackground"] = navBrush;
+                dict["ApplicationPageBackgroundThemeBrush"] = navBrush;
+                dict["TabViewBackground"] = navBrush;
+                dict["TabViewContentBackground"] = navBrush;
+                dict["TabViewHeaderBackground"] = navBrush;
+                dict["TabViewItemHeaderBackground"] = navBrush;
+                dict["TabViewItemHeaderBackgroundSelected"] = navBrush;
+                dict["TabViewItemHeaderBackgroundPointerOver"] = navBrush;
+                dict["TabViewItemHeaderBackgroundPressed"] = navBrush;
+            }
+            else
+            {
+                // Restore default Dark resources
+                dict["WindowBackgroundBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 18, 18, 19));
+                dict["TrayWindowBackground"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(128, 16, 16, 17));
+                dict["TrayWindowOpaqueBackground"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 24, 24, 26));
+                dict["CardBackgroundBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(18, 255, 255, 255));
+                dict["CardBorderBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 47, 47, 47));
+                dict["WidgetCardBackgroundBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 28, 28, 29));
+                dict["WidgetCardBorderBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 37, 37, 38));
+                dict["ConsoleBackgroundBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 12, 12, 12));
+                dict["ConsoleBorderBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 31, 31, 31));
+
+                var transBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                dict["NavigationViewContentBackground"] = transBrush;
+                dict["NavigationViewContentGridBackground"] = transBrush;
+                dict["NavigationViewPaneBackground"] = transBrush;
+                dict["NavigationViewExpandedPaneBackground"] = transBrush;
+                dict["NavigationViewDefaultPaneBackground"] = transBrush;
+                dict["NavigationViewListBackground"] = transBrush;
+                dict["ApplicationPageBackgroundThemeBrush"] = transBrush;
+                dict["TabViewBackground"] = transBrush;
+                dict["TabViewContentBackground"] = transBrush;
+                dict["TabViewHeaderBackground"] = transBrush;
+                dict["TabViewItemHeaderBackground"] = transBrush;
+                dict["TabViewItemHeaderBackgroundSelected"] = transBrush;
+                dict["TabViewItemHeaderBackgroundPointerOver"] = transBrush;
+                dict["TabViewItemHeaderBackgroundPressed"] = transBrush;
+            }
+        }
+
+        // Apply overrides to both theme dictionaries for reliable precedence
+        if (Application.Current.Resources.ThemeDictionaries.TryGetValue("Dark", out object darkObj) && darkObj is ResourceDictionary darkDict)
+        {
+            ApplyToDictionary(darkDict);
+        }
+        if (Application.Current.Resources.ThemeDictionaries.TryGetValue("Default", out object defaultObj) && defaultObj is ResourceDictionary defaultDict)
+        {
+            ApplyToDictionary(defaultDict);
+        }
+    }
+
+    public void ApplyThemeSettings()
+    {
+        var theme = SettingsManager.Instance.AppTheme;
+        ElementTheme elementTheme = (theme == "Light") ? ElementTheme.Light : ElementTheme.Dark;
+
+        // Apply dynamic resources override
+        ApplyThemeResources();
+
+        if (this.Content is FrameworkElement rootElement)
+        {
+            // Toggle theme temporarily to force deep resource tree re-evaluation
+            rootElement.RequestedTheme = (elementTheme == ElementTheme.Dark) ? ElementTheme.Light : ElementTheme.Dark;
+            rootElement.RequestedTheme = elementTheme;
+        }
+
+        // Re-apply backdrop with theme-aware Mica variant
+        ApplyBackdropSettings();
+
+        // Sync tray theme
+        if (_trayWindow != null)
+        {
+            try { _trayWindow.ApplyThemeSettings(); } catch {}
         }
     }
 }

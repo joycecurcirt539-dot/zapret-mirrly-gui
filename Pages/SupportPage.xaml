@@ -32,18 +32,7 @@
             </DoubleAnimation>
         </Storyboard>
 
-        <!-- Scan badge pulse: subtle blink, 0.9 sec -->
-        <Storyboard x:Name="ScanPulseStoryboard" RepeatBehavior="Forever" AutoReverse="True">
-            <DoubleAnimation
-                Storyboard.TargetName="ScanBadge"
-                Storyboard.TargetProperty="Opacity"
-                From="0.45" To="1.0"
-                Duration="0:0:0.9">
-                <DoubleAnimation.EasingFunction>
-                    <SineEase EasingMode="EaseInOut" />
-                </DoubleAnimation.EasingFunction>
-            </DoubleAnimation>
-        </Storyboard>
+
     </Page.Resources>
 
     <Page.Transitions>
@@ -62,15 +51,7 @@
 
             <!-- ══════════════════════ HEADER ══════════════════════ -->
             <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,22">
-                <TextBlock Text="Поддержать автора" Style="{StaticResource PremiumPageTitleStyle}" FontSize="24">
-                    <TextBlock.Foreground>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#F6F2EA" Offset="0.0" />
-                            <GradientStop Color="#D6CDBC" Offset="0.5" />
-                            <GradientStop Color="#A79A83" Offset="1.0" />
-                        </LinearGradientBrush>
-                    </TextBlock.Foreground>
-                </TextBlock>
+                <TextBlock Text="Поддержать автора" Style="{StaticResource PremiumPageTitleStyle}" FontSize="24" Foreground="{ThemeResource TitleTextGradientBrush}" />
                 <TextBlock Text="Zapret Mirrly GUI — часть экосистемы Mirrly" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
             </StackPanel>
 
@@ -86,7 +67,7 @@
                     <StackPanel Padding="24,24,24,28" Spacing="18" HorizontalAlignment="Center">
 
                         <!-- Donate badge -->
-                        <Border BorderBrush="{StaticResource BrandElectricBrush}" BorderThickness="1"
+                        <Border BorderBrush="{ThemeResource BrandElectricBrush}" BorderThickness="1"
                                 CornerRadius="{StaticResource ControlCornerRadius}"
                                 Padding="12,5" HorizontalAlignment="Center">
                             <TextBlock Text="Поддержать разработчика"
@@ -143,25 +124,7 @@
                                        Stretch="Uniform" />
                             </Border>
 
-                            <!-- Layer 4: Scan badge (pulsing, floats at top) -->
-                            <Border x:Name="ScanBadge"
-                                    CornerRadius="12"
-                                    Padding="10,5"
-                                    VerticalAlignment="Top"
-                                    HorizontalAlignment="Center"
-                                    Margin="0,10,0,0"
-                                    Opacity="0.7">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                        <GradientStop Color="#DD201E1C" Offset="0.0" />
-                                        <GradientStop Color="#DD302C28" Offset="1.0" />
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon Glyph="&#xE8D4;" FontSize="10" Foreground="#D19A66" VerticalAlignment="Center" />
-                                    <TextBlock Text="Отсканируй камерой" FontSize="10" FontWeight="SemiBold" Foreground="#D19A66" />
-                                </StackPanel>
-                            </Border>
+
                         </Grid>
 
                         <!-- Donate text + button -->
@@ -232,10 +195,21 @@
                                 </Border.BorderBrush>
                                 <StackPanel Spacing="10">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <!-- Flowseal: щит с молнией — защита, bypass из коробки -->
                                         <Border Width="40" Height="40" CornerRadius="12"
                                                 Background="#1CD19A66" BorderBrush="#65D19A66" BorderThickness="1.5">
-                                            <FontIcon Glyph="&#xE943;" FontSize="18" Foreground="#D19A66"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Viewbox Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <!-- Щит -->
+                                                    <Path Data="M12 2 L20 5.5 L20 12 Q20 17.5 12 22 Q4 17.5 4 12 L4 5.5 Z"
+                                                          Stroke="#D19A66" StrokeThickness="1.6" Fill="#18D19A66"
+                                                          StrokeLineJoin="Round" />
+                                                    <!-- Молния внутри -->
+                                                    <Path Data="M13.5 7 L10 13 L13 13 L10.5 19 L16 12 L12.5 12 Z"
+                                                          Fill="#D19A66" Stroke="#D19A66" StrokeThickness="0.3"
+                                                          StrokeLineJoin="Round" />
+                                                </Canvas>
+                                            </Viewbox>
                                         </Border>
                                         <StackPanel Spacing="3" VerticalAlignment="Center">
                                             <TextBlock Text="Flowseal" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -268,10 +242,23 @@
                                 </Border.BorderBrush>
                                 <StackPanel Spacing="10">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <!-- tg-ws-proxy: самолётик (Telegram) + волны WebSocket -->
                                         <Border Width="40" Height="40" CornerRadius="12"
                                                 Background="#1C6B9FCC" BorderBrush="#656B9FCC" BorderThickness="1.5">
-                                            <FontIcon Glyph="&#xE704;" FontSize="18" Foreground="#6B9FCC"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Viewbox Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <!-- Бумажный самолётик -->
+                                                    <Path Data="M2 12 L22 4 L15 20 L11 14 Z"
+                                                          Stroke="#6B9FCC" StrokeThickness="1.5" Fill="#1C6B9FCC"
+                                                          StrokeLineJoin="Round" />
+                                                    <Line X1="11" Y1="14" X2="15" Y2="10" Stroke="#6B9FCC" StrokeThickness="1.3" />
+                                                    <!-- Волны справа-снизу -->
+                                                    <Path Data="M16 18 Q17.5 16.5 16 15" Stroke="#6B9FCC" StrokeThickness="1.3" Fill="Transparent"
+                                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.8" />
+                                                    <Path Data="M17.5 19.5 Q20 17 17.5 14" Stroke="#6B9FCC" StrokeThickness="1.3" Fill="Transparent"
+                                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.5" />
+                                                </Canvas>
+                                            </Viewbox>
                                         </Border>
                                         <StackPanel Spacing="3" VerticalAlignment="Center">
                                             <TextBlock Text="Flowseal / tg-ws-proxy" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -303,10 +290,24 @@
                                 </Border.BorderBrush>
                                 <StackPanel Spacing="10">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <!-- bol-van: пакет данных, пробивающий стену DPI -->
                                         <Border Width="40" Height="40" CornerRadius="12"
                                                 Background="#1C7BB89E" BorderBrush="#657BB89E" BorderThickness="1.5">
-                                            <FontIcon Glyph="&#xE8D7;" FontSize="18" Foreground="#7BB89E"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Viewbox Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <!-- Стена (вертикальные линии) -->
+                                                    <Line X1="14" Y1="4" X2="14" Y2="10" Stroke="#7BB89E" StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.55" />
+                                                    <Line X1="14" Y1="14" X2="14" Y2="20" Stroke="#7BB89E" StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.55" />
+                                                    <!-- Пакет-стрела слева направо -->
+                                                    <Path Data="M2 10.5 L10 10.5 M2 13.5 L10 13.5 M7 8 L7 16"
+                                                          Stroke="#7BB89E" StrokeThickness="1.4" Fill="Transparent"
+                                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                                    <!-- Стрела прорыва -->
+                                                    <Path Data="M10 12 L22 12 M18 8.5 L22 12 L18 15.5"
+                                                          Stroke="#7BB89E" StrokeThickness="1.6" Fill="Transparent"
+                                                          StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                                </Canvas>
+                                            </Viewbox>
                                         </Border>
                                         <StackPanel Spacing="3" VerticalAlignment="Center">
                                             <TextBlock Text="bol-van / zapret" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -338,10 +339,24 @@
                                 </Border.BorderBrush>
                                 <StackPanel Spacing="10">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <!-- basil00: воронка-фильтр — перехват пакетов на уровне ядра -->
                                         <Border Width="40" Height="40" CornerRadius="12"
                                                 Background="#1C9D8DD1" BorderBrush="#659D8DD1" BorderThickness="1.5">
-                                            <FontIcon Glyph="&#xE72C;" FontSize="18" Foreground="#9D8DD1"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Viewbox Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <!-- Воронка -->
+                                                    <Path Data="M3 5 L21 5 L14 13 L14 20 L10 18 L10 13 Z"
+                                                          Stroke="#9D8DD1" StrokeThickness="1.5" Fill="#159D8DD1"
+                                                          StrokeLineJoin="Round" />
+                                                    <!-- Пакеты сверху входят -->
+                                                    <Ellipse Canvas.Left="4" Canvas.Top="2" Width="4" Height="4"
+                                                             Fill="#9D8DD1" Opacity="0.7" />
+                                                    <Ellipse Canvas.Left="10" Canvas.Top="1.5" Width="4" Height="4"
+                                                             Fill="#9D8DD1" Opacity="0.85" />
+                                                    <Ellipse Canvas.Left="16" Canvas.Top="2" Width="4" Height="4"
+                                                             Fill="#9D8DD1" Opacity="0.7" />
+                                                </Canvas>
+                                            </Viewbox>
                                         </Border>
                                         <StackPanel Spacing="3" VerticalAlignment="Center">
                                             <TextBlock Text="basil00 / WinDivert" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -382,9 +397,18 @@
                             <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="16">
                                 <StackPanel Spacing="8">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
-                                        <Border Width="36" Height="36" CornerRadius="10" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                            <FontIcon Glyph="&#xE8EA;" FontSize="16" Foreground="{StaticResource BrandElectricBrush}"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <Border Width="36" Height="36" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                            <!-- Mirrly: два прямоугольника (экран + отражение) -->
+                                            <Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <Rectangle Canvas.Left="2" Canvas.Top="3" Width="20" Height="13" RadiusX="2" RadiusY="2"
+                                                               Stroke="#D19A66" StrokeThickness="1.8" Fill="Transparent" />
+                                                    <Line X1="7" Y1="16" X2="7" Y2="20" Stroke="#D19A66" StrokeThickness="1.6" />
+                                                    <Line X1="17" Y1="16" X2="17" Y2="20" Stroke="#D19A66" StrokeThickness="1.6" />
+                                                    <Line X1="5" Y1="20" X2="19" Y2="20" Stroke="#D19A66" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                                    <Line X1="7" Y1="21" X2="17" Y2="21" Stroke="#D19A66" StrokeThickness="1" Opacity="0.35" />
+                                                </Canvas>
+                                            </Viewbox>
                                         </Border>
                                         <StackPanel Spacing="1" VerticalAlignment="Center">
                                             <TextBlock Text="Mirrly" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -401,9 +425,19 @@
                             <Border Grid.Column="1" Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="16">
                                 <StackPanel Spacing="8">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
-                                        <Border Width="36" Height="36" CornerRadius="10" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                            <FontIcon Glyph="&#xE8A7;" FontSize="16" Foreground="{StaticResource BrandElectricBrush}"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <Border Width="36" Height="36" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                            <!-- Mirrly Companion: смартфон + пульс -->
+                                            <Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <Rectangle Canvas.Left="6" Canvas.Top="2" Width="12" Height="20" RadiusX="2.5" RadiusY="2.5"
+                                                               Stroke="#D19A66" StrokeThickness="1.8" Fill="Transparent" />
+                                                    <Ellipse Canvas.Left="10.5" Canvas.Top="18.5" Width="3" Height="3"
+                                                             Fill="#D19A66" />
+                                                    <Polyline Points="3,12 6,12 8,9 10,15 12,10 14,14 16,12 21,12"
+                                                              Stroke="#D19A66" StrokeThickness="1.5" Fill="Transparent"
+                                                              StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                                </Canvas>
+                                            </Viewbox>
                                         </Border>
                                         <StackPanel Spacing="1" VerticalAlignment="Center">
                                             <TextBlock Text="Mirrly Companion" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -420,9 +454,17 @@
                             <Border Grid.Column="2" Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="16">
                                 <StackPanel Spacing="8">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
-                                        <Border Width="36" Height="36" CornerRadius="10" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                            <FontIcon Glyph="&#xE9F5;" FontSize="16" Foreground="{StaticResource BrandElectricBrush}"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <Border Width="36" Height="36" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                            <!-- Mirrly Builder: шестерёнка со стрелкой вверх -->
+                                            <Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <Path Data="M12 2 L13.8 5.5 L17.5 4.6 L18.4 8.3 L22 10 L20.2 13.5 L21.4 17 L17.8 17.9 L16 21 L12 19.8 L8 21 L6.2 17.9 L2.6 17 L3.8 13.5 L2 10 L5.6 8.3 L6.5 4.6 L10.2 5.5 Z M12 8 L12 16 M9 11 L12 8 L15 11"
+                                                          Stroke="#D19A66" StrokeThickness="1.6" Fill="Transparent"
+                                                          StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                                    <Ellipse Canvas.Left="8.5" Canvas.Top="8.5" Width="7" Height="7"
+                                                             Stroke="#D19A66" StrokeThickness="1.5" Fill="Transparent" />
+                                                </Canvas>
+                                            </Viewbox>
                                         </Border>
                                         <StackPanel Spacing="1" VerticalAlignment="Center">
                                             <TextBlock Text="Mirrly Builder" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -439,9 +481,20 @@
                             <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="16">
                                 <StackPanel Spacing="8">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
-                                        <Border Width="36" Height="36" CornerRadius="10" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                            <FontIcon Glyph="&#xEA18;" FontSize="16" Foreground="{StaticResource BrandElectricBrush}"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <Border Width="36" Height="36" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                            <!-- Zapret Mirrly GUI: экран + щит (защита) -->
+                                            <Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <Rectangle Canvas.Left="1" Canvas.Top="3" Width="22" Height="14" RadiusX="2" RadiusY="2"
+                                                               Stroke="#D19A66" StrokeThickness="1.6" Fill="Transparent" />
+                                                    <Path Data="M8 17 L8 20 M16 17 L16 20 M6 20 L18 20"
+                                                          Stroke="#D19A66" StrokeThickness="1.6"
+                                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                                    <Path Data="M12 5 L15 6.5 L15 9.5 Q15 11.5 12 13 Q9 11.5 9 9.5 L9 6.5 Z"
+                                                          Stroke="#D19A66" StrokeThickness="1.4" Fill="#22D19A66"
+                                                          StrokeLineJoin="Round" />
+                                                </Canvas>
+                                            </Viewbox>
                                         </Border>
                                         <StackPanel Spacing="1" VerticalAlignment="Center">
                                             <TextBlock Text="Zapret Mirrly GUI" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -461,9 +514,17 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Border Width="36" Height="36" CornerRadius="10" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                        <FontIcon Glyph="&#xE8D4;" FontSize="16" Foreground="{StaticResource BrandElectricBrush}"
-                                                  HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Width="36" Height="36" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                        <!-- Автор: силуэт человека + код-скобки -->
+                                        <Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Canvas Width="24" Height="24">
+                                                <Ellipse Canvas.Left="8" Canvas.Top="2" Width="8" Height="8"
+                                                         Stroke="#D19A66" StrokeThickness="1.6" Fill="Transparent" />
+                                                <Path Data="M4 21 Q4 14 12 14 Q20 14 20 21"
+                                                      Stroke="#D19A66" StrokeThickness="1.6" Fill="Transparent"
+                                                      StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                            </Canvas>
+                                        </Viewbox>
                                     </Border>
                                     <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
                                         <TextBlock Text="Разработчик экосистемы" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
@@ -485,7 +546,7 @@
             <!-- ══════════════════════ FOOTER ══════════════════════ -->
             <Border Grid.Row="2" Margin="0,20,0,0" Style="{StaticResource GlassCardStyle}" Padding="14">
                 <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center">
-                    <FontIcon Glyph="&#xE8D7;" FontSize="14" Foreground="{StaticResource BrandElectricBrush}" VerticalAlignment="Center" />
+                    <FontIcon Glyph="&#xE8D7;" FontSize="14" Foreground="{ThemeResource BrandElectricBrush}" VerticalAlignment="Center" />
                     <TextBlock Text="Zapret Mirrly GUI — часть экосистемы Mirrly. Графическая оболочка для утилиты zapret."
                                Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.55" VerticalAlignment="Center" />
                 </StackPanel>

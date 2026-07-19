@@ -11,9 +11,10 @@
         <MicaBackdrop Kind="BaseAlt" />
     </Window.SystemBackdrop>
 
-    <Grid>
+    <Grid x:Name="RootGrid" Background="{ThemeResource WindowBackgroundBrush}">
         <NavigationView
             x:Name="RootNavigationView"
+            Background="Transparent"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
             IsPaneToggleButtonVisible="False"
@@ -43,8 +44,8 @@
                     Tag="dashboard"
                     ToolTipService.ToolTip="Обход для медиа и чатов">
                     <NavigationViewItem.Icon>
-                        <!-- Иконка "Чат (Discord) + Play (YouTube)" -->
-                        <PathIcon Data="M20,2H4C2.9,2 2,2.9 2,4v12c0,1.1 0.9,2 2,2h14l4,4V4C22,2.9 21.1,2 20,2z M10,14V7l5,3.5L10,14z" />
+                        <!-- ДПИ обход: сеть + зигзаг сигнала прорывающегося через DPI-барьер -->
+                        <PathIcon Data="M12 2 L20 5.5 L20 11 Q20 17 12 21 Q4 17 4 11 L4 5.5 Z M8 12 L10.5 9 L12.5 13 L14.5 10 L16 12" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
@@ -55,12 +56,8 @@
                     Tag="tgwsproxy"
                     ToolTipService.ToolTip="Обход блокировок Telegram">
                     <NavigationViewItem.Icon>
-                        <!-- Иконка "Бумажный самолетик (Telegram)" -->
-                        <PathIcon Data="M2.01,21L23,12 2.01,3 2,10l15,2 -15,2z" RenderTransformOrigin="0.5,0.5">
-                            <PathIcon.RenderTransform>
-                                <RotateTransform Angle="-45" />
-                            </PathIcon.RenderTransform>
-                        </PathIcon>
+                        <!-- Telegram Proxy: чистый бумажный самолётик Telegram -->
+                        <PathIcon Data="M3 12 L21 4 L14 20 L10 14 Z" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
@@ -118,7 +115,7 @@
                                     <FontIcon x:Name="UpdateTooltipIcon" Glyph="&#xE930;" FontSize="14" Foreground="#00F5D4" VerticalAlignment="Center"/>
                                     <TextBlock x:Name="UpdateTooltipTitle" Text="Приложение обновлено" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock x:Name="UpdateTooltipDesc" Text="У вас установлена последняя версия Zapret Mirrly GUI (v1.0.3)." FontSize="11" Opacity="0.8" TextWrapping="Wrap" MaxWidth="220"/>
+                                <TextBlock x:Name="UpdateTooltipDesc" Text="У вас установлена последняя версия Zapret Mirrly GUI (v1.1.2)." FontSize="11" Opacity="0.8" TextWrapping="Wrap" MaxWidth="220"/>
                             </StackPanel>
                         </ToolTip>
                     </ToolTipService.ToolTip>
@@ -174,7 +171,14 @@
         </Grid>
 
         <!-- App Update Notification Overlay -->
-        <Grid x:Name="UpdateNotificationOverlay" Visibility="Collapsed" Background="#B3000000" Opacity="0">
+        <Grid x:Name="UpdateNotificationOverlay" Visibility="Collapsed" Opacity="0">
+            <Grid.Background>
+                <RadialGradientBrush Center="0.5,0.5" RadiusX="0.6" RadiusY="0.6" GradientOrigin="0.5,0.5">
+                    <GradientStop Color="#4A554A3B" Offset="0.0"/> <!-- 29% opacity warm gold highlight -->
+                    <GradientStop Color="#CC0A0908" Offset="0.6"/> <!-- 80% opacity dark obsidian -->
+                    <GradientStop Color="#FA050505" Offset="1.0"/> <!-- 98% opacity black -->
+                </RadialGradientBrush>
+            </Grid.Background>
             <Grid.Resources>
                 <!-- Storyboard for fading in/out and scaling -->
                 <Storyboard x:Name="ShowUpdateOverlayStoryboard">
@@ -198,6 +202,14 @@
                         Storyboard.TargetName="UpdateCardScale"
                         Storyboard.TargetProperty="ScaleY"
                         To="1.0" Duration="0:0:0.25">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateCardTranslate"
+                        Storyboard.TargetProperty="Y"
+                        To="0" Duration="0:0:0.28">
                         <DoubleAnimation.EasingFunction>
                             <CubicEase EasingMode="EaseOut"/>
                         </DoubleAnimation.EasingFunction>
@@ -228,62 +240,181 @@
                             <CubicEase EasingMode="EaseIn"/>
                         </DoubleAnimation.EasingFunction>
                     </DoubleAnimation>
+                    <DoubleAnimation
+                        Storyboard.TargetName="UpdateCardTranslate"
+                        Storyboard.TargetProperty="Y"
+                        To="40" Duration="0:0:0.2">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseIn"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+                <!-- Looping scanline animation (VHS scan sweep) -->
+                <Storyboard x:Name="ScanlineStoryboard" RepeatBehavior="Forever">
+                    <DoubleAnimation
+                        Storyboard.TargetName="ScanlineTransform"
+                        Storyboard.TargetProperty="Y"
+                        From="-10" To="730" Duration="0:0:6.0"/>
                 </Storyboard>
             </Grid.Resources>
 
             <Border
                 x:Name="UpdateCard"
-                Width="660"
-                MaxHeight="640"
-                HorizontalAlignment="Center"
+                MaxWidth="980"
+                MaxHeight="725"
+                Height="Auto"
+                HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
+                Margin="60,16"
                 Style="{StaticResource GlassCardStyle}"
-                Padding="28"
+                Padding="0"
+                Background="#141311"
+                BorderBrush="#2F2B26"
+                BorderThickness="1"
+                CornerRadius="16"
                 RenderTransformOrigin="0.5,0.5">
                 <Border.RenderTransform>
-                    <ScaleTransform x:Name="UpdateCardScale" ScaleX="0.9" ScaleY="0.9" />
+                    <TransformGroup>
+                        <ScaleTransform x:Name="UpdateCardScale" ScaleX="0.9" ScaleY="0.9" />
+                        <TranslateTransform x:Name="UpdateCardTranslate" Y="40" />
+                    </TransformGroup>
                 </Border.RenderTransform>
 
-                <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16">
-                    <!-- Title & Glow Icon -->
-                    <Grid Grid.Row="0" ColumnDefinitions="Auto,*">
-                        <Border Width="40" Height="40" CornerRadius="10" Background="#252422" BorderBrush="#3A3834" BorderThickness="1" Margin="0,0,12,0">
-                            <FontIcon Glyph="&#xE896;" FontSize="18" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Grid ColumnDefinitions="300,*">
+                    <!-- Left Column: Highlights Panel (Sidebar) -->
+                    <Grid Grid.Column="0">
+                        <Border CornerRadius="15,0,0,15" BorderThickness="0,0,1,0" BorderBrush="#25221F">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#1A1816" Offset="0.0"/>
+                                    <GradientStop Color="#23201D" Offset="0.5"/>
+                                    <GradientStop Color="#1D1B19" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
                         </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="Доступно обновление!" FontSize="18" FontWeight="Bold" Foreground="#A79A83" />
-                            <TextBlock x:Name="UpdateTagNameText" Text="Версия v1.0.0" FontSize="12" Opacity="0.7" />
+
+
+                        <StackPanel Padding="24" Spacing="16">
+                            <!-- Header -->
+                            <StackPanel Spacing="6" Margin="0,5,0,10">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock x:Name="SidebarSubtitleText" Text="СВЕЖИЙ РЕЛИЗ" FontSize="10" FontWeight="Black" CharacterSpacing="120" Foreground="#A79A83" Opacity="0.8" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Width="20" Height="20" CornerRadius="10" Background="#3D3220" BorderBrush="#5C4B30" BorderThickness="1" HorizontalAlignment="Right">
+                                        <FontIcon Glyph="&#xE785;" FontSize="9" Foreground="#FFD700" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                                <TextBlock Text="Что нового?" FontSize="24" FontWeight="Black" Foreground="#F6F2EA" CharacterSpacing="-0.5"/>
+                                <TextBlock Text="Автоматический анализ изменений в этой версии:" FontSize="10.5" Foreground="#A79A83" Opacity="0.6" Margin="0,2,0,0" TextWrapping="Wrap" LineHeight="14"/>
+                            </StackPanel>
+
+                            <!-- Highlight 1: Features -->
+                            <Grid x:Name="FeatureHighlightRow" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border x:Name="FeatureHighlightIconBorder" Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#2C2925" BorderBrush="#453E36" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                    <FontIcon x:Name="FeatureHighlightIcon" Glyph="&#xE734;" FontSize="16" Foreground="#FFD700" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock x:Name="FeatureHighlightTitle" Text="Новые Фичи" FontSize="13" FontWeight="Bold" Foreground="#E2DDD5"/>
+                                    <TextBlock x:Name="FeatureHighlightDesc" Text="Новые возможности и функции" FontSize="11" Foreground="#A09B92" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Border x:Name="FeatureHighlightBadge" Grid.Column="2" Padding="6,2" CornerRadius="6" Background="#3D3A35" VerticalAlignment="Center">
+                                    <TextBlock x:Name="FeatureHighlightBadgeText" Text="НОВОЕ" FontSize="9" FontWeight="Bold" Foreground="#FFD700"/>
+                                </Border>
+                            </Grid>
+
+                            <!-- Highlight 2: Speed/Performance -->
+                            <Grid x:Name="SpeedHighlightRow" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border x:Name="SpeedHighlightIconBorder" Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#25282A" BorderBrush="#35404A" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                    <FontIcon x:Name="SpeedHighlightIcon" Glyph="&#xE839;" FontSize="16" Foreground="#00F5D4" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock x:Name="SpeedHighlightTitle" Text="Максимум Скорости" FontSize="13" FontWeight="Bold" Foreground="#E2DDD5"/>
+                                    <TextBlock x:Name="SpeedHighlightDesc" Text="Оптимизация и ускорение" FontSize="11" Foreground="#A09B92" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Border x:Name="SpeedHighlightBadge" Grid.Column="2" Padding="6,2" CornerRadius="6" Background="#1D2A2B" VerticalAlignment="Center">
+                                    <TextBlock x:Name="SpeedHighlightBadgeText" Text="УСКОРЕНО" FontSize="9" FontWeight="Bold" Foreground="#00F5D4"/>
+                                </Border>
+                            </Grid>
+
+                            <!-- Highlight 3: Stability/Fixes -->
+                            <Grid x:Name="StabilityHighlightRow" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border x:Name="StabilityHighlightIconBorder" Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#2B2425" BorderBrush="#453435" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                    <FontIcon x:Name="StabilityHighlightIcon" Glyph="&#xE73E;" FontSize="16" Foreground="#FF9F1C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock x:Name="StabilityHighlightTitle" Text="Стабильность" FontSize="13" FontWeight="Bold" Foreground="#E2DDD5"/>
+                                    <TextBlock x:Name="StabilityHighlightDesc" Text="Исправление багов и ошибок" FontSize="11" Foreground="#A09B92" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Border x:Name="StabilityHighlightBadge" Grid.Column="2" Padding="6,2" CornerRadius="6" Background="#342323" VerticalAlignment="Center">
+                                    <TextBlock x:Name="StabilityHighlightBadgeText" Text="ИСПРАВЛЕНО" FontSize="9" FontWeight="Bold" Foreground="#FF9F1C"/>
+                                </Border>
+                            </Grid>
+
                         </StackPanel>
                     </Grid>
 
-                    <!-- Badges -->
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
-                        <Border x:Name="UpdateStableBadge" BorderBrush="#00F5D4" BorderThickness="1" CornerRadius="4" Padding="6,2" Visibility="Collapsed">
-                            <TextBlock Text="СТАБИЛЬНЫЙ ВЫПУСК" FontSize="10" Foreground="#00F5D4" FontWeight="SemiBold"/>
-                        </Border>
-                        <Border x:Name="UpdatePrereleaseBadge" BorderBrush="#FF9F1C" BorderThickness="1" CornerRadius="4" Padding="6,2" Visibility="Collapsed">
-                            <TextBlock Text="ЭКСПЕРИМЕНТ / ПРЕДРЕЛИЗ" FontSize="10" Foreground="#FF9F1C" FontWeight="SemiBold"/>
-                        </Border>
-                    </StackPanel>
+                    <!-- Right Column: Changelog and Actions -->
+                    <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto" Padding="28" RowSpacing="16" Background="#11100F">
+                        <!-- Top Header -->
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Доступно обновление!" FontSize="18" FontWeight="ExtraBold" Foreground="#F6F2EA" />
+                                <TextBlock x:Name="UpdateTagNameText" Text="Версия v1.0.0" FontSize="12" Foreground="#A79A83" FontWeight="Medium" Visibility="Collapsed" />
+                            </StackPanel>
 
-                    <!-- Changelog Content -->
-                    <Border Grid.Row="2" Background="#0C0B0A" BorderBrush="#252422" BorderThickness="1" CornerRadius="8" Padding="16">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="360">
-                            <RichTextBlock x:Name="UpdateChangelogText" FontSize="13.5" TextWrapping="Wrap" Opacity="0.9" LineHeight="20" SelectionHighlightColor="Transparent" />
-                        </ScrollViewer>
-                    </Border>
+                            <!-- Badges -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <Border x:Name="UpdateStableBadge" BorderBrush="#00F5D4" BorderThickness="1.5" CornerRadius="12" Padding="8,3" Background="#1000F5D4" Visibility="Collapsed">
+                                    <TextBlock Text="СТАБИЛЬНЫЙ" FontSize="9" Foreground="#00F5D4" FontWeight="Bold" CharacterSpacing="50"/>
+                                </Border>
+                                <Border x:Name="UpdatePrereleaseBadge" BorderBrush="#FF9F1C" BorderThickness="1.5" CornerRadius="12" Padding="8,3" Background="#10FF9F1C" Visibility="Collapsed">
+                                    <TextBlock Text="ПРЕДРЕЛИЗ" FontSize="9" Foreground="#FF9F1C" FontWeight="Bold" CharacterSpacing="50"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
 
-                    <!-- Action Buttons -->
-                    <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,8,0,0">
-                        <Button Grid.Column="0" Click="DownloadUpdate_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" HorizontalAlignment="Stretch">
-                            <TextBlock Text="Установить" />
-                        </Button>
-                        <Button Grid.Column="1" Click="SkipVersion_Click" Height="36" HorizontalAlignment="Stretch">
-                            <TextBlock Text="Пропустить" />
-                        </Button>
-                        <Button Grid.Column="2" Click="CloseUpdateOverlay_Click" Height="36" HorizontalAlignment="Stretch">
-                            <TextBlock Text="Позже" />
-                        </Button>
+                        <!-- Scrollable Changelog -->
+                        <Border Grid.Row="1" Background="#0C0B0A" BorderBrush="#201F1E" BorderThickness="1" CornerRadius="10" Padding="20">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <RichTextBlock x:Name="UpdateChangelogText" FontSize="14" TextWrapping="Wrap" Foreground="#E2DDD5" LineHeight="26" SelectionHighlightColor="Transparent" />
+                            </ScrollViewer>
+                        </Border>
+
+                        <!-- Actions Grid -->
+                        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10" Margin="0,4,0,0">
+                            <!-- Install (Primary) - Glowing Gold Accent Style -->
+                            <Button Grid.Column="0" Click="DownloadUpdate_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="38" HorizontalAlignment="Stretch" CornerRadius="8" Background="#A79A83" Foreground="#121110">
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                    <FontIcon Glyph="&#xE896;" FontSize="14" Foreground="#121110" FontWeight="Bold"/>
+                                    <TextBlock Text="Установить сейчас" FontWeight="Bold" Foreground="#121110" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Skip -->
+                            <Button Grid.Column="1" Click="SkipVersion_Click" Height="38" Width="105" CornerRadius="8" BorderBrush="#302D2A" Background="Transparent" Foreground="#A79A83">
+                                <TextBlock Text="Пропустить" FontSize="12.5"/>
+                            </Button>
+
+                            <!-- Close / Later -->
+                            <Button Grid.Column="2" Click="CloseUpdateOverlay_Click" Height="38" Width="90" CornerRadius="8" BorderBrush="#302D2A" Background="Transparent" Foreground="#A79A83">
+                                <TextBlock Text="Позже" FontSize="12.5"/>
+                            </Button>
+                        </Grid>
+                    </Grid>
+
+                    <!-- Futuristic VHS scan sweep line overlaying the entire card -->
+                    <Grid Grid.Column="0" Grid.ColumnSpan="2" IsHitTestVisible="False" Opacity="0.08" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <Border x:Name="ScanlineSweep" Height="2.5" VerticalAlignment="Top" HorizontalAlignment="Stretch" CornerRadius="1">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#00FFD700" Offset="0.0"/>
+                                    <GradientStop Color="#FFFFD700" Offset="0.5"/>
+                                    <GradientStop Color="#00FFD700" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="ScanlineTransform" Y="-10"/>
+                            </Border.RenderTransform>
+                        </Border>
                     </Grid>
                 </Grid>
             </Border>

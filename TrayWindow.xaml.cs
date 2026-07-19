@@ -47,10 +47,26 @@ namespace ZapretMirrlyGUI
         private const int SW_RESTORE = 9;
         private const int DWMWA_BORDER_COLOR = 34;
         private const int DWMWA_WINDOW_CORNER_PREFERENCE = 33;
+        private const int DWMWA_TRANSITIONS_FORCEDISABLED = 3;
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_LAYERED = 0x80000;
+        private const uint LWA_ALPHA = 0x2;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetLayeredWindowAttributes(IntPtr hWnd, uint crKey, byte bAlpha, uint dwFlags);
 
         public TrayWindow(MainWindow mainWindow)
         {
             InitializeComponent();
+            ApplyThemeSettings();
+            ApplyBackdropSettings();
             ExtendsContentIntoTitleBar = true;
             _mainWindow = mainWindow;
 
@@ -85,6 +101,10 @@ namespace ZapretMirrlyGUI
             // Force rounded corners (3 = DWMWCP_ROUND)
             int cornerPreference = 3;
             DwmSetWindowAttribute(hWnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
+
+            // Disable DWM transition animations — eliminates flash when window appears/disappears
+            int transitionsDisabled = 1;
+            DwmSetWindowAttribute(hWnd, DWMWA_TRANSITIONS_FORCEDISABLED, ref transitionsDisabled, sizeof(int));
 
             // Set version text
             TrayVersionText.Text = $"v{AppUpdateService.CurrentGuiVersion}";
@@ -194,13 +214,9 @@ namespace ZapretMirrlyGUI
                 posY = displayArea.WorkArea.Y + screenHeight - physicalHeight - (int)(10 * scale);
             }
  
-            // Move, resize, show and focus
             AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(posX, posY, physicalWidth, physicalHeight));
             AppWindow.Show();
- 
-            ShowWindow(hWnd, SW_RESTORE);
             SetForegroundWindow(hWnd);
- 
             UpdateUiState();
             UpdateTrayUpdateStatus();
         }
@@ -214,26 +230,28 @@ namespace ZapretMirrlyGUI
             {
                 PowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(30, 48, 204, 90));
                 PowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
-                PowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
+                PowerIcon.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
             }
             else
             {
-                PowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(15, 255, 255, 255));
-                PowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(50, 255, 255, 255));
-                PowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, 255, 255, 255));
+                byte offRgb = (byte)(SettingsManager.Instance.AppTheme == "Light" ? 0 : 255);
+                PowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(15, offRgb, offRgb, offRgb));
+                PowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(50, offRgb, offRgb, offRgb));
+                PowerIcon.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, offRgb, offRgb, offRgb));
             }
 
             if (isTgRunning)
             {
                 TgPowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(30, 48, 204, 90));
                 TgPowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
-                TgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
+                TgPowerIcon.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 204, 90));
             }
             else
             {
-                TgPowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(15, 255, 255, 255));
-                TgPowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(50, 255, 255, 255));
-                TgPowerIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, 255, 255, 255));
+                byte offRgb = (byte)(SettingsManager.Instance.AppTheme == "Light" ? 0 : 255);
+                TgPowerButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(15, offRgb, offRgb, offRgb));
+                TgPowerButton.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(50, offRgb, offRgb, offRgb));
+                TgPowerIcon.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(180, offRgb, offRgb, offRgb));
             }
             bool anyRunning = isZapretRunning || isTgRunning;
             if (anyRunning)
@@ -417,6 +435,77 @@ namespace ZapretMirrlyGUI
             _mainWindow.RestoreWindowPublic();
             _mainWindow.NavigateToPublic("diagnostics", "start");
             AppWindow.Hide();
+        }
+
+        public void ApplyBackdropSettings()
+        {
+            var type = SettingsManager.Instance.TrayBackdropType;
+            var theme = SettingsManager.Instance.AppTheme;
+
+            // Dynamically toggle DWM immersive dark mode for native backdrop tinting
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            int useDark = (theme == "Light") ? 0 : 1;
+            DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref useDark, sizeof(int));
+
+            if (type == "Acrylic")
+            {
+                this.SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
+                if (WindowBorder != null)
+                {
+                    if (theme == "Light")
+                    {
+                        // Clean, bright macOS-style white frosted glass with 25% opacity
+                        WindowBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(64, 255, 255, 255));
+                    }
+                    else if (theme == "Amoled")
+                    {
+                        // Ultra-clean 12% transparent black glass for AMOLED theme
+                        WindowBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(30, 0, 0, 0));
+                    }
+                    else
+                    {
+                        // Muted 11% transparent dark graphite glass for standard dark theme
+                        WindowBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(28, 18, 18, 19));
+                    }
+                }
+            }
+            else
+            {
+                this.SystemBackdrop = null;
+                if (WindowBorder != null)
+                {
+                    if (theme == "Light")
+                    {
+                        // Solid bright white/light gray background
+                        WindowBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 245, 245, 247));
+                    }
+                    else if (theme == "Amoled")
+                    {
+                        // Solid black background
+                        WindowBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0));
+                    }
+                    else
+                    {
+                        // Solid dark gray background
+                        WindowBorder.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 18, 18, 19));
+                    }
+                }
+            }
+        }
+
+        public void ApplyThemeSettings()
+        {
+            var theme = SettingsManager.Instance.AppTheme;
+            ElementTheme elementTheme = (theme == "Light") ? ElementTheme.Light : ElementTheme.Dark;
+
+            if (this.Content is FrameworkElement rootElement)
+            {
+                rootElement.RequestedTheme = elementTheme;
+            }
+
+            // Re-apply backdrop with theme-aware colors
+            ApplyBackdropSettings();
+            UpdateUiState();
         }
     }
 }

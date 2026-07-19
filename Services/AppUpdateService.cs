@@ -37,7 +37,7 @@ public class GuiUpdateResult
 
 public static class AppUpdateService
 {
-    public const string CurrentGuiVersion = "1.1.0";
+    public const string CurrentGuiVersion = "1.1.2";
     private const string ReleasesUrl = "https://api.github.com/repos/joycecurcirt539-dot/zapret-mirrly-gui/releases";
 
     public static GuiUpdateResult? LastCheckResult { get; set; }
@@ -123,37 +123,7 @@ public static class AppUpdateService
         var lines = rawBody.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
         for (int i = 0; i < lines.Length; i++)
         {
-            var line = lines[i].Trim();
-
-            // Strip header characters
-            if (line.StartsWith("#"))
-            {
-                line = line.TrimStart('#').Trim();
-            }
-
-            // Strip bold and italic symbols
-            line = line.Replace("**", "").Replace("__", "").Replace("*", "").Replace("_", "");
-
-            // Clean markdown links: [Link text](url) -> Link text (url)
-            while (line.Contains("[") && line.Contains("](") && line.Contains(")"))
-            {
-                int startBracket = line.IndexOf("[");
-                int endBracket = line.IndexOf("](", startBracket);
-                int endParenthesis = line.IndexOf(")", endBracket);
-                if (startBracket >= 0 && endBracket > startBracket && endParenthesis > endBracket)
-                {
-                    string text = line.Substring(startBracket + 1, endBracket - startBracket - 1);
-                    string url = line.Substring(endBracket + 2, endParenthesis - endBracket - 2);
-                    line = line.Remove(startBracket, endParenthesis - startBracket + 1);
-                    line = line.Insert(startBracket, $"{text} ({url})");
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            lines[i] = line;
+            lines[i] = lines[i].Trim();
         }
 
         return string.Join(Environment.NewLine, lines).Trim();

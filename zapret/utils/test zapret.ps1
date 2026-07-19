@@ -1,4 +1,4 @@
-﻿# GUI_COMPATIBLE_V2
+# GUI_COMPATIBLE_V2
 $hasErrors = $false
 
 $rootDir = Split-Path $PSScriptRoot
@@ -113,11 +113,20 @@ function Build-DpiTargets {
     $targets = @()
 
     if ($CustomHost) {
-        $targets += @{ Id = "CUSTOM"; Provider = "Custom"; Country = "рџ’Ў"; Host = $CustomHost }
+        $targets += @{ Id = "CUSTOM"; Provider = "Custom"; Country = "💡"; Host = $CustomHost }
     } else {
         foreach ($entry in $suite) {
             $targets += @{ Id = $entry.Id; Country = $entry.Country; Provider = $entry.Provider; Host = $entry.Host }
         }
+    }
+
+    # Local fallback targets if remote suite is blocked / unreachable
+    if ($targets.Count -eq 0) {
+        Write-Host "[INFO] Using local fallback targets list..." -ForegroundColor Cyan
+        $targets += @{ Id = "YOUTUBE"; Provider = "Google"; Country = "US"; Host = "www.youtube.com" }
+        $targets += @{ Id = "DISCORD"; Provider = "Discord"; Country = "US"; Host = "gateway.discord.gg" }
+        $targets += @{ Id = "FACEBOOK"; Provider = "Meta"; Country = "US"; Host = "www.facebook.com" }
+        $targets += @{ Id = "INSTAGRAM"; Provider = "Meta"; Country = "US"; Host = "www.instagram.com" }
     }
 
     return $targets

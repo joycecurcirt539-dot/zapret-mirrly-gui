@@ -398,10 +398,33 @@ public sealed partial class DiagnosticsPage : Page
 
         AppendToConsole($"[INFO] Запуск оригинального скрипта диагностики...\n");
 
+        var mockReadHost = 
+            "function Read-Host { " +
+            "param([Parameter(ValueFromPipeline=$true)]$Prompt, [switch]$AsSecureString); " +
+            "if ($Prompt -like '*numbers*' -or $Prompt -like '*ranges*' -or $Prompt -like '*mixed*') { " +
+            "if ([string]::IsNullOrEmpty($env:SELECTED_INDICES)) { return '0' } " +
+            "return $env:SELECTED_INDICES; " +
+            "} " +
+            "if (-not $script:readHostStep) { $script:readHostStep = 0 } " +
+            "if ($script:readHostStep -eq 0) { " +
+            "$script:readHostStep++; " +
+            "if ($env:TEST_TYPE -eq 'dpi') { return '2' } " +
+            "return '1'; " +
+            "} " +
+            "if ($script:readHostStep -eq 1) { " +
+            "$script:readHostStep++; " +
+            "if ($env:RUN_MODE -eq 'select') { return '2' } " +
+            "return '1'; " +
+            "} " +
+            "return ''; " +
+            "}";
+
+        string escapedScriptPath = scriptPath.Replace("'", "''");
+
         var startInfo = new ProcessStartInfo
         {
             FileName = "powershell.exe",
-            Arguments = $"-NonInteractive -NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\"",
+            Arguments = $"-NonInteractive -NoProfile -ExecutionPolicy Bypass -Command \"& {{ {mockReadHost}; . '{escapedScriptPath}' }}\"",
             WorkingDirectory = Path.Combine(root, "utils"),
             CreateNoWindow = true,
             UseShellExecute = false,

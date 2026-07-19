@@ -14,7 +14,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- Left Column: Lists Sidebar (Transparent sidebar with subtle gray separator) -->
-        <Grid Grid.Column="0" Background="Transparent" BorderBrush="#1A1A1A" BorderThickness="0,0,1,0" Padding="16,48,16,16">
+        <Grid Grid.Column="0" Background="Transparent" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,1,0" Padding="16,48,16,16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -37,18 +37,31 @@
                       SelectionMode="Single"
                       Padding="0">
                 <ListView.Resources>
-                    <!-- Overrides for WinUI default selection and hover colors (lightens background) -->
-                    <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#08FFFFFF" />
-                    <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#12FFFFFF" />
-                    <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#18FFFFFF" />
-                    <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#1CFFFFFF" />
-                    <!-- Selected text highlights -->
-                    <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#A79A83" />
-                    <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#A79A83" />
-                    <!-- Explicit corner radius override for ListViewItem background template -->
-                    <CornerRadius x:Key="ListViewItemCornerRadius">6</CornerRadius>
-                    
-                    <local:StringToGeometryConverter x:Key="StringToGeoConverter" xmlns:local="using:ZapretMirrlyGUI.Pages" />
+                    <ResourceDictionary>
+                        <ResourceDictionary.ThemeDictionaries>
+                            <ResourceDictionary x:Key="Default">
+                                <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#08FFFFFF" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#12FFFFFF" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#18FFFFFF" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#1CFFFFFF" />
+                                <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#A79A83" />
+                                <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#A79A83" />
+                                <SolidColorBrush x:Key="ListsSidebarTextForeground" Color="#E5E5EA" />
+                            </ResourceDictionary>
+                            <ResourceDictionary x:Key="Light">
+                                <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#08000000" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#12000000" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#18000000" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#1C000000" />
+                                <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#8B7E66" />
+                                <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#8B7E66" />
+                                <SolidColorBrush x:Key="ListsSidebarTextForeground" Color="#1C1C1E" />
+                            </ResourceDictionary>
+                        </ResourceDictionary.ThemeDictionaries>
+                        
+                        <CornerRadius x:Key="ListViewItemCornerRadius">6</CornerRadius>
+                        <local:StringToGeometryConverter x:Key="StringToGeoConverter" xmlns:local="using:ZapretMirrlyGUI.Pages" />
+                    </ResourceDictionary>
                 </ListView.Resources>
                 
                 <ListView.ItemContainerStyle>
@@ -71,7 +84,7 @@
                             <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DisplayName}"
                                            FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#E5E5EA" />
+                                           Foreground="{ThemeResource ListsSidebarTextForeground}" />
                                 <TextBlock Text="{Binding FileName}"
                                            FontSize="10.5" Opacity="0.5"
                                            Foreground="#8A8A8F" />
@@ -100,7 +113,7 @@
                 <!-- Title Details -->
                 <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,16,0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock x:Name="ActiveListTitleTextBlock" Text="Выберите список" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" FontWeight="Bold" />
+                        <TextBlock x:Name="ActiveListTitleTextBlock" Text="Выберите список" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="{ThemeResource BrandElectricBrush}" FontWeight="Bold" />
                         <Viewbox Width="14" Height="14" VerticalAlignment="Center" ToolTipService.ToolTip="Правила редактирования:&#x0a;1. Каждый адрес или домен вводится с новой строки (например, youtube.com).&#x0a;2. Указывайте домен без http, https, слешей или путей (например, googlevideo.com, а не https://googlevideo.com/).&#x0a;3. Символ # в начале строки отключает домен (комментарий).&#x0a;&#x0a;ВАЖНО: После внесения изменений сохраните список (кнопка внизу) и перезапустите обход в Хабе управления (Остановить и затем Запустить снова), чтобы изменения применились.">
                             <Path Data="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" Fill="#8A8A8F" Stretch="Uniform" />
                         </Viewbox>
@@ -127,7 +140,7 @@
 
             <!-- 3. Save & Revert Buttons -->
             <Grid Grid.Row="2" Margin="0,16,0,0" ColumnDefinitions="*,Auto,Auto">
-                <TextBlock Grid.Column="0" x:Name="ListSaveStatusTextBlock" Style="{StaticResource MirrlyTextSmallStyle}" VerticalAlignment="Center" Foreground="#A79A83" />
+                <TextBlock Grid.Column="0" x:Name="ListSaveStatusTextBlock" Style="{StaticResource MirrlyTextSmallStyle}" VerticalAlignment="Center" Foreground="{ThemeResource BrandElectricBrush}" />
 
                 <Button Grid.Column="1" x:Name="RevertButton" Click="RevertButton_Click" Margin="0,0,8,0" Height="36" ToolTipService.ToolTip="Сбросить все изменения в редакторе до состояния последней сохраненной версии с диска.">
                     <StackPanel Orientation="Horizontal" Spacing="8">

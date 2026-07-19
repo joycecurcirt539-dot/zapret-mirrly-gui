@@ -7,9 +7,9 @@
     <AssemblyName>ZapretMirrlyGUI</AssemblyName>
     <Product>ZapretMirrlyGUI</Product>
     <Title>Zapret Mirrly GUI</Title>
-    <Version>1.1.1</Version>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <FileVersion>1.1.1.0</FileVersion>
+    <Version>1.1.2</Version>
+    <AssemblyVersion>1.1.2.0</AssemblyVersion>
+    <FileVersion>1.1.2.0</FileVersion>
     <RootNamespace>ZapretMirrlyGUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
@@ -28,7 +28,7 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SatelliteResourceLanguages>ru;en</SatelliteResourceLanguages>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
-    <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;release\**;publish_test\**;publish_test_clean\**;publish_test_nor2r_clean\**;publish_test_nor2r\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;release\**;publish_test\**;publish_test_clean\**;publish_test_nor2r_clean\**;publish_test_nor2r\**;*.zip</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,4 +51,13 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.9" />
   </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
+  </ItemGroup>
+
+  <Target Name="ZipZapret" BeforeTargets="PrepareForBuild" Condition="!Exists('Assets\zapret.zip')">
+    <Message Text="Zipping zapret directory to Assets\zapret.zip..." Importance="high" />
+    <Exec Command="powershell -Command &quot;if (Test-Path 'Assets\zapret.zip') { Remove-Item 'Assets\zapret.zip' -Force }; Compress-Archive -Path 'zapret\*' -DestinationPath 'Assets\zapret.zip' -Force&quot;" />
+  </Target>
 </Project>

@@ -152,8 +152,7 @@ public sealed partial class ListsPage : Page
 
     private void LoadAllFilesFromDisk()
     {
-        var root = ZapretService.FindZapretRoot();
-        var listsDir = Path.Combine(root, "lists");
+        var listsDir = ZapretService.FindListsDirectory();
         Directory.CreateDirectory(listsDir);
 
         foreach (var item in _listMetadata)
@@ -306,8 +305,7 @@ public sealed partial class ListsPage : Page
     {
         if (_activeItem == null) return;
 
-        var root = ZapretService.FindZapretRoot();
-        var filePath = Path.Combine(root, "lists", _activeItem.FileName);
+        var filePath = Path.Combine(ZapretService.FindListsDirectory(), _activeItem.FileName);
 
         try
         {

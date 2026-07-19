@@ -88,7 +88,7 @@
             </Border>
 
             <!-- ─── LAUNCH LOG ─── -->
-            <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Background="#09090B" BorderBrush="#1A1A1A" Padding="0">
+            <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -96,7 +96,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Log header -->
-                    <Grid Grid.Row="0" Padding="16,12" Background="#0D0D0F" BorderBrush="#1F1F1F">
+                    <Grid Grid.Row="0" Padding="16,12" Background="{ThemeResource WidgetCardBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -118,7 +118,7 @@
 
                     <!-- Log output -->
                     <ScrollViewer Grid.Row="1" x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
-                        <TextBlock x:Name="LaunchLogTextBlock" FontFamily="Consolas" FontSize="11" Foreground="#C0B89A" TextWrapping="Wrap" />
+                        <TextBlock x:Name="LaunchLogTextBlock" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
                     </ScrollViewer>
                 </Grid>
             </Border>
@@ -148,7 +148,7 @@
             </Border>
 
             <!-- Arguments display card -->
-            <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="0" Background="#09090B">
+            <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="0" Background="{ThemeResource ConsoleBackgroundBrush}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -156,7 +156,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Args header -->
-                    <Border Grid.Row="0" Background="#0D0D0F" BorderBrush="#1F1F1F" Padding="14,10">
+                    <Border Grid.Row="0" Background="{ThemeResource WidgetCardBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}" Padding="14,10">
                         <Grid ColumnDefinitions="*,Auto">
                             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                                 <FontIcon Glyph="&#xE756;" FontSize="12" Foreground="#A79A83" />
@@ -171,7 +171,7 @@
 
                     <!-- Args content -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
-                        <TextBlock x:Name="PresetArgumentsTextBox" FontFamily="Consolas" FontSize="11" Foreground="#C0B89A" TextWrapping="Wrap" />
+                        <TextBlock x:Name="PresetArgumentsTextBox" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
                     </ScrollViewer>
                 </Grid>
             </Border>

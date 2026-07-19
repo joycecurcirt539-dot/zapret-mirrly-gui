@@ -27,10 +27,9 @@ public sealed partial class SupportPage : Page
 
     private void Page_Loaded(object sender, RoutedEventArgs e)
     {
-        // Start all three QR animations
+        // Start QR animations
         QrSpinStoryboard.Begin();
         QrGlowStoryboard.Begin();
-        ScanPulseStoryboard.Begin();
     }
 
     private void DonateButton_Click(object sender, RoutedEventArgs e)

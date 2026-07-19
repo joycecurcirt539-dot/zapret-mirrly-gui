@@ -22,15 +22,7 @@
 
             <!-- ══════════════════════ HEADER ══════════════════════ -->
             <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
-                <TextBlock Text="Безопасность, Доверие и Справка" Style="{StaticResource PremiumPageTitleStyle}" FontSize="24">
-                    <TextBlock.Foreground>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#F6F2EA" Offset="0.0" />
-                            <GradientStop Color="#D6CDBC" Offset="0.5" />
-                            <GradientStop Color="#A79A83" Offset="1.0" />
-                        </LinearGradientBrush>
-                    </TextBlock.Foreground>
-                </TextBlock>
+                <TextBlock Text="Безопасность, Доверие и Справка" Style="{StaticResource PremiumPageTitleStyle}" FontSize="24" Foreground="{ThemeResource TitleTextGradientBrush}" />
                 <TextBlock Text="Важная информация об открытом исходном коде, защите данных и ручном обновлении" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
             </StackPanel>
 
@@ -73,7 +65,13 @@
                                             <GradientStop Color="#8C663D" Offset="1.0" />
                                         </LinearGradientBrush>
                                     </Border.BorderBrush>
-                                    <FontIcon Glyph="&#xE7BA;" FontSize="16" Foreground="#D19A66" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <!-- Треугольник опасности -->
+                                            <Path Data="M12 3 L21.5 20 L2.5 20 Z M12 9 L12 14" Stroke="#D19A66" StrokeThickness="2.5" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            <Ellipse Canvas.Left="11" Canvas.Top="15.5" Width="2" Height="2" Fill="#D19A66"/>
+                                        </Canvas>
+                                    </Viewbox>
                                 </Border>
                                 <TextBlock Text="Остерегайтесь мошеннических сборок!" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#D19A66" VerticalAlignment="Center" TextWrapping="Wrap" />
                             </StackPanel>
@@ -81,7 +79,12 @@
                             <!-- Highlighted warning callout -->
                             <Border CornerRadius="6" Padding="10,8" Background="#18D19A66">
                                 <Grid ColumnDefinitions="16,*" ColumnSpacing="8">
-                                    <FontIcon Grid.Column="0" Glyph="&#xE946;" FontSize="12" Foreground="#D19A66" VerticalAlignment="Top" Margin="0,1,0,0" />
+                                    <Viewbox Grid.Column="0" Width="12" Height="12" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Data="M12 3 L21.5 20 L2.5 20 Z M12 9 L12 14" Stroke="#D19A66" StrokeThickness="2.5" Fill="Transparent" StrokeLineJoin="Round"/>
+                                            <Ellipse Canvas.Left="11" Canvas.Top="15.5" Width="2" Height="2" Fill="#D19A66"/>
+                                        </Canvas>
+                                    </Viewbox>
                                     <TextBlock Grid.Column="1" Text="Никогда не запускайте исполняемые файлы (.exe) или скрипты (.bat), полученные из недостоверных источников!" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Foreground="#D19A66" TextWrapping="Wrap" />
                                 </Grid>
                             </Border>
@@ -92,8 +95,18 @@
                     <Border Style="{StaticResource GlassCardStyle}">
                         <StackPanel Spacing="10">
                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                <Border Width="36" Height="36" CornerRadius="18" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                    <FontIcon Glyph="&#xE716;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                    <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <!-- Три узла-круга соединеные линиями -->
+                                            <Ellipse Canvas.Left="9.5" Canvas.Top="2" Width="5" Height="5" Fill="#A79A83"/>
+                                            <Ellipse Canvas.Left="2" Canvas.Top="17" Width="5" Height="5" Fill="#A79A83"/>
+                                            <Ellipse Canvas.Left="17" Canvas.Top="17" Width="5" Height="5" Fill="#A79A83"/>
+                                            <Line X1="12" Y1="7" X2="4.5" Y2="17" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            <Line X1="12" Y1="7" X2="19.5" Y2="17" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            <Line X1="4.5" Y1="19.5" X2="19.5" Y2="19.5" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Canvas>
+                                    </Viewbox>
                                 </Border>
                                 <TextBlock Text="Свобода, созданная сообществом" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
                             </StackPanel>
@@ -103,7 +116,7 @@
 
                     <!-- Action Buttons -->
                     <StackPanel Spacing="8" Margin="0,4,0,0">
-                        <TextBlock Text="Ссылки на доверенные проекты:" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Foreground="#A79A83" />
+                        <TextBlock Text="Ссылки на доверенные проекты:" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" />
                         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
                             <Button Grid.Row="0" Grid.Column="0" Click="OpenOriginalZapretGithub_Click" Height="38" HorizontalAlignment="Stretch">
                                 <StackPanel Orientation="Horizontal" Spacing="7">
@@ -147,8 +160,16 @@
                     <Border Style="{StaticResource GlassCardStyle}">
                         <StackPanel Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                <Border Width="36" Height="36" CornerRadius="18" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                    <FontIcon Glyph="&#xE72E;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                    <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <!-- Навесной замок -->
+                                            <Path Data="M8 12 Q8 5 12 5 Q16 5 16 12" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" Fill="Transparent" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            <Rectangle Canvas.Left="5" Canvas.Top="12" Width="14" Height="10" RadiusX="2" RadiusY="2" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" Fill="Transparent"/>
+                                            <Ellipse Canvas.Left="10.5" Canvas.Top="15" Width="3" Height="3" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" Fill="Transparent"/>
+                                            <Line X1="12" Y1="18" X2="12" Y2="20" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Canvas>
+                                    </Viewbox>
                                 </Border>
                                 <TextBlock Text="Политика доверия: Доверяй, но проверяй" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
                             </StackPanel>
@@ -158,27 +179,27 @@
                             <!-- Bullet list with icons -->
                             <StackPanel Spacing="8">
                                 <Grid ColumnDefinitions="14,*" ColumnSpacing="8">
-                                    <FontIcon Grid.Column="0" Glyph="&#xE73C;" FontSize="9" Foreground="#A79A83" VerticalAlignment="Top" Margin="0,3,0,0" />
+                                    <Ellipse Grid.Column="0" Width="4" Height="4" Fill="#A79A83" VerticalAlignment="Top" Margin="5,4,0,0"/>
                                     <TextBlock Grid.Column="1" Text="bol-van (original zapret): Создатель оригинального движка обхода блокировок DPI, ставшего стандартом прозрачности и эффективности." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                                 </Grid>
                                 <Grid ColumnDefinitions="14,*" ColumnSpacing="8">
-                                    <FontIcon Grid.Column="0" Glyph="&#xE73C;" FontSize="9" Foreground="#A79A83" VerticalAlignment="Top" Margin="0,3,0,0" />
+                                    <Ellipse Grid.Column="0" Width="4" Height="4" Fill="#A79A83" VerticalAlignment="Top" Margin="5,4,0,0"/>
                                     <TextBlock Grid.Column="1" Text="Flowseal (сборки и прокси): Разработчик популярных конфигураций zapret-discord-youtube и прокси tg-ws-proxy, сделавший обход доступным широкой аудитории." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                                 </Grid>
                                 <Grid ColumnDefinitions="14,*" ColumnSpacing="8">
-                                    <FontIcon Grid.Column="0" Glyph="&#xE73C;" FontSize="9" Foreground="#A79A83" VerticalAlignment="Top" Margin="0,3,0,0" />
+                                    <Ellipse Grid.Column="0" Width="4" Height="4" Fill="#A79A83" VerticalAlignment="Top" Margin="5,4,0,0"/>
                                     <TextBlock Grid.Column="1" Text="ValdikSS (GoodbyeDPI): Легендарный исследователь сетевых технологий в РФ и автор утилиты GoodbyeDPI." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                                 </Grid>
                                 <Grid ColumnDefinitions="14,*" ColumnSpacing="8">
-                                    <FontIcon Grid.Column="0" Glyph="&#xE73C;" FontSize="9" Foreground="#A79A83" VerticalAlignment="Top" Margin="0,3,0,0" />
+                                    <Ellipse Grid.Column="0" Width="4" Height="4" Fill="#A79A83" VerticalAlignment="Top" Margin="5,4,0,0"/>
                                     <TextBlock Grid.Column="1" Text="basil00 (WinDivert): Автор мощного драйвера перехвата сетевых пакетов ядра Windows, используемого в GoodbyeDPI и zapret." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                                 </Grid>
                                 <Grid ColumnDefinitions="14,*" ColumnSpacing="8">
-                                    <FontIcon Grid.Column="0" Glyph="&#xE73C;" FontSize="9" Foreground="#A79A83" VerticalAlignment="Top" Margin="0,3,0,0" />
+                                    <Ellipse Grid.Column="0" Width="4" Height="4" Fill="#A79A83" VerticalAlignment="Top" Margin="5,4,0,0"/>
                                     <TextBlock Grid.Column="1" Text="Оболочка Mirrly GUI: Исходный код этой графической программы также полностью открыт на GitHub. Любой независимый программист может проверить каждую строчку, скомпилировать приложение самостоятельно и убедиться, что в нем нет никаких скрытых угроз." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                                 </Grid>
                                 <Grid ColumnDefinitions="14,*" ColumnSpacing="8">
-                                    <FontIcon Grid.Column="0" Glyph="&#xE73C;" FontSize="9" Foreground="#A79A83" VerticalAlignment="Top" Margin="0,3,0,0" />
+                                    <Ellipse Grid.Column="0" Width="4" Height="4" Fill="#A79A83" VerticalAlignment="Top" Margin="5,4,0,0"/>
                                     <TextBlock Grid.Column="1" Text="Архитектура: Создание Mirrly GUI — это моя личная инициатива, основанная на желании сделать использование открытых инструментов обхода DPI максимально удобным и простым для каждого пользователя через красивый графический интерфейс." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                                 </Grid>
                             </StackPanel>
@@ -196,7 +217,14 @@
                         <StackPanel Spacing="10">
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <Border Width="36" Height="36" CornerRadius="18" Background="#211E1C" BorderBrush="#4A3F35" BorderThickness="1.5">
-                                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <!-- Документ со сложенным уголком + ! -->
+                                            <Path Data="M5 2 L5 22 L19 22 L19 7 L14 2 Z M14 2 L14 7 L19 7" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round"/>
+                                            <Line X1="12" Y1="10" X2="12" Y2="15" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            <Ellipse Canvas.Left="11" Canvas.Top="16.5" Width="2" Height="2" Fill="#A79A83"/>
+                                        </Canvas>
+                                    </Viewbox>
                                 </Border>
                                 <TextBlock Text="Отказ от ответственности" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#C0B49F" VerticalAlignment="Center" />
                             </StackPanel>
@@ -218,8 +246,14 @@
                     <Border Style="{StaticResource GlassCardStyle}">
                         <StackPanel Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                <Border Width="36" Height="36" CornerRadius="18" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                    <FontIcon Glyph="&#xE895;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                    <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <!-- Круговая стрелка обновления -->
+                                            <Path Data="M17 12 Q17 17 12 17 Q7 17 7 12 Q7 7 12 7 Q15 7 17 9" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" Fill="Transparent" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            <Path Data="M17 6 L17 9 L14 9" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Canvas>
+                                    </Viewbox>
                                 </Border>
                                 <TextBlock Text="Почему обновление ручное?" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
                             </StackPanel>
@@ -228,8 +262,8 @@
 
                             <StackPanel Spacing="10" Margin="0,2,0,0">
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="1" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="1" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <StackPanel Grid.Column="1" Spacing="2">
                                         <TextBlock Text="Системные блокировки файлов" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" />
@@ -237,8 +271,8 @@
                                     </StackPanel>
                                 </Grid>
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="2" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="2" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <StackPanel Grid.Column="1" Spacing="2">
                                         <TextBlock Text="Права администратора (UAC)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" />
@@ -246,8 +280,8 @@
                                     </StackPanel>
                                 </Grid>
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="3" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="3" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <StackPanel Grid.Column="1" Spacing="2">
                                         <TextBlock Text="Риск безопасности автоматической загрузки" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" />
@@ -255,8 +289,8 @@
                                     </StackPanel>
                                 </Grid>
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="4" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="4" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <StackPanel Grid.Column="1" Spacing="2">
                                         <TextBlock Text="Риск несовместимости версий" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" />
@@ -271,8 +305,18 @@
                     <Border Style="{StaticResource GlassCardStyle}">
                         <StackPanel Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                <Border Width="36" Height="36" CornerRadius="18" Background="#21201E" BorderBrush="#3A3834" BorderThickness="1.5">
-                                    <FontIcon Glyph="&#xE8B7;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
+                                    <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <!-- Нумерованный список -->
+                                            <Ellipse Canvas.Left="2" Canvas.Top="5" Width="4" Height="4" Fill="#A79A83"/>
+                                            <Ellipse Canvas.Left="2" Canvas.Top="11" Width="4" Height="4" Fill="#A79A83"/>
+                                            <Ellipse Canvas.Left="2" Canvas.Top="17" Width="4" Height="4" Fill="#A79A83"/>
+                                            <Line X1="9" Y1="7" X2="22" Y2="7" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            <Line X1="9" Y1="13" X2="22" Y2="13" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            <Line X1="9" Y1="19" X2="18" Y2="19" Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Canvas>
+                                    </Viewbox>
                                 </Border>
                                 <TextBlock Text="Инструкция по ручному обновлению" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
                             </StackPanel>
@@ -281,32 +325,32 @@
 
                             <StackPanel Spacing="10" Margin="0,2,0,0">
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="1" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="1" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <TextBlock Grid.Column="1" Text="Перейдите по ссылке на официальный репозиторий утилиты zapret на GitHub (кнопка слева внизу)." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" VerticalAlignment="Center" />
                                 </Grid>
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="2" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="2" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <TextBlock Grid.Column="1" Text="Скачайте ZIP-архив новой версии релиза (например, zapret-discord-youtube-1.9.9d.zip)." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" VerticalAlignment="Center" />
                                 </Grid>
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="3" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="3" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <TextBlock Grid.Column="1" Text="Распакуйте скачанную папку и положите её прямо рядом с файлом ZapretMirrlyGUI.exe." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" VerticalAlignment="Center" />
                                 </Grid>
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="4" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="4" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <TextBlock Grid.Column="1" Text="Переименуйте распакованную папку (например, 'zapret-discord-youtube-1.9.9d') в простое имя zapret (если там уже была старая папка zapret, замените её)." Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Opacity="0.9" TextWrapping="Wrap" VerticalAlignment="Center" />
                                 </Grid>
                                 <Grid ColumnDefinitions="26,*" ColumnSpacing="10">
-                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="#2D2B28" BorderBrush="#47443E" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
-                                        <TextBlock Text="5" FontSize="10" FontWeight="SemiBold" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="5" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <TextBlock Grid.Column="1" Text="Полностью закройте приложение (выйдите из системного трея) и запустите его заново. GUI автоматически обнаружит локальную папку zapret рядом с собой и начнет использовать новые файлы!" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" VerticalAlignment="Center" />
                                 </Grid>

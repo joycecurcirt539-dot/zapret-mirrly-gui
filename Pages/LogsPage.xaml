@@ -73,9 +73,9 @@
         </Border>
 
         <!-- 2. Dark Terminal Viewport -->
-        <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Padding="6" Background="#0C0C0C" BorderBrush="#1F1F1F">
+        <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Padding="6" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}">
             <ScrollViewer x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                <RichTextBlock x:Name="LogRichTextBlock" IsTextSelectionEnabled="True" FontFamily="Consolas" FontSize="12" Foreground="#F3EFE6" TextWrapping="NoWrap" />
+                <RichTextBlock x:Name="LogRichTextBlock" IsTextSelectionEnabled="True" FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="NoWrap" />
             </ScrollViewer>
         </Border>
     </Grid>

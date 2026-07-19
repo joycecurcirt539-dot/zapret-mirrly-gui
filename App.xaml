@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Application
     x:Class="ZapretMirrlyGUI.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,7 +10,98 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Graphite palette matching Mirrly main app -->
+            <ResourceDictionary.ThemeDictionaries>
+                <!-- Default/Dark Theme Resource Dictionary -->
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="BrandElectricBrush" Color="#A79A83" />
+                    <LinearGradientBrush x:Key="TitleTextGradientBrush" StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#F6F2EA" Offset="0.0" />
+                        <GradientStop Color="#D6CDBC" Offset="0.5" />
+                        <GradientStop Color="#A79A83" Offset="1.0" />
+                    </LinearGradientBrush>
+                    <SolidColorBrush x:Key="BrandAlphaBackground" Color="#12A79A83" />
+                    <SolidColorBrush x:Key="BrandAlphaBorder" Color="#25A79A83" />
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#121213" />
+                    <SolidColorBrush x:Key="TrayWindowBackground" Color="#1C121213" />
+                    <SolidColorBrush x:Key="TrayWindowOpaqueBackground" Color="#FF18181A" />
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#12FFFFFF" />
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#2F2F2F" />
+                    <SolidColorBrush x:Key="WidgetCardBackgroundBrush" Color="#1C1C1D" />
+                    <SolidColorBrush x:Key="WidgetCardBorderBrush" Color="#252526" />
+                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A79A83" />
+                    <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="#0C0C0C" />
+                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#1F1F1F" />
+                    <SolidColorBrush x:Key="ConsoleForegroundBrush" Color="#C0B89A" />
+                    <SolidColorBrush x:Key="IconBorderBackground" Color="#21201E" />
+                    <SolidColorBrush x:Key="IconBorderBrush" Color="#3A3834" />
+                    <SolidColorBrush x:Key="ConnectTelegramBackground" Color="#1F2A38" />
+                    <SolidColorBrush x:Key="ConnectTelegramBorder" Color="#2D3B4C" />
+                    <SolidColorBrush x:Key="ConnectTelegramForeground" Color="#A6C8FF" />
+                    
+                    <!-- NavigationView transparent overrides -->
+                    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewContentGridBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewPaneBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewListBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewContentBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewHeaderBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackgroundSelected" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackgroundPointerOver" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackgroundPressed" Color="Transparent" />
+                </ResourceDictionary>
+                
+                <!-- Light Theme Resource Dictionary -->
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="BrandElectricBrush" Color="#8B7E66" />
+                    <LinearGradientBrush x:Key="TitleTextGradientBrush" StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#2C2825" Offset="0.0" />
+                        <GradientStop Color="#5C554B" Offset="0.5" />
+                        <GradientStop Color="#8B7E66" Offset="1.0" />
+                    </LinearGradientBrush>
+                    <SolidColorBrush x:Key="BrandAlphaBackground" Color="#128B7E66" />
+                    <SolidColorBrush x:Key="BrandAlphaBorder" Color="#258B7E66" />
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFF3F3F5" />
+                    <SolidColorBrush x:Key="TrayWindowBackground" Color="#40FFFFFF" />
+                    <SolidColorBrush x:Key="TrayWindowOpaqueBackground" Color="#FFF5F5F7" />
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#0C000000" />
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#E5E5E7" />
+                    <SolidColorBrush x:Key="WidgetCardBackgroundBrush" Color="#FFEBEBED" />
+                    <SolidColorBrush x:Key="WidgetCardBorderBrush" Color="#FFDCDCE0" />
+                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#1C1C1E" />
+                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#8B7E66" />
+                    <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="#FFEBEBED" />
+                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#FFDCDCE0" />
+                    <SolidColorBrush x:Key="ConsoleForegroundBrush" Color="#3E3A33" />
+                    <SolidColorBrush x:Key="IconBorderBackground" Color="#FFEBEBED" />
+                    <SolidColorBrush x:Key="IconBorderBrush" Color="#FFDCDCE0" />
+                    <SolidColorBrush x:Key="ConnectTelegramBackground" Color="#E3EDFA" />
+                    <SolidColorBrush x:Key="ConnectTelegramBorder" Color="#B6D0F2" />
+                    <SolidColorBrush x:Key="ConnectTelegramForeground" Color="#00458E" />
+
+                    <!-- NavigationView transparent overrides -->
+                    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewContentGridBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewPaneBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewListBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewContentBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewHeaderBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackgroundSelected" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackgroundPointerOver" Color="Transparent" />
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackgroundPressed" Color="Transparent" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
             <Color x:Key="BrandIndigoColor">#2B2B2B</Color>
             <Color x:Key="BrandElectricColor">#A79A83</Color>
             <Color x:Key="SystemAccentColor">#8D8577</Color>
@@ -22,7 +113,6 @@
             <Color x:Key="SystemAccentColorLight3">#D8D0C0</Color>
             
             <SolidColorBrush x:Key="BrandIndigoBrush" Color="#8D8577" />
-            <SolidColorBrush x:Key="BrandElectricBrush" Color="#A79A83" />
             <SolidColorBrush x:Key="DeepIndigoBrush" Color="#050505" />
             <SolidColorBrush x:Key="ElectricBlueBrush" Color="#A79A83" />
             <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#6E675C" />
@@ -96,8 +186,8 @@
 
             <!-- Glass Card Design -->
             <Style x:Key="GlassCardStyle" TargetType="Border">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderBrush" Value="#2F2F2F" />
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="CornerRadius" Value="{StaticResource CardCornerRadius}" />
                 <Setter Property="Padding" Value="20" />

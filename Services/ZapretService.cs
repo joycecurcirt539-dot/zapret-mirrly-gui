@@ -61,6 +61,16 @@ public static class ZapretService
 
     public static string FindZapretRoot()
     {
+        // 0. Check custom user override path
+        if (!SettingsManager.Instance.UseAutoPaths)
+        {
+            var customRoot = SettingsManager.Instance.CustomZapretRoot;
+            if (!string.IsNullOrWhiteSpace(customRoot) && Directory.Exists(customRoot))
+            {
+                return customRoot;
+            }
+        }
+
         var exePath = Environment.ProcessPath;
         var exeDir = string.IsNullOrEmpty(exePath) ? AppContext.BaseDirectory : Path.GetDirectoryName(exePath);
 
@@ -95,6 +105,19 @@ public static class ZapretService
 
         var fallback = exeDir ?? AppContext.BaseDirectory;
         return Path.Combine(fallback, "zapret");
+    }
+
+    public static string FindListsDirectory()
+    {
+        if (!SettingsManager.Instance.UseAutoPaths)
+        {
+            var custom = SettingsManager.Instance.CustomListsPath;
+            if (!string.IsNullOrWhiteSpace(custom) && Directory.Exists(custom))
+            {
+                return custom;
+            }
+        }
+        return Path.Combine(FindZapretRoot(), "lists");
     }
 
     public static List<string> GetPresets()
@@ -161,7 +184,7 @@ public static class ZapretService
         }
 
         var binPath = Path.Combine(root, "bin") + "\\";
-        var listsPath = Path.Combine(root, "lists") + "\\";
+        var listsPath = FindListsDirectory() + "\\";
 
         string gameFilterTCP = "12";
         string gameFilterUDP = "12";
@@ -207,6 +230,46 @@ public static class ZapretService
         var root = FindZapretRoot();
         var winwsPath = Path.Combine(root, "bin", "winws.exe");
         var args = ParseArgumentsFromBatch(batchFilename, gameFilterMode);
+        
+        var settings = SettingsManager.Instance;
+        if (settings.IpProtocolMode == "ipv4")
+        {
+            args += " --ipv4";
+        }
+        else if (settings.IpProtocolMode == "ipv6")
+        {
+            args += " --ipv6";
+        }
+
+        if (!string.IsNullOrWhiteSpace(settings.BindInterface) && settings.BindInterface != "default")
+        {
+            args += $" --ifname=\"{settings.BindInterface}\"";
+        }
+
+        if (settings.AutoHostlist)
+        {
+            var listsDir = FindListsDirectory();
+            var autoListPath = Path.Combine(listsDir, "autohostlist.txt");
+            try 
+            { 
+                Directory.CreateDirectory(listsDir); 
+                if (!File.Exists(autoListPath))
+                {
+                    File.WriteAllText(autoListPath, "", Encoding.UTF8);
+                }
+            } 
+            catch { }
+            
+            var binPath = Path.Combine(root, "bin") + "\\";
+            args += $" --new --filter-tcp=80,443 --hostlist-auto=\"{autoListPath}\" --dpi-desync=multisplit --dpi-desync-split-seqovl=568 --dpi-desync-split-pos=1 --dpi-desync-split-seqovl-pattern=\"{binPath}tls_clienthello_4pda_to.bin\"";
+            args += $" --new --filter-udp=443 --hostlist-auto=\"{autoListPath}\" --dpi-desync=fake --dpi-desync-repeats=6 --dpi-desync-fake-quic=\"{binPath}quic_initial_www_google_com.bin\"";
+        }
+
+        var customArgs = settings.CustomWinwsArgs;
+        if (!string.IsNullOrWhiteSpace(customArgs))
+        {
+            args += " " + customArgs.Trim();
+        }
 
         Log($"[SERVICE] Запуск {batchFilename}...");
         Log($"[CMD] {winwsPath} {args}");
@@ -437,6 +500,46 @@ public static class ZapretService
         var root = FindZapretRoot();
         var winwsPath = Path.Combine(root, "bin", "winws.exe");
         var args = ParseArgumentsFromBatch(batchFilename, gameFilterMode);
+        
+        var settings = SettingsManager.Instance;
+        if (settings.IpProtocolMode == "ipv4")
+        {
+            args += " --ipv4";
+        }
+        else if (settings.IpProtocolMode == "ipv6")
+        {
+            args += " --ipv6";
+        }
+
+        if (!string.IsNullOrWhiteSpace(settings.BindInterface) && settings.BindInterface != "default")
+        {
+            args += $" --ifname=\"{settings.BindInterface}\"";
+        }
+
+        if (settings.AutoHostlist)
+        {
+            var listsDir = FindListsDirectory();
+            var autoListPath = Path.Combine(listsDir, "autohostlist.txt");
+            try 
+            { 
+                Directory.CreateDirectory(listsDir); 
+                if (!File.Exists(autoListPath))
+                {
+                    File.WriteAllText(autoListPath, "", Encoding.UTF8);
+                }
+            } 
+            catch { }
+            
+            var binPath = Path.Combine(root, "bin") + "\\";
+            args += $" --new --filter-tcp=80,443 --hostlist-auto=\"{autoListPath}\" --dpi-desync=multisplit --dpi-desync-split-seqovl=568 --dpi-desync-split-pos=1 --dpi-desync-split-seqovl-pattern=\"{binPath}tls_clienthello_4pda_to.bin\"";
+            args += $" --new --filter-udp=443 --hostlist-auto=\"{autoListPath}\" --dpi-desync=fake --dpi-desync-repeats=6 --dpi-desync-fake-quic=\"{binPath}quic_initial_www_google_com.bin\"";
+        }
+
+        var customArgs = settings.CustomWinwsArgs;
+        if (!string.IsNullOrWhiteSpace(customArgs))
+        {
+            args += " " + customArgs.Trim();
+        }
 
         // Escape double quotes inside the binPath parameter of sc.exe
         var binPathArg = $"\"\\\"{winwsPath}\\\" {args}\"";
@@ -541,8 +644,7 @@ public static class ZapretService
 
     public static async Task<bool> UpdateIpsetListAsync()
     {
-        var root = FindZapretRoot();
-        var ipsetFile = Path.Combine(root, "lists", "ipset-all.txt");
+        var ipsetFile = Path.Combine(FindListsDirectory(), "ipset-all.txt");
         var backupFile = ipsetFile + ".backup";
         var url = "https://raw.githubusercontent.com/joycecurcirt539-dot/zapret-mirrly-gui/refs/heads/main/.service/ipset-service.txt";
         

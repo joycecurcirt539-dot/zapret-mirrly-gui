@@ -30,3 +30,7 @@ Desktop.ini
 
 # Log files
 *.log
+
+# Zip archives (except Assets/zapret.zip)
+*.zip
+!Assets/zapret.zip

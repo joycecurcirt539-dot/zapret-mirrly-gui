@@ -12,7 +12,7 @@
 
     <Grid Background="Transparent" IsTabStop="False">
         <!-- Main container with high transparency to let the Acrylic glass backdrop shine through -->
-        <Border x:Name="WindowBorder" Margin="0" CornerRadius="12" BorderThickness="0" Background="#80101011" IsTabStop="False">
+        <Border x:Name="WindowBorder" Margin="0" CornerRadius="0" BorderThickness="0" Background="{ThemeResource TrayWindowBackground}" IsTabStop="False">
             <Border.Resources>
                 <!-- Pulsing animation for update badge -->
                 <Storyboard x:Name="UpdatePulseStoryboard" RepeatBehavior="Forever" AutoReverse="True">
@@ -28,8 +28,8 @@
                 <StackPanel x:Name="VpnPanel" Padding="16,18,16,16" Spacing="10" IsTabStop="False">
                     <!-- Header -->
                     <Grid IsTabStop="False">
-                        <TextBlock Text="Mirrly Zapret" FontWeight="Bold" FontSize="11" Foreground="#A79A83" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock x:Name="TrayVersionText" Text="v1.0.3" FontSize="10" Foreground="#4A4A4F" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock Text="Mirrly Zapret" FontWeight="Bold" FontSize="11" Foreground="{ThemeResource TextSecondaryBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TrayVersionText" Text="v1.1.2" FontSize="10" Foreground="{ThemeResource TextSecondaryBrush}" Opacity="0.6" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     </Grid>
 
                     <!-- Update badge (hidden until update is available) -->
@@ -58,7 +58,14 @@
                         <!-- Zapret Toggle -->
                         <StackPanel Grid.Column="0" Spacing="8" HorizontalAlignment="Center">
                             <Button x:Name="PowerButton" Click="PowerButton_Click" Width="56" Height="56" CornerRadius="28" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False" MinWidth="0" MinHeight="0">
-                                <FontIcon x:Name="PowerIcon" FontFamily="Segoe Fluent Icons" Glyph="&#xE7E8;" FontSize="20" Foreground="#B4FFFFFF" />
+                                <!-- Молния-болт = энергия, пробой, DPI-bypass -->
+                                <Viewbox Width="20" Height="20">
+                                    <Canvas Width="24" Height="24">
+                                        <Path x:Name="PowerIcon"
+                                              Data="F1 M13 3 L8 14 L12.2 14 L11 21 L16 10 L11.8 10 Z"
+                                              Fill="#B4FFFFFF" />
+                                    </Canvas>
+                                </Viewbox>
                             </Button>
                             <TextBlock Text="Обход DPI" FontSize="9.5" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
                         </StackPanel>
@@ -66,26 +73,29 @@
                         <!-- Telegram Proxy Toggle -->
                         <StackPanel Grid.Column="1" Spacing="8" HorizontalAlignment="Center">
                             <Button x:Name="TgPowerButton" Click="TgPowerButton_Click" Width="56" Height="56" CornerRadius="28" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False" MinWidth="0" MinHeight="0">
-                                <FontIcon x:Name="TgPowerIcon" FontFamily="Segoe Fluent Icons" Glyph="&#xE724;" FontSize="20" Foreground="#B4FFFFFF" RenderTransformOrigin="0.5,0.5">
-                                    <FontIcon.RenderTransform>
-                                        <RotateTransform Angle="-45" />
-                                    </FontIcon.RenderTransform>
-                                </FontIcon>
+                                <!-- Бумажный самолётик Telegram -->
+                                <Viewbox Width="20" Height="20">
+                                    <Canvas Width="24" Height="24">
+                                        <Path x:Name="TgPowerIcon"
+                                              Data="M3 12 L21 4 L14 20 L10 14 Z"
+                                              Fill="#B4FFFFFF" />
+                                    </Canvas>
+                                </Viewbox>
                             </Button>
                             <TextBlock Text="Telegram" FontSize="9.5" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Grid>
 
-                    <Button x:Name="ToggleAllButton" Click="ToggleAllButton_Click" HorizontalAlignment="Center" Padding="16,5,16,5" CornerRadius="6" BorderThickness="0" Background="#15FFFFFF">
-                        <TextBlock x:Name="ToggleAllTextBlock" Text="Запустить всё" FontSize="9.5" FontWeight="SemiBold" Foreground="#A79A83" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    <Button x:Name="ToggleAllButton" Click="ToggleAllButton_Click" HorizontalAlignment="Center" Padding="16,5,16,5" CornerRadius="6" BorderThickness="0" Background="{ThemeResource CardBackgroundBrush}">
+                        <TextBlock x:Name="ToggleAllTextBlock" Text="Запустить всё" FontSize="9.5" FontWeight="SemiBold" Foreground="{ThemeResource TextSecondaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Button>
 
                     <!-- Active Preset Info Card -->
-                    <Border Background="#1C1C1D" CornerRadius="6" Padding="8,5" BorderThickness="1" BorderBrush="#252526" IsTabStop="False">
+                    <Border Background="{ThemeResource WidgetCardBackgroundBrush}" CornerRadius="6" Padding="8,5" BorderThickness="1" BorderBrush="{ThemeResource WidgetCardBorderBrush}" IsTabStop="False">
                         <Grid ColumnDefinitions="*,Auto" IsTabStop="False">
                             <StackPanel Grid.Column="0" Spacing="1" IsTabStop="False">
                                 <TextBlock Text="АКТИВНЫЙ ПРЕСЕТ" FontSize="7" FontWeight="Bold" Foreground="#8E8E93" />
-                                <TextBlock x:Name="ActivePresetNameText" Text="general.bat" FontSize="10" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                                <TextBlock x:Name="ActivePresetNameText" Text="general.bat" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}" />
                             </StackPanel>
                             <Viewbox Grid.Column="1" Width="11" Height="11" VerticalAlignment="Center">
                                 <Path Data="M7 10l5 5 5-5z" Fill="#8E8E93" Stretch="Uniform" />
@@ -109,47 +119,57 @@
                     <!-- Main Actions Group -->
                     <Button Click="OpenFullAppButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
+                            <!-- Окно приложения -->
                             <Viewbox Width="11" Height="11">
-                                <Path Data="M20,2H4C2.9,2 2,2.9 2,4v12c0,1.1 0.9,2 2,2h14l4,4V4C22,2.9 21.1,2 20,2z M10,14V7l5,3.5L10,14z" Fill="#A79A83" Stretch="Uniform" />
+                                <Canvas Width="24" Height="24">
+                                    <Rectangle Canvas.Left="1" Canvas.Top="3" Width="22" Height="17" RadiusX="2" RadiusY="2"
+                                               Stroke="{ThemeResource TextSecondaryBrush}" StrokeThickness="2" Fill="Transparent" />
+                                    <Line X1="1" Y1="9" X2="23" Y2="9" Stroke="{ThemeResource TextSecondaryBrush}" StrokeThickness="2" />
+                                    <Ellipse Canvas.Left="4" Canvas.Top="5.5" Width="3" Height="3" Fill="{ThemeResource TextSecondaryBrush}" />
+                                    <Ellipse Canvas.Left="8.5" Canvas.Top="5.5" Width="3" Height="3" Fill="{ThemeResource TextSecondaryBrush}" Opacity="0.6" />
+                                </Canvas>
                             </Viewbox>
-                            <TextBlock Text="Открыть Mirrly" FontSize="11" Foreground="#FFFFFF" />
+                            <TextBlock Text="Открыть Mirrly" FontSize="11" Foreground="{ThemeResource TextPrimaryBrush}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="MenuConnectTelegramButton" Click="ConnectTelegramButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Viewbox Width="11" Height="11" RenderTransformOrigin="0.5,0.5">
-                                <Viewbox.RenderTransform>
-                                    <RotateTransform Angle="-45" />
-                                </Viewbox.RenderTransform>
-                                <Path Data="M2.01,21L23,12 2.01,3 2,10l15,2 -15,2z" Fill="#A79A83" Stretch="Uniform" />
+                            <!-- Чистый самолётик Telegram -->
+                            <Viewbox Width="11" Height="11">
+                                <Canvas Width="24" Height="24">
+                                    <Path Data="M3 12 L21 4 L14 20 L10 14 Z"
+                                          Fill="{ThemeResource TextSecondaryBrush}" />
+                                    <Line X1="10" Y1="14" X2="14" Y2="10" Stroke="{ThemeResource TextSecondaryBrush}" StrokeThickness="1.8"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                </Canvas>
                             </Viewbox>
-                            <TextBlock Text="Подключить Telegram" FontSize="11" Foreground="#FFFFFF" />
+                            <TextBlock Text="Подключить Telegram" FontSize="11" Foreground="{ThemeResource TextPrimaryBrush}" />
                         </StackPanel>
                     </Button>
                     <Button Click="ToggleAllButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon x:Name="MenuToggleAllIcon" Glyph="&#xE7E8;" FontSize="11" />
-                            <TextBlock x:Name="MenuToggleAllText" Text="Запустить всё" FontSize="11" Foreground="#FFFFFF" />
+                            <TextBlock x:Name="MenuToggleAllText" Text="Запустить всё" FontSize="11" Foreground="{ThemeResource TextPrimaryBrush}" />
                         </StackPanel>
                     </Button>
                     <Button Click="MenuDiagnosticsButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <Viewbox Width="11" Height="11">
-                                <Path Data="M 16 3 L 10.4 17.6 L 7.5 10 L 2 10 L 2 12 L 6 12 L 9.6 21.4 L 15.5 6 L 18 12 L 22 12 L 22 10 L 19.5 10 Z" Fill="#A79A83" Stretch="Uniform" />
+                                <Path Data="M 16 3 L 10.4 17.6 L 7.5 10 L 2 10 L 2 12 L 6 12 L 9.6 21.4 L 15.5 6 L 18 12 L 22 12 L 22 10 L 19.5 10 Z" Fill="{ThemeResource TextSecondaryBrush}" Stretch="Uniform" />
                             </Viewbox>
-                            <TextBlock Text="Запустить диагностику" FontSize="11" Foreground="#FFFFFF" />
+                            <TextBlock Text="Запустить диагностику" FontSize="11" Foreground="{ThemeResource TextPrimaryBrush}" />
                         </StackPanel>
                     </Button>
 
-                    <Border Height="1" Background="#18FFFFFF" Margin="6,2" IsTabStop="False" />
+                    <Border Height="1" Background="{ThemeResource CardBorderBrush}" Margin="6,2" IsTabStop="False" />
 
                     <!-- Bottom Settings & System Group -->
                     <Button Click="OpenSettingsButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <Viewbox Width="11" Height="11">
-                                <Path Data="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" Fill="#A79A83" Stretch="Uniform" />
+                                <Path Data="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" Fill="{ThemeResource TextSecondaryBrush}" Stretch="Uniform" />
                             </Viewbox>
-                            <TextBlock Text="Настройки" FontSize="11" Foreground="#FFFFFF" />
+                            <TextBlock Text="Настройки" FontSize="11" Foreground="{ThemeResource TextPrimaryBrush}" />
                         </StackPanel>
                     </Button>
                     <Button Click="ExitAppButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Height="28" Padding="12,0" CornerRadius="4" UseSystemFocusVisuals="False" IsTabStop="False">
@@ -182,11 +202,11 @@
                         </StackPanel>
                     </Button>
 
-                    <Border Height="1" Background="#18FFFFFF" Margin="6,2" IsTabStop="False" />
+                    <Border Height="1" Background="{ThemeResource CardBorderBrush}" Margin="6,2" IsTabStop="False" />
 
                     <!-- Version label in menu -->
                     <Border Padding="12,2" IsTabStop="False">
-                        <TextBlock x:Name="MenuVersionText" Text="Zapret Mirrly GUI v1.1.0" FontSize="9" Foreground="#3CFFFFFF" />
+                        <TextBlock x:Name="MenuVersionText" Text="Zapret Mirrly GUI v1.1.2" FontSize="9" Foreground="{ThemeResource TextSecondaryBrush}" Opacity="0.5" />
                     </Border>
                 </StackPanel>
             </Grid>
