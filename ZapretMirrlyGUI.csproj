@@ -28,7 +28,7 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SatelliteResourceLanguages>ru;en</SatelliteResourceLanguages>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
-    <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;release\**;release_build\**;publish_test\**;*.zip</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;release\**;release_build\**;publish_test\**;docs\**;screenshot\**;*.zip</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
