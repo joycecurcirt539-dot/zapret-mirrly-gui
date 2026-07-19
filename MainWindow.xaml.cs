@@ -605,32 +605,99 @@ public sealed partial class MainWindow : Window
         {
             ShowUpdateModal(result);
         }
+        else
+        {
+            ShowCurrentVersionModal();
+        }
     }
 
     public void ShowUpdateModal(GuiUpdateResult update)
     {
-        _currentDownloadUrl = update.DownloadUrl;
-        _latestVersionTag = update.LatestVersion;
+        ShowVersionModal(
+            versionTag: update.LatestVersion,
+            title: "Доступно обновление!",
+            changelog: update.Changelog ?? "",
+            isPrerelease: update.IsPrerelease,
+            isNewUpdate: true,
+            downloadUrl: update.DownloadUrl
+        );
+    }
 
-        UpdateTagNameText.Text = $"Версия {update.LatestVersion}";
-        PopulateRichTextBlockWithMarkdown(UpdateChangelogText, update.Changelog);
+    public void ShowCurrentVersionModal()
+    {
+        var currentChangelog = @"### Zapret Mirrly GUI v1.1.2 — Что нового в этом обновлении:
 
-        if (update.IsPrerelease)
+• **Полноценная система тем**:
+  - **Чёрный графит**: глубокий стиль с высокой контрастностью и прозрачными плашками элементов.
+  - **Светлая тема**: чистый, контрастный дизайн в стиле Apple Light Glass.
+  - **Тёмная тема**: классический графитовый стиль.
+
+• **Оптический стеклянный эффект (Acrylic & Mica)**:
+  - Прямая интеграция с Desktop Window Manager (DWM) и `DWMWA_USE_IMMERSIVE_DARK_MODE`.
+  - Чистое аппаратное размытие без лагов и визуальных артефактов.
+
+• **Универсальный диагностический модуль**:
+  - Новый движок тестирования сетевой подсистемы (`test zapret.ps1`) с полной совместимостью любых версий Zapret.
+
+• **Автоматическое обучение списка (Auto Hostlist)**:
+  - Динамическое автопополнение `autohostlist.txt` заблокированными ресурсами во время веб-серфинга.
+
+• **Фильтрация по IPv4 / IPv6**:
+  - Селектор протоколов перехвата сетевого трафика.
+
+• **Улучшения трея и интерфейса**:
+  - Обновленный стеклянный виджет трея по ЛКМ и контекстное меню по ПКМ.
+  - Синхронизация прозрачности и цвета текстов с выбранной темой.
+  - Раздел настроек с вкладками «Поддержать автора», «Справка» и «Обновления».";
+
+        ShowVersionModal(
+            versionTag: AppUpdateService.CurrentGuiVersion,
+            title: $"Что нового в версии v{AppUpdateService.CurrentGuiVersion}!",
+            changelog: currentChangelog,
+            isPrerelease: false,
+            isNewUpdate: false,
+            downloadUrl: null
+        );
+    }
+
+    public void ShowVersionModal(string versionTag, string title, string changelog, bool isPrerelease, bool isNewUpdate, string? downloadUrl)
+    {
+        _currentDownloadUrl = downloadUrl;
+        _latestVersionTag = versionTag;
+
+        if (UpdateModalTitleText != null) UpdateModalTitleText.Text = title;
+        if (UpdateTagNameText != null) UpdateTagNameText.Text = $"Версия {versionTag}";
+        PopulateRichTextBlockWithMarkdown(UpdateChangelogText, changelog);
+
+        if (isPrerelease)
         {
-            UpdateStableBadge.Visibility = Visibility.Collapsed;
-            UpdatePrereleaseBadge.Visibility = Visibility.Visible;
+            if (UpdateStableBadge != null) UpdateStableBadge.Visibility = Visibility.Collapsed;
+            if (UpdatePrereleaseBadge != null) UpdatePrereleaseBadge.Visibility = Visibility.Visible;
         }
         else
         {
-            UpdateStableBadge.Visibility = Visibility.Visible;
-            UpdatePrereleaseBadge.Visibility = Visibility.Collapsed;
+            if (UpdateStableBadge != null) UpdateStableBadge.Visibility = Visibility.Visible;
+            if (UpdatePrereleaseBadge != null) UpdatePrereleaseBadge.Visibility = Visibility.Collapsed;
+        }
+
+        if (isNewUpdate)
+        {
+            if (InstallUpdateButton != null) InstallUpdateButton.Visibility = Visibility.Visible;
+            if (SkipVersionButton != null) SkipVersionButton.Visibility = Visibility.Visible;
+            if (CloseUpdateOverlayButtonText != null) CloseUpdateOverlayButtonText.Text = "Позже";
+        }
+        else
+        {
+            if (InstallUpdateButton != null) InstallUpdateButton.Visibility = Visibility.Collapsed;
+            if (SkipVersionButton != null) SkipVersionButton.Visibility = Visibility.Collapsed;
+            if (CloseUpdateOverlayButtonText != null) CloseUpdateOverlayButtonText.Text = "Отлично";
         }
 
         // Dynamic Highlights Parsing (Anti-Clickbait)
-        string changelogLower = (update.Changelog ?? "").ToLower();
-        bool hasFeatures = changelogLower.Contains("добавлен") || changelogLower.Contains("новое") || changelogLower.Contains("добавил") || changelogLower.Contains("feature") || changelogLower.Contains("added") || changelogLower.Contains("реализован") || changelogLower.Contains("поддерж");
-        bool hasSpeed = changelogLower.Contains("скорост") || changelogLower.Contains("быстро") || changelogLower.Contains("ускор") || changelogLower.Contains("оптимизац") || changelogLower.Contains("производител") || changelogLower.Contains("speed") || changelogLower.Contains("performance") || changelogLower.Contains("fast") || changelogLower.Contains("улучшен сетев");
-        bool hasFixes = changelogLower.Contains("исправлен") || changelogLower.Contains("ошибк") || changelogLower.Contains("баг") || changelogLower.Contains("конфликт") || changelogLower.Contains("вылет") || changelogLower.Contains("краш") || changelogLower.Contains("fix") || changelogLower.Contains("bug") || changelogLower.Contains("error") || changelogLower.Contains("исправлен") || changelogLower.Contains("зависа");
+        string changelogLower = (changelog ?? "").ToLower();
+        bool hasFeatures = changelogLower.Contains("добавлен") || changelogLower.Contains("новое") || changelogLower.Contains("добавил") || changelogLower.Contains("feature") || changelogLower.Contains("added") || changelogLower.Contains("реализован") || changelogLower.Contains("поддерж") || changelogLower.Contains("тем");
+        bool hasSpeed = changelogLower.Contains("скорост") || changelogLower.Contains("быстро") || changelogLower.Contains("ускор") || changelogLower.Contains("оптимизац") || changelogLower.Contains("производител") || changelogLower.Contains("speed") || changelogLower.Contains("performance") || changelogLower.Contains("fast") || changelogLower.Contains("улучшен сетев") || changelogLower.Contains("размытие");
+        bool hasFixes = changelogLower.Contains("исправлен") || changelogLower.Contains("ошибк") || changelogLower.Contains("баг") || changelogLower.Contains("конфликт") || changelogLower.Contains("вылет") || changelogLower.Contains("краш") || changelogLower.Contains("fix") || changelogLower.Contains("bug") || changelogLower.Contains("error") || changelogLower.Contains("зависа");
 
         // Fallback: if nothing matched, set stability to true
         if (!hasFeatures && !hasSpeed && !hasFixes)
@@ -706,8 +773,6 @@ public sealed partial class MainWindow : Window
 
         // Hide the subtitle header as requested ("не пиши крупный релиз")
         SidebarSubtitleText.Visibility = Visibility.Collapsed;
-
-
 
         UpdateNotificationOverlay.Visibility = Visibility.Visible;
         ShowUpdateOverlayStoryboard.Begin();

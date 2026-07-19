@@ -24,11 +24,11 @@
     <!-- Single-file clean publish options -->
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRun>false</PublishReadyToRun>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SatelliteResourceLanguages>ru;en</SatelliteResourceLanguages>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
-    <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;release\**;publish_test\**;publish_test_clean\**;publish_test_nor2r_clean\**;publish_test_nor2r\**;*.zip</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;release\**;release_build\**;publish_test\**;*.zip</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
