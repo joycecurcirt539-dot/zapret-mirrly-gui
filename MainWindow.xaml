@@ -115,7 +115,7 @@
                                     <FontIcon x:Name="UpdateTooltipIcon" Glyph="&#xE930;" FontSize="14" Foreground="#00F5D4" VerticalAlignment="Center"/>
                                     <TextBlock x:Name="UpdateTooltipTitle" Text="Приложение обновлено" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock x:Name="UpdateTooltipDesc" Text="У вас установлена последняя версия Zapret Mirrly GUI (v1.1.2)." FontSize="11" Opacity="0.8" TextWrapping="Wrap" MaxWidth="220"/>
+                                <TextBlock x:Name="UpdateTooltipDesc" Text="У вас установлена последняя версия Zapret Mirrly GUI (v1.1.5)." FontSize="11" Opacity="0.8" TextWrapping="Wrap" MaxWidth="220"/>
                             </StackPanel>
                         </ToolTip>
                     </ToolTipService.ToolTip>
