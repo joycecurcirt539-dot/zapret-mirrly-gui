@@ -102,11 +102,13 @@ public sealed partial class SettingsPage : Page
             _originalAutoUpdateDatabase = SettingsManager.Instance.AutoUpdateDatabase;
             AutoUpdateDatabaseToggle.IsOn = _originalAutoUpdateDatabase;
 
+            UpdateServiceStatusInSettings();
+
             // Set current version text labels and initial badge states dynamically based on local check (no stubs!)
             GuiUpdateStatusText.Text = $"Установленная версия: v{AppUpdateService.CurrentGuiVersion} (проверка не проводилась)";
             SetBadgeNotChecked(GuiVersionBadge, GuiVersionBadgeText);
 
-            AppUpdateStatusText.Text = $"Установленная версия: 1.9.9a (проверка не проводилась)";
+            AppUpdateStatusText.Text = $"Установленная версия: 1.9.9d (проверка не проводилась)";
             SetBadgeNotChecked(CoreVersionBadge, CoreVersionBadgeText);
 
             // Check local IPSet file existence and size
@@ -936,14 +938,14 @@ public sealed partial class SettingsPage : Page
         
         if (result.UpdateAvailable)
         {
-            AppUpdateStatusText.Text = $"Установлено: 1.9.9a | Доступно: {result.LatestVersion} (проверено в {DateTime.Now:HH:mm:ss})";
+            AppUpdateStatusText.Text = $"Установлено: 1.9.9d | Доступно: {result.LatestVersion} (проверено в {DateTime.Now:HH:mm:ss})";
             DownloadLatestReleaseBtn.NavigateUri = new Uri(result.DownloadUrl);
             DownloadLatestReleaseBtn.Visibility = Visibility.Visible;
             SetBadgeUpdateAvailable(CoreVersionBadge, CoreVersionBadgeText, result.LatestVersion);
         }
         else
         {
-            AppUpdateStatusText.Text = $"Установлено: 1.9.9a | Актуально (проверено в {DateTime.Now:HH:mm:ss})";
+            AppUpdateStatusText.Text = $"Установлено: 1.9.9d | Актуально (проверено в {DateTime.Now:HH:mm:ss})";
             DownloadLatestReleaseBtn.Visibility = Visibility.Collapsed;
             SetBadgeUpToDate(CoreVersionBadge, CoreVersionBadgeText);
         }
@@ -1273,6 +1275,48 @@ public sealed partial class SettingsPage : Page
         // Instant live preview — temporarily apply the theme without saving
         SettingsManager.Instance.AppTheme = tag;
         myApp.MainWindowInstance.ApplyThemeSettings();
+    }
+
+    private void UpdateServiceStatusInSettings()
+    {
+        bool isInstalled = ZapretService.IsServiceInstalled();
+        string status = ZapretService.GetServiceStatus();
+
+        if (SettingsServiceStatusText == null || SettingsToggleServiceButtonText == null || SettingsRemoveServiceButton == null) return;
+
+        if (isInstalled)
+        {
+            SettingsServiceStatusText.Text = status == "RUNNING"
+                ? "Служба установлена и активно работает (RUNNING)"
+                : $"Служба установлена (Статус: {status})";
+            SettingsServiceStatusText.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 16, 185, 129)); // Green
+            SettingsToggleServiceButtonText.Text = status == "RUNNING" ? "Перезапустить службу" : "Запустить службу";
+            SettingsRemoveServiceButton.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            SettingsServiceStatusText.Text = "Служба не установлена в системе";
+            SettingsServiceStatusText.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 161, 161, 170)); // Grey
+            SettingsToggleServiceButtonText.Text = "Установить службу";
+            SettingsRemoveServiceButton.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void SettingsToggleServiceButton_Click(object sender, RoutedEventArgs e)
+    {
+        string currentPreset = SettingsManager.Instance.LastSelectedPreset;
+        if (string.IsNullOrEmpty(currentPreset)) currentPreset = "general.bat";
+
+        string gameFilter = LoadGameFilterSettings();
+
+        ZapretService.InstallService(currentPreset, gameFilter);
+        UpdateServiceStatusInSettings();
+    }
+
+    private void SettingsRemoveServiceButton_Click(object sender, RoutedEventArgs e)
+    {
+        ZapretService.RemoveService();
+        UpdateServiceStatusInSettings();
     }
 }
 

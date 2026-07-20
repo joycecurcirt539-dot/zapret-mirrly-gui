@@ -56,7 +56,7 @@
                     <!-- Power Buttons -->
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="24" HorizontalAlignment="Center" Width="180" IsTabStop="False">
                         <!-- Zapret Toggle -->
-                        <StackPanel Grid.Column="0" Spacing="8" HorizontalAlignment="Center">
+                        <StackPanel Grid.Column="0" Spacing="4" HorizontalAlignment="Center">
                             <Button x:Name="PowerButton" Click="PowerButton_Click" Width="56" Height="56" CornerRadius="28" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False" MinWidth="0" MinHeight="0">
                                 <!-- Молния-болт = энергия, пробой, DPI-bypass -->
                                 <Viewbox Width="20" Height="20">
@@ -68,10 +68,11 @@
                                 </Viewbox>
                             </Button>
                             <TextBlock Text="Обход DPI" FontSize="9.5" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
+                            <TextBlock x:Name="TrayDpiPingText" Text="-- мс" FontSize="8.5" FontWeight="SemiBold" Foreground="#A79A83" Opacity="0.85" HorizontalAlignment="Center" />
                         </StackPanel>
  
                         <!-- Telegram Proxy Toggle -->
-                        <StackPanel Grid.Column="1" Spacing="8" HorizontalAlignment="Center">
+                        <StackPanel Grid.Column="1" Spacing="4" HorizontalAlignment="Center">
                             <Button x:Name="TgPowerButton" Click="TgPowerButton_Click" Width="56" Height="56" CornerRadius="28" BorderThickness="2" HorizontalAlignment="Center" Padding="0" UseSystemFocusVisuals="False" IsTabStop="False" MinWidth="0" MinHeight="0">
                                 <!-- Бумажный самолётик Telegram -->
                                 <Viewbox Width="20" Height="20">
@@ -83,6 +84,7 @@
                                 </Viewbox>
                             </Button>
                             <TextBlock Text="Telegram" FontSize="9.5" FontWeight="SemiBold" Opacity="0.8" HorizontalAlignment="Center" />
+                            <TextBlock x:Name="TrayTgPingText" Text="-- мс" FontSize="8.5" FontWeight="SemiBold" Foreground="#A79A83" Opacity="0.85" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Grid>
 

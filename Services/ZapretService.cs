@@ -122,154 +122,25 @@ public static class ZapretService
 
     public static List<string> GetPresets()
     {
-        var root = FindZapretRoot();
-        if (!Directory.Exists(root)) return new List<string>();
-        return Directory.GetFiles(root, "*.bat")
-            .Select(Path.GetFileName)
-            .Where(f => f != null && !f.StartsWith("service", StringComparison.OrdinalIgnoreCase))
-            .Select(f => f!)
-            .OrderBy(f => f)
-            .ToList();
+        return PresetManager.GetAvailablePresets();
     }
 
     public static string ParseArgumentsFromBatch(string batchFilename, string gameFilterMode)
     {
-        var root = FindZapretRoot();
-        var batchPath = Path.Combine(root, batchFilename);
-        if (!File.Exists(batchPath)) return "";
-
-        var lines = File.ReadAllLines(batchPath, Encoding.UTF8);
-        var fullCommandLine = new StringBuilder();
-        bool capture = false;
-
-        for (int i = 0; i < lines.Length; i++)
-        {
-            var line = lines[i].Trim();
-            if (line.Contains("winws.exe", StringComparison.OrdinalIgnoreCase))
-            {
-                capture = true;
-            }
-
-            if (capture)
-            {
-                var cleanLine = line;
-                bool hasContinuation = false;
-                if (cleanLine.EndsWith("^"))
-                {
-                    cleanLine = cleanLine.Substring(0, cleanLine.Length - 1).Trim();
-                    hasContinuation = true;
-                }
-
-                fullCommandLine.Append(" ").Append(cleanLine);
-
-                if (!hasContinuation)
-                {
-                    break;
-                }
-            }
-        }
-
-        var command = fullCommandLine.ToString();
-        var winwsIdx = command.IndexOf("winws.exe", StringComparison.OrdinalIgnoreCase);
-        if (winwsIdx == -1) return "";
-
-        var argsPart = command.Substring(winwsIdx + "winws.exe".Length).Trim();
-        if (argsPart.StartsWith("\""))
-        {
-            argsPart = argsPart.Substring(1).Trim();
-        }
-        if (argsPart.EndsWith("\""))
-        {
-            argsPart = argsPart.Substring(0, argsPart.Length - 1).Trim();
-        }
-
-        var binPath = Path.Combine(root, "bin") + "\\";
-        var listsPath = FindListsDirectory() + "\\";
-
-        string gameFilterTCP = "12";
-        string gameFilterUDP = "12";
-        if (gameFilterMode == "all")
-        {
-            gameFilterTCP = "1024-65535";
-            gameFilterUDP = "1024-65535";
-        }
-        else if (gameFilterMode == "tcp")
-        {
-            gameFilterTCP = "1024-65535";
-            gameFilterUDP = "12";
-        }
-        else if (gameFilterMode == "udp")
-        {
-            gameFilterTCP = "12";
-            gameFilterUDP = "1024-65535";
-        }
-
-        argsPart = argsPart.Replace("%BIN%", binPath, StringComparison.OrdinalIgnoreCase);
-        argsPart = argsPart.Replace("%LISTS%", listsPath, StringComparison.OrdinalIgnoreCase);
-        argsPart = argsPart.Replace("%GameFilterTCP%", gameFilterTCP, StringComparison.OrdinalIgnoreCase);
-        argsPart = argsPart.Replace("%GameFilterUDP%", gameFilterUDP, StringComparison.OrdinalIgnoreCase);
-        argsPart = argsPart.Replace("%~dp0", root + "\\", StringComparison.OrdinalIgnoreCase);
-        argsPart = argsPart.Replace("%%BIN%%", binPath, StringComparison.OrdinalIgnoreCase);
-        argsPart = argsPart.Replace("%%LISTS%%", listsPath, StringComparison.OrdinalIgnoreCase);
-        argsPart = argsPart.Replace("%%GameFilterTCP%%", gameFilterTCP, StringComparison.OrdinalIgnoreCase);
-        argsPart = argsPart.Replace("%%GameFilterUDP%%", gameFilterUDP, StringComparison.OrdinalIgnoreCase);
-
-        // Replace caret symbols that batch uses to escape things
-        argsPart = argsPart.Replace("^", "");
-
-        return argsPart.Trim();
+        return PresetManager.BuildFinalWinwsArguments(batchFilename, gameFilterMode);
     }
 
     public static void StartBypass(string batchFilename, string gameFilterMode)
     {
         if (IsRunning) StopBypass();
 
-        // Enable TCP Timestamps automatically
+        // Ensure all required user list files exist and enable TCP Timestamps
+        PresetManager.EnsureUserListsExist();
         EnableTcpTimestamps();
 
         var root = FindZapretRoot();
         var winwsPath = Path.Combine(root, "bin", "winws.exe");
         var args = ParseArgumentsFromBatch(batchFilename, gameFilterMode);
-        
-        var settings = SettingsManager.Instance;
-        if (settings.IpProtocolMode == "ipv4")
-        {
-            args += " --ipv4";
-        }
-        else if (settings.IpProtocolMode == "ipv6")
-        {
-            args += " --ipv6";
-        }
-
-        if (!string.IsNullOrWhiteSpace(settings.BindInterface) && settings.BindInterface != "default")
-        {
-            args += $" --ifname=\"{settings.BindInterface}\"";
-        }
-
-        if (settings.AutoHostlist)
-        {
-            var listsDir = FindListsDirectory();
-            var autoListPath = Path.Combine(listsDir, "autohostlist.txt");
-            try 
-            { 
-                Directory.CreateDirectory(listsDir); 
-                if (!File.Exists(autoListPath))
-                {
-                    File.WriteAllText(autoListPath, "", Encoding.UTF8);
-                }
-            } 
-            catch { }
-            
-            var binPath = Path.Combine(root, "bin") + "\\";
-            args += $" --new --filter-tcp=80,443 --hostlist-auto=\"{autoListPath}\" --dpi-desync=multisplit --dpi-desync-split-seqovl=568 --dpi-desync-split-pos=1 --dpi-desync-split-seqovl-pattern=\"{binPath}tls_clienthello_4pda_to.bin\"";
-            args += $" --new --filter-udp=443 --hostlist-auto=\"{autoListPath}\" --dpi-desync=fake --dpi-desync-repeats=6 --dpi-desync-fake-quic=\"{binPath}quic_initial_www_google_com.bin\"";
-        }
-
-        var customArgs = settings.CustomWinwsArgs;
-        if (!string.IsNullOrWhiteSpace(customArgs))
-        {
-            args += " " + customArgs.Trim();
-        }
 
         Log($"[SERVICE] Запуск {batchFilename}...");
         Log($"[CMD] {winwsPath} {args}");
@@ -416,77 +287,12 @@ public static class ZapretService
 
     public static bool IsServiceInstalled()
     {
-        try
-        {
-            using var sc = new System.ServiceProcess.ServiceController("zapret");
-            _ = sc.Status;
-            return true;
-        }
-        catch (InvalidOperationException)
-        {
-            return false;
-        }
-        catch (System.ComponentModel.Win32Exception ex)
-        {
-            Log($"[SERVICE ERROR] Win32Exception при проверке наличия службы: {ex.Message} (ErrorCode: {ex.NativeErrorCode})");
-            return false;
-        }
-        catch (Exception ex)
-        {
-            Log($"[SERVICE ERROR] Ошибка при проверке наличия службы: {ex.Message}");
-            return false;
-        }
+        return Win32ServiceManager.IsServiceInstalled("zapret");
     }
 
     public static string GetServiceStatus()
     {
-        try
-        {
-            using var sc = new System.ServiceProcess.ServiceController("zapret");
-            try
-            {
-                _ = sc.Status;
-            }
-            catch (InvalidOperationException)
-            {
-                return "Не установлена";
-            }
-
-            var status = sc.Status;
-            var startType = sc.StartType;
-
-            if (status == System.ServiceProcess.ServiceControllerStatus.Running)
-            {
-                return "RUNNING";
-            }
-            if (status == System.ServiceProcess.ServiceControllerStatus.StartPending)
-            {
-                return "START_PENDING";
-            }
-            if (status == System.ServiceProcess.ServiceControllerStatus.StopPending)
-            {
-                return "STOP_PENDING";
-            }
-
-            if (startType == System.ServiceProcess.ServiceStartMode.Automatic)
-            {
-                return "Включен (Автозапуск)";
-            }
-            else
-            {
-                return "Отключен";
-            }
-        }
-        catch (System.ComponentModel.Win32Exception ex)
-        {
-            Log($"[SERVICE ERROR] Win32Exception при опросе ServiceController: {ex.Message} (ErrorCode: {ex.NativeErrorCode})");
-            return "UNKNOWN";
-        }
-        catch (Exception ex)
-        {
-            Log($"[SERVICE ERROR] Исключение при опросе ServiceController: {ex.Message}");
-            return "UNKNOWN";
-        }
+        return Win32ServiceManager.GetServiceStatusName("zapret");
     }
 
     public static string InstallService(string batchFilename, string gameFilterMode)
@@ -541,18 +347,26 @@ public static class ZapretService
             args += " " + customArgs.Trim();
         }
 
-        // Escape double quotes inside the binPath parameter of sc.exe
-        var binPathArg = $"\"\\\"{winwsPath}\\\" {args}\"";
+        var binaryPathWithArgs = $"\"{winwsPath}\" {args}";
 
-        Log($"[SERVICE] Установка службы: sc.exe create zapret binPath= {binPathArg} DisplayName= \"zapret\" start= auto");
-        var createResult = ExecuteCommand("sc.exe", $"create zapret binPath= {binPathArg} DisplayName= \"zapret\" start= auto");
-        Log(createResult);
+        Log($"[SERVICE] Установка службы C# Win32 API: {binaryPathWithArgs}");
+        
+        bool created = Win32ServiceManager.CreateWinwsService(
+            "zapret",
+            "zapret",
+            binaryPathWithArgs,
+            "Zapret DPI bypass software");
 
-        if (createResult.Contains("SUCCESS", StringComparison.OrdinalIgnoreCase))
+        if (!created)
         {
-            ExecuteCommand("sc.exe", "description zapret \"Zapret DPI bypass software\"");
-            
-            // Set registry key so other tools know which strategy was active
+            // Fallback for elevated execution if running non-admin GUI
+            var binPathArg = $"\"\\\"{winwsPath}\\\" {args}\"";
+            var createResult = ExecuteCommand("sc.exe", $"create zapret binPath= {binPathArg} DisplayName= \"zapret\" start= auto");
+            created = createResult.Contains("SUCCESS", StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (created)
+        {
             try
             {
                 using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"System\CurrentControlSet\Services\zapret", true);
@@ -568,25 +382,29 @@ public static class ZapretService
             }
 
             Log("[SERVICE] Запуск службы zapret...");
-            var startResult = ExecuteCommand("sc.exe", "start zapret");
-            Log(startResult);
+            bool started = Win32ServiceManager.StartWin32Service("zapret");
+            if (!started)
+            {
+                ExecuteCommand("sc.exe", "start zapret");
+            }
             return "Служба успешно установлена и запущена.";
         }
 
-        return "Ошибка при установке службы: " + createResult;
+        return "Ошибка при установке службы zapret.";
     }
 
     public static string RemoveService()
     {
-        Log("[SERVICE] Остановка службы zapret...");
-        var stopResult = ExecuteCommand("sc.exe", "stop zapret");
-        Log(stopResult);
-        
-        Log("[SERVICE] Удаление службы zapret...");
-        var deleteResult = ExecuteCommand("sc.exe", "delete zapret");
-        Log(deleteResult);
+        Log("[SERVICE] Остановка и удаление службы zapret через C# Win32 API...");
+        Win32ServiceManager.RemoveWin32Service("zapret");
 
         // Remove WinDivert service driver blocks
+        Win32ServiceManager.RemoveWin32Service("WinDivert");
+        Win32ServiceManager.RemoveWin32Service("WinDivert14");
+
+        // Fallback for non-admin shell if elevated removal is needed
+        ExecuteCommand("sc.exe", "stop zapret");
+        ExecuteCommand("sc.exe", "delete zapret");
         ExecuteCommand("sc.exe", "stop WinDivert");
         ExecuteCommand("sc.exe", "delete WinDivert");
         ExecuteCommand("sc.exe", "stop WinDivert14");
@@ -622,23 +440,26 @@ public static class ZapretService
     {
         try
         {
-            Log("[SERVICE] Проверка TCP timestamps...");
-            var check = ExecuteCommand("netsh.exe", "interface tcp show global");
-            if (!check.Contains("timestamps", StringComparison.OrdinalIgnoreCase) || 
-                !check.Contains("enabled", StringComparison.OrdinalIgnoreCase))
+            Log("[SERVICE] Проверка и включение TCP timestamps в реестре Windows...");
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"System\CurrentControlSet\Services\Tcpip\Parameters", true);
+            if (key != null)
             {
-                Log("[SERVICE] TCP timestamps отключены. Включение...");
-                var res = RunElevated("netsh.exe", "interface tcp set global timestamps=enabled");
-                Log($"[SERVICE] Результат настройки TCP timestamps: {res}");
-            }
-            else
-            {
-                Log("[SERVICE] TCP timestamps уже включены в системе.");
+                var val = key.GetValue("Tcp1323Opts");
+                if (val == null || Convert.ToInt32(val) != 1)
+                {
+                    key.SetValue("Tcp1323Opts", 1, Microsoft.Win32.RegistryValueKind.DWord);
+                    Log("[SERVICE] TCP Timestamps успешно включены в реестре (Tcp1323Opts = 1).");
+                }
+                else
+                {
+                    Log("[SERVICE] TCP Timestamps уже включены в системе.");
+                }
             }
         }
         catch (Exception ex)
         {
-            Log($"[SERVICE ERROR] Не удалось настроить TCP timestamps: {ex.Message}");
+            Log($"[SERVICE WARNING] Ошибка записи TCP Timestamps в реестр: {ex.Message}");
+            RunElevated("netsh.exe", "interface tcp set global timestamps=enabled");
         }
     }
 

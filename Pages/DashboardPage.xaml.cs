@@ -11,12 +11,23 @@ namespace ZapretMirrlyGUI.Pages;
 public sealed partial class DashboardPage : Page
 {
     private string _selectedPreset = "";
+    private readonly DispatcherTimer _autoMetricsTimer;
+    private bool _isMeasuring = false;
+
+    private readonly DispatcherTimer _autoApplyCountdownTimer;
+    private int _countdownSeconds = 5;
 
     public DashboardPage()
     {
         InitializeComponent();
         Loaded += DashboardPage_Loaded;
         Unloaded += DashboardPage_Unloaded;
+
+        _autoMetricsTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+        _autoMetricsTimer.Tick += (s, e) => _ = MeasureDashboardMetricsAsync();
+
+        _autoApplyCountdownTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _autoApplyCountdownTimer.Tick += AutoApplyCountdownTimer_Tick;
     }
 
     private void DashboardPage_Loaded(object sender, RoutedEventArgs e)
@@ -26,12 +37,18 @@ public sealed partial class DashboardPage : Page
 
         LoadPresets();
         UpdateUIStatus();
+        _ = MeasureDashboardMetricsAsync();
+        _autoMetricsTimer.Start();
+
+        CheckAndShowDiagnosticRecommendations();
     }
 
     private void DashboardPage_Unloaded(object sender, RoutedEventArgs e)
     {
         ZapretService.OnStatusChanged -= OnZapretStatusChanged;
         ZapretService.OnLogReceived -= OnLogReceived;
+        _autoMetricsTimer.Stop();
+        _autoApplyCountdownTimer.Stop();
     }
 
     // ── Presets ─────────────────────────────────────────────────────────────────
@@ -232,7 +249,9 @@ public sealed partial class DashboardPage : Page
                     ZapretService.StartBypass(_selectedPreset, mode);
                 }
             });
-            UpdateUIStatus();
+            
+            DispatcherQueue.TryEnqueue(UpdateUIStatus);
+            _ = MeasureDashboardMetricsAsync();
         }
         finally
         {
@@ -242,5 +261,202 @@ public sealed partial class DashboardPage : Page
         }
     }
 
+    private async Task MeasureDashboardMetricsAsync()
+    {
+        if (_isMeasuring) return;
+        _isMeasuring = true;
 
+        try
+        {
+            // Perform REAL TLS SNI Handshake & HTTP Probes (DPI resets TLS Client Hello on YouTube/Discord)
+            var ytTask = NetworkLatencyService.MeasureHttpSniLatencyAsync("YouTube", "https://www.youtube.com/generate_204", 1500);
+            var dcTask = NetworkLatencyService.MeasureHttpSniLatencyAsync("Discord", "https://discord.com/api/v9/gateway", 1500);
+            var lossTask = NetworkLatencyService.MeasurePacketLossAsync("1.1.1.1", 2, 500);
+
+            await Task.WhenAll(ytTask, dcTask, lossTask);
+
+            var resYt = ytTask.Result;
+            var resDc = dcTask.Result;
+            var lossVal = lossTask.Result;
+
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (YtPingText != null)
+                {
+                    YtPingText.Text = resYt.FormattedText;
+                    YtPingText.Foreground = GetPingColorBrush(resYt);
+                }
+                if (DcPingText != null)
+                {
+                    DcPingText.Text = resDc.FormattedText;
+                    DcPingText.Foreground = GetPingColorBrush(resDc);
+                }
+                if (LossText != null)
+                {
+                    LossText.Text = $"{lossVal}%";
+                    LossText.Foreground = lossVal == 0
+                        ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 16, 185, 129))  // #10B981 Green
+                        : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 239, 68, 68));   // #EF4444 Red
+                }
+            });
+        }
+        finally
+        {
+            _isMeasuring = false;
+        }
+    }
+
+    private static SolidColorBrush GetPingColorBrush(LatencyResult res)
+    {
+        if (res.IsBlocked || !res.IsSuccess)
+            return new SolidColorBrush(Windows.UI.Color.FromArgb(255, 239, 68, 68)); // Red (#EF4444)
+        if (res.LatencyMs <= 120)
+            return new SolidColorBrush(Windows.UI.Color.FromArgb(255, 16, 185, 129)); // Green (#10B981)
+        if (res.LatencyMs <= 250)
+            return new SolidColorBrush(Windows.UI.Color.FromArgb(255, 245, 158, 11)); // Yellow (#F59E0B)
+
+        return new SolidColorBrush(Windows.UI.Color.FromArgb(255, 161, 161, 170));   // Grey (#A1A1AA)
+    }
+
+    private void AutoApplyCountdownTimer_Tick(object? sender, object e)
+    {
+        _countdownSeconds--;
+        if (_countdownSeconds <= 0)
+        {
+            _autoApplyCountdownTimer.Stop();
+            CloseRecommendationOverlay();
+        }
+        else
+        {
+            if (ApplyWinnerNowButtonText != null)
+            {
+                ApplyWinnerNowButtonText.Text = $"Отлично ({_countdownSeconds} с)";
+            }
+        }
+    }
+
+    private void CheckAndShowDiagnosticRecommendations()
+    {
+        if (!DiagnosticResultManager.HasUnseenResults || DiagnosticResultManager.BestPresets.Count == 0)
+            return;
+
+        var winner = DiagnosticResultManager.BestPresets[0];
+        OverlayWinnerPresetName.Text = winner.PresetName;
+
+        string isp = IspService.CachedIspName != "Не определен" ? $" Провайдер: {IspService.CachedIspName}" : "";
+        OverlayWinnerStatsText.Text = $"{winner.SuccessText} •{isp}";
+
+        // Automatically apply the winning strategy
+        SelectAndApplyPreset(winner.PresetName);
+
+        DiagnosticRecommendationOverlay.Visibility = Visibility.Visible;
+        DiagnosticResultManager.MarkAsSeen();
+
+        _countdownSeconds = 15;
+        if (ApplyWinnerNowButtonText != null)
+        {
+            ApplyWinnerNowButtonText.Text = $"Отлично ({_countdownSeconds} с)";
+        }
+        _autoApplyCountdownTimer.Start();
+    }
+
+    private Button CreateStrategyRecommendationCard(DiagnosticPresetScore score, bool isRecommended)
+    {
+        var btn = new Button
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Padding = new Thickness(12, 10, 12, 10),
+            CornerRadius = new CornerRadius(10),
+            Background = new SolidColorBrush(isRecommended ? Windows.UI.Color.FromArgb(255, 24, 24, 28) : Windows.UI.Color.FromArgb(255, 18, 18, 20)),
+            BorderBrush = new SolidColorBrush(isRecommended ? Windows.UI.Color.FromArgb(255, 56, 189, 248) : Windows.UI.Color.FromArgb(255, 39, 39, 42)),
+            BorderThickness = new Thickness(isRecommended ? 1.5 : 1),
+            Margin = new Thickness(0, 2, 0, 2)
+        };
+
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var sp = new StackPanel { Spacing = 2 };
+        var nameText = new TextBlock
+        {
+            Text = score.PresetName,
+            FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+            FontSize = 13,
+            Foreground = new SolidColorBrush(score.IsWinner ? Windows.UI.Color.FromArgb(255, 56, 189, 248) : Microsoft.UI.Colors.White)
+        };
+        var statsText = new TextBlock
+        {
+            Text = $"{score.SuccessText}",
+            FontSize = 11,
+            Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 161, 161, 170))
+        };
+
+        sp.Children.Add(nameText);
+        sp.Children.Add(statsText);
+        Grid.SetColumn(sp, 0);
+        grid.Children.Add(sp);
+
+        var applyBadge = new Border
+        {
+            CornerRadius = new CornerRadius(6),
+            Padding = new Thickness(8, 4, 8, 4),
+            VerticalAlignment = VerticalAlignment.Center,
+            Background = new SolidColorBrush(isRecommended ? Windows.UI.Color.FromArgb(255, 30, 41, 59) : Windows.UI.Color.FromArgb(255, 30, 30, 32))
+        };
+        var applyText = new TextBlock
+        {
+            Text = "Выбрать",
+            FontSize = 10,
+            FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+            Foreground = new SolidColorBrush(isRecommended ? Windows.UI.Color.FromArgb(255, 56, 189, 248) : Windows.UI.Color.FromArgb(255, 161, 161, 170))
+        };
+        applyBadge.Child = applyText;
+        Grid.SetColumn(applyBadge, 1);
+        grid.Children.Add(applyBadge);
+
+        btn.Content = grid;
+        btn.Click += (s, e) =>
+        {
+            SelectAndApplyPreset(score.PresetName);
+            CloseRecommendationOverlay();
+        };
+
+        return btn;
+    }
+
+    private void SelectAndApplyPreset(string presetName)
+    {
+        var presets = ZapretService.GetPresets();
+        int idx = presets.FindIndex(p => p.Equals(presetName, StringComparison.OrdinalIgnoreCase));
+        if (idx != -1)
+        {
+            PresetComboBox.SelectedIndex = idx;
+        }
+
+        if (!ZapretService.IsRunning)
+        {
+            ActionBypassButton_Click(this, new RoutedEventArgs());
+        }
+    }
+
+    private void ApplyWinnerNowButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (DiagnosticResultManager.BestPresets.Count > 0)
+        {
+            SelectAndApplyPreset(DiagnosticResultManager.BestPresets[0].PresetName);
+        }
+        CloseRecommendationOverlay();
+    }
+
+    private void CloseOverlayButton_Click(object sender, RoutedEventArgs e)
+    {
+        CloseRecommendationOverlay();
+    }
+
+    private void CloseRecommendationOverlay()
+    {
+        _autoApplyCountdownTimer.Stop();
+        DiagnosticRecommendationOverlay.Visibility = Visibility.Collapsed;
+    }
 }

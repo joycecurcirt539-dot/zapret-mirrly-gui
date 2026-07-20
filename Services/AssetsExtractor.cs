@@ -30,6 +30,65 @@ public static class AssetsExtractor
             Directory.CreateDirectory(appDataRoot);
         }
 
+        var versionFile = Path.Combine(appDataRoot, "gui_version.txt");
+        var currentVersion = "1.1.5";
+        bool versionChanged = true;
+
+        if (File.Exists(versionFile))
+        {
+            try
+            {
+                var savedVersion = File.ReadAllText(versionFile).Trim();
+                if (savedVersion == currentVersion)
+                {
+                    versionChanged = false;
+                }
+            }
+            catch { }
+        }
+
+        if (versionChanged)
+        {
+            try
+            {
+                var winwsPath = Path.Combine(GetZapretPath(), "bin", "winws.exe");
+                if (File.Exists(winwsPath))
+                {
+                    File.Delete(winwsPath);
+                }
+            }
+            catch { }
+
+            // Clean up old incorrect extraction paths directly in appDataRoot
+            try
+            {
+                var oldBin = Path.Combine(appDataRoot, "bin");
+                if (Directory.Exists(oldBin)) Directory.Delete(oldBin, true);
+
+                var oldLists = Path.Combine(appDataRoot, "lists");
+                if (Directory.Exists(oldLists)) Directory.Delete(oldLists, true);
+
+                var oldUtils = Path.Combine(appDataRoot, "utils");
+                if (Directory.Exists(oldUtils)) Directory.Delete(oldUtils, true);
+
+                var oldServiceBat = Path.Combine(appDataRoot, "service.bat");
+                if (File.Exists(oldServiceBat)) File.Delete(oldServiceBat);
+
+                if (Directory.Exists(appDataRoot))
+                {
+                    foreach (var file in Directory.GetFiles(appDataRoot, "*.bat"))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                    foreach (var file in Directory.GetFiles(appDataRoot, "general*"))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
         var assembly = Assembly.GetExecutingAssembly();
 
         // 1. Extract Assets
@@ -43,7 +102,7 @@ public static class AssetsExtractor
         foreach (var asset in assets)
         {
             string destPath = Path.Combine(assetsDir, asset);
-            if (!File.Exists(destPath))
+            if (!File.Exists(destPath) || versionChanged)
             {
                 string resourceName = $"ZapretMirrlyGUI.Assets.{asset}";
                 using var stream = assembly.GetManifestResourceStream(resourceName);
@@ -57,30 +116,8 @@ public static class AssetsExtractor
 
         // 2. Extract Zapret zip archive
         var zapretDir = GetZapretPath();
-        bool needsUpdate = false;
 
-        var scriptPath = Path.Combine(zapretDir, "utils", "test zapret.ps1");
-        if (File.Exists(scriptPath))
-        {
-            try
-            {
-                var content = File.ReadAllText(scriptPath);
-                if (!content.Contains("# GUI_COMPATIBLE_V2"))
-                {
-                    needsUpdate = true;
-                }
-            }
-            catch
-            {
-                needsUpdate = true;
-            }
-        }
-        else
-        {
-            needsUpdate = true;
-        }
-
-        if (!Directory.Exists(zapretDir) || !File.Exists(Path.Combine(zapretDir, "bin", "winws.exe")) || needsUpdate)
+        if (!Directory.Exists(zapretDir) || !File.Exists(Path.Combine(zapretDir, "bin", "winws.exe")))
         {
             string resourceName = "ZapretMirrlyGUI.Assets.zapret.zip";
             using var stream = assembly.GetManifestResourceStream(resourceName);
@@ -91,13 +128,17 @@ public static class AssetsExtractor
                 {
                     if (string.IsNullOrEmpty(entry.Name)) continue;
 
-                    var destPath = Path.GetFullPath(Path.Combine(appDataRoot, entry.FullName));
+                    var destPath = Path.GetFullPath(Path.Combine(zapretDir, entry.FullName));
 
-                    if (!destPath.StartsWith(appDataRoot, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (!destPath.StartsWith(zapretDir, StringComparison.OrdinalIgnoreCase)) continue;
 
-                    if (entry.FullName.StartsWith("zapret/lists/", StringComparison.OrdinalIgnoreCase) && File.Exists(destPath))
+                    // If it is a list file, only overwrite if it is a system file and version changed
+                    if (entry.FullName.StartsWith("lists/", StringComparison.OrdinalIgnoreCase) && File.Exists(destPath))
                     {
-                        continue;
+                        if (!versionChanged)
+                        {
+                            continue;
+                        }
                     }
 
                     var parentDir = Path.GetDirectoryName(destPath);
@@ -113,6 +154,15 @@ public static class AssetsExtractor
                     catch { }
                 }
             }
+        }
+
+        if (versionChanged)
+        {
+            try
+            {
+                File.WriteAllText(versionFile, currentVersion);
+            }
+            catch { }
         }
     }
 }

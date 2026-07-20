@@ -23,11 +23,41 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,24">
-                <TextBlock Text="Транспортный прокси Telegram" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
-                <TextBlock Text="Запуск TgWsProxy для параллельного обхода блокировок Telegram на ПК" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
-            </StackPanel>
+            <!-- Header with Top-Bar Metrics -->
+            <Grid Grid.Row="0" Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Title & Subtitle -->
+                <StackPanel Grid.Column="0" Spacing="4" VerticalAlignment="Center">
+                    <TextBlock Text="Транспортный прокси Telegram" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
+                    <TextBlock Text="Запуск TgWsProxy для параллельного обхода блокировок Telegram на ПК" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
+                </StackPanel>
+
+                <!-- Right: Top-Bar Telegram Proxy Metrics -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="DC2:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
+                        <TextBlock x:Name="Dc2PingText" Text="-- мс" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                    </StackPanel>
+
+                    <TextBlock Text="│" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.3" FontSize="11" VerticalAlignment="Center" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="DC4:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
+                        <TextBlock x:Name="Dc4PingText" Text="-- мс" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                    </StackPanel>
+
+                    <TextBlock Text="│" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.3" FontSize="11" VerticalAlignment="Center" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="Прокси:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
+                        <TextBlock x:Name="ProxyPortText" Text="127.0.0.1:1443" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
 
             <!-- ─── CONNECTION MONITOR & ACTIONS ─── -->
             <StackPanel Grid.Row="1" Spacing="16" Margin="0,0,0,16">

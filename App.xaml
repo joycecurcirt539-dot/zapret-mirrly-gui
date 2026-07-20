@@ -13,28 +13,28 @@
             <ResourceDictionary.ThemeDictionaries>
                 <!-- Default/Dark Theme Resource Dictionary -->
                 <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="BrandElectricBrush" Color="#A79A83" />
+                    <SolidColorBrush x:Key="BrandElectricBrush" Color="#E4E4E7" />
                     <LinearGradientBrush x:Key="TitleTextGradientBrush" StartPoint="0,0" EndPoint="1,0">
-                        <GradientStop Color="#F6F2EA" Offset="0.0" />
-                        <GradientStop Color="#D6CDBC" Offset="0.5" />
-                        <GradientStop Color="#A79A83" Offset="1.0" />
+                        <GradientStop Color="#FFFFFF" Offset="0.0" />
+                        <GradientStop Color="#E4E4E7" Offset="0.5" />
+                        <GradientStop Color="#A1A1AA" Offset="1.0" />
                     </LinearGradientBrush>
-                    <SolidColorBrush x:Key="BrandAlphaBackground" Color="#12A79A83" />
-                    <SolidColorBrush x:Key="BrandAlphaBorder" Color="#25A79A83" />
-                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#121213" />
-                    <SolidColorBrush x:Key="TrayWindowBackground" Color="#1C121213" />
-                    <SolidColorBrush x:Key="TrayWindowOpaqueBackground" Color="#FF18181A" />
-                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#12FFFFFF" />
-                    <SolidColorBrush x:Key="CardBorderBrush" Color="#2F2F2F" />
-                    <SolidColorBrush x:Key="WidgetCardBackgroundBrush" Color="#1C1C1D" />
-                    <SolidColorBrush x:Key="WidgetCardBorderBrush" Color="#252526" />
-                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A79A83" />
-                    <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="#0C0C0C" />
-                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#1F1F1F" />
-                    <SolidColorBrush x:Key="ConsoleForegroundBrush" Color="#C0B89A" />
-                    <SolidColorBrush x:Key="IconBorderBackground" Color="#21201E" />
-                    <SolidColorBrush x:Key="IconBorderBrush" Color="#3A3834" />
+                    <SolidColorBrush x:Key="BrandAlphaBackground" Color="#12FFFFFF" />
+                    <SolidColorBrush x:Key="BrandAlphaBorder" Color="#27272A" />
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#141416" />
+                    <SolidColorBrush x:Key="TrayWindowBackground" Color="#1C141416" />
+                    <SolidColorBrush x:Key="TrayWindowOpaqueBackground" Color="#FF141416" />
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1E1E22" />
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#27272A" />
+                    <SolidColorBrush x:Key="WidgetCardBackgroundBrush" Color="#1E1E22" />
+                    <SolidColorBrush x:Key="WidgetCardBorderBrush" Color="#27272A" />
+                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FAFAFA" />
+                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A1A1AA" />
+                    <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="#0C0C0E" />
+                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#1F1F23" />
+                    <SolidColorBrush x:Key="ConsoleForegroundBrush" Color="#E4E4E7" />
+                    <SolidColorBrush x:Key="IconBorderBackground" Color="#1E1E22" />
+                    <SolidColorBrush x:Key="IconBorderBrush" Color="#27272A" />
                     <SolidColorBrush x:Key="ConnectTelegramBackground" Color="#1F2A38" />
                     <SolidColorBrush x:Key="ConnectTelegramBorder" Color="#2D3B4C" />
                     <SolidColorBrush x:Key="ConnectTelegramForeground" Color="#A6C8FF" />
@@ -196,10 +196,10 @@
             <Style x:Key="PremiumAccentButtonStyle" TargetType="Button">
                 <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
                 <Setter Property="Padding" Value="16,8" />
-                <Setter Property="Background" Value="#4E483E" />
-                <Setter Property="BorderBrush" Value="#45423B" />
+                <Setter Property="Background" Value="#27272A" />
+                <Setter Property="BorderBrush" Value="#3F3F46" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Foreground" Value="#F3EFE6" />
+                <Setter Property="Foreground" Value="#FAFAFA" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>

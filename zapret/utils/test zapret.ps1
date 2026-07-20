@@ -1,4 +1,3 @@
-# GUI_COMPATIBLE_V2
 $hasErrors = $false
 
 $rootDir = Split-Path $PSScriptRoot
@@ -118,15 +117,6 @@ function Build-DpiTargets {
         foreach ($entry in $suite) {
             $targets += @{ Id = $entry.Id; Country = $entry.Country; Provider = $entry.Provider; Host = $entry.Host }
         }
-    }
-
-    # Local fallback targets if remote suite is blocked / unreachable
-    if ($targets.Count -eq 0) {
-        Write-Host "[INFO] Using local fallback targets list..." -ForegroundColor Cyan
-        $targets += @{ Id = "YOUTUBE"; Provider = "Google"; Country = "US"; Host = "www.youtube.com" }
-        $targets += @{ Id = "DISCORD"; Provider = "Discord"; Country = "US"; Host = "gateway.discord.gg" }
-        $targets += @{ Id = "FACEBOOK"; Provider = "Meta"; Country = "US"; Host = "www.facebook.com" }
-        $targets += @{ Id = "INSTAGRAM"; Provider = "Meta"; Country = "US"; Host = "www.instagram.com" }
     }
 
     return $targets
@@ -373,10 +363,8 @@ if (Test-ZapretServiceConflict) {
 if ($hasErrors) {
     Write-Host ""
     Write-Host "Fix the errors above and rerun." -ForegroundColor Yellow
-    if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
-        Write-Host "Press any key to exit..." -ForegroundColor Yellow
-        [void][System.Console]::ReadKey($true)
-    }
+    Write-Host "Press any key to exit..." -ForegroundColor Yellow
+    [void][System.Console]::ReadKey($true)
     exit 1
 }
 
@@ -555,10 +543,8 @@ if ($testType -eq 'standard') {
 # Ensure we have configs to run
 if (-not $batFiles -or $batFiles.Count -eq 0) {
     Write-Host "[ERROR] No general*.bat files found" -ForegroundColor Red
-    if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
-        Write-Host "Press any key to exit..." -ForegroundColor Yellow
-        [void][System.Console]::ReadKey($true)
-    }
+    Write-Host "Press any key to exit..." -ForegroundColor Yellow
+    [void][System.Console]::ReadKey($true)
     exit 1
 }
 
@@ -969,9 +955,7 @@ try {
     Remove-Item -Path $ipsetFlagFile -ErrorAction SilentlyContinue
 }
 
-    if (-not ($env:GUI_MODE -eq "1" -or [System.Console]::IsInputRedirected)) {
-        Write-Host "Press any key to close..." -ForegroundColor Yellow
-        [void][System.Console]::ReadKey($true)
-    }
+    Write-Host "Press any key to close..." -ForegroundColor Yellow
+    [void][System.Console]::ReadKey($true)
     exit
 }

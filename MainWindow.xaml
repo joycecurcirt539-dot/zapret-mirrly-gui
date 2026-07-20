@@ -357,7 +357,7 @@
                         <!-- Top Header -->
                         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                             <StackPanel Grid.Column="0" Spacing="4">
-                                <TextBlock Text="Доступно обновление!" FontSize="18" FontWeight="ExtraBold" Foreground="#F6F2EA" />
+                                <TextBlock x:Name="UpdateModalTitleText" Text="Доступно обновление!" FontSize="18" FontWeight="ExtraBold" Foreground="#F6F2EA" />
                                 <TextBlock x:Name="UpdateTagNameText" Text="Версия v1.0.0" FontSize="12" Foreground="#A79A83" FontWeight="Medium" Visibility="Collapsed" />
                             </StackPanel>
 
@@ -382,7 +382,7 @@
                         <!-- Actions Grid -->
                         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10" Margin="0,4,0,0">
                             <!-- Install (Primary) - Glowing Gold Accent Style -->
-                            <Button Grid.Column="0" Click="DownloadUpdate_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="38" HorizontalAlignment="Stretch" CornerRadius="8" Background="#A79A83" Foreground="#121110">
+                            <Button x:Name="InstallUpdateButton" Grid.Column="0" Click="DownloadUpdate_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="38" HorizontalAlignment="Stretch" CornerRadius="8" Background="#A79A83" Foreground="#121110">
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                                     <FontIcon Glyph="&#xE896;" FontSize="14" Foreground="#121110" FontWeight="Bold"/>
                                     <TextBlock Text="Установить сейчас" FontWeight="Bold" Foreground="#121110" VerticalAlignment="Center"/>
@@ -390,13 +390,13 @@
                             </Button>
 
                             <!-- Skip -->
-                            <Button Grid.Column="1" Click="SkipVersion_Click" Height="38" Width="105" CornerRadius="8" BorderBrush="#302D2A" Background="Transparent" Foreground="#A79A83">
+                            <Button x:Name="SkipVersionButton" Grid.Column="1" Click="SkipVersion_Click" Height="38" Width="105" CornerRadius="8" BorderBrush="#302D2A" Background="Transparent" Foreground="#A79A83">
                                 <TextBlock Text="Пропустить" FontSize="12.5"/>
                             </Button>
 
                             <!-- Close / Later -->
-                            <Button Grid.Column="2" Click="CloseUpdateOverlay_Click" Height="38" Width="90" CornerRadius="8" BorderBrush="#302D2A" Background="Transparent" Foreground="#A79A83">
-                                <TextBlock Text="Позже" FontSize="12.5"/>
+                            <Button x:Name="CloseUpdateOverlayButton" Grid.Column="2" Click="CloseUpdateOverlay_Click" Height="38" Width="90" CornerRadius="8" BorderBrush="#302D2A" Background="Transparent" Foreground="#A79A83">
+                                <TextBlock x:Name="CloseUpdateOverlayButtonText" Text="Позже" FontSize="12.5"/>
                             </Button>
                         </Grid>
                     </Grid>

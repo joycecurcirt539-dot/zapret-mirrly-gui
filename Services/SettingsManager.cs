@@ -55,6 +55,9 @@ public class AppSettings
 
     // Themes
     public string AppTheme { get; set; } = "Standard"; // Standard, Light, Dark
+
+    // Version tracking
+    public string LastSeenVersion { get; set; } = "";
 }
 
 public static class SettingsManager

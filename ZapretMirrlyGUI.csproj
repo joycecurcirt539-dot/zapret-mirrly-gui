@@ -7,9 +7,9 @@
     <AssemblyName>ZapretMirrlyGUI</AssemblyName>
     <Product>ZapretMirrlyGUI</Product>
     <Title>Zapret Mirrly GUI</Title>
-    <Version>1.1.2</Version>
-    <AssemblyVersion>1.1.2.0</AssemblyVersion>
-    <FileVersion>1.1.2.0</FileVersion>
+    <Version>1.1.5</Version>
+    <AssemblyVersion>1.1.5.0</AssemblyVersion>
+    <FileVersion>1.1.5.0</FileVersion>
     <RootNamespace>ZapretMirrlyGUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
@@ -56,7 +56,7 @@
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
   </ItemGroup>
 
-  <Target Name="ZipZapret" BeforeTargets="PrepareForBuild" Condition="!Exists('Assets\zapret.zip')">
+  <Target Name="ZipZapret" BeforeTargets="PrepareForBuild">
     <Message Text="Zipping zapret directory to Assets\zapret.zip..." Importance="high" />
     <Exec Command="powershell -Command &quot;if (Test-Path 'Assets\zapret.zip') { Remove-Item 'Assets\zapret.zip' -Force }; Compress-Archive -Path 'zapret\*' -DestinationPath 'Assets\zapret.zip' -Force&quot;" />
   </Target>

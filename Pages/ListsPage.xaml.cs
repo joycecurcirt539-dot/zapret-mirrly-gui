@@ -81,16 +81,6 @@ public sealed partial class ListsPage : Page
 
         _listMetadata.Add(new ListMetadataItem
         {
-            Id = "user_bypass",
-            DisplayName = "Обход (Пользователь)",
-            FileName = "list-general-user.txt",
-            Description = "Ваш личный список доменов для обхода. Добавляйте сюда сайты, которые хотите разблокировать.",
-            IconData = "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
-            DefaultValue = "domain.example.abc"
-        });
-
-        _listMetadata.Add(new ListMetadataItem
-        {
             Id = "google_bypass",
             DisplayName = "Google/YouTube",
             FileName = "list-google.txt",
@@ -111,16 +101,6 @@ public sealed partial class ListsPage : Page
 
         _listMetadata.Add(new ListMetadataItem
         {
-            Id = "user_exclude",
-            DisplayName = "Исключения (Пользователь)",
-            FileName = "list-exclude-user.txt",
-            Description = "Ваши личные домены-исключения. Внесите сюда сайты банков или госструктур, если они работают нестабильно.",
-            IconData = "M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V8h6v2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
-            DefaultValue = "domain.example.abc"
-        });
-
-        _listMetadata.Add(new ListMetadataItem
-        {
             Id = "ipset_all",
             DisplayName = "IPSet-список",
             FileName = "ipset-all.txt",
@@ -137,16 +117,6 @@ public sealed partial class ListsPage : Page
             Description = "Системные исключения подсетей IP. Этот трафик всегда пускается напрямую.",
             IconData = "M22 13h-6v-2h6v2zm-2-9v4H2V4h18zm-2 3V5H4v2h14zm-16 7h10v-4H2v4zm2-3h2v2H4v-2zm-2 9h20v-4H2v4zm2-3h2v2H4v-2z",
             DefaultValue = "192.168.0.0/16\n10.0.0.0/8"
-        });
-
-        _listMetadata.Add(new ListMetadataItem
-        {
-            Id = "user_ipset_exclude",
-            DisplayName = "IP-исключения (Пользователь)",
-            FileName = "ipset-exclude-user.txt",
-            Description = "Ваши личные IP-исключения подсетей. Защищает доверенные локальные или внешние IP от перехвата.",
-            IconData = "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z M22 13h-6v-2h6v2z",
-            DefaultValue = "203.0.113.113/32"
         });
     }
 

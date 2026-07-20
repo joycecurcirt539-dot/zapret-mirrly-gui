@@ -121,7 +121,7 @@ public class StrategyScoreItem : INotifyPropertyChanged
 
 public sealed partial class DiagnosticsPage : Page
 {
-    private Process? _powershellProcess;
+    private CancellationTokenSource? _diagnosticCts; // new native engine cancellation
     private readonly ObservableCollection<StrategyScoreItem> _strategyScores = new();
     private string _bestPresetFound = "";
     private readonly List<string> _allPresets = new();
@@ -130,6 +130,10 @@ public sealed partial class DiagnosticsPage : Page
     private readonly List<(string Text, bool IsError)> _pendingLogLines = new();
     private DateTime _lastLogFlush = DateTime.MinValue;
     private bool _isLogFlushScheduled = false;
+    private DateTime _diagStartTime = DateTime.MinValue;
+    private int _totalDiagPresets = 0;
+    private int _completedDiagPresets = 0;
+    private DispatcherTimer? _realtimeEtaTimer;
 
     public DiagnosticsPage()
     {
@@ -138,6 +142,9 @@ public sealed partial class DiagnosticsPage : Page
         StrategyScoresListView.ItemsSource = _strategyScores;
         Loaded += DiagnosticsPage_Loaded;
         Unloaded += DiagnosticsPage_Unloaded;
+
+        _realtimeEtaTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _realtimeEtaTimer.Tick += RealtimeEtaTimer_Tick;
     }
 
     protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -190,6 +197,16 @@ public sealed partial class DiagnosticsPage : Page
                 SettingsManager.Save();
             }
         };
+
+        _ = Task.Run(async () =>
+        {
+            var ispName = await IspService.GetIspNameAsync();
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (IspStatusTextBlock != null)
+                    IspStatusTextBlock.Text = $"Провайдер: {ispName}";
+            });
+        });
     }
 
     private void SetComboBoxByTag(ComboBox comboBox, string tag)
@@ -251,7 +268,7 @@ public sealed partial class DiagnosticsPage : Page
     {
         if (SelectConfigsButton != null)
         {
-            SelectConfigsButton.Content = $"Выбрать ({_selectedPresets.Count})...";
+            SelectConfigsButton.Content = _selectedPresets.Count > 0 ? $"Выбрать ({_selectedPresets.Count})" : "Выбрать";
         }
     }
 
@@ -364,182 +381,38 @@ public sealed partial class DiagnosticsPage : Page
 
         // Collect parameters
         string testType = (TestTypeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "standard";
-        string runMode = (RunModeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "all";
-        string timeout = (TimeoutComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "5";
+        string runMode  = (RunModeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "all";
+        string timeout  = (TimeoutComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "5";
+        int timeoutSec  = int.TryParse(timeout, out var t) ? t : 5;
 
-        // Determine selected config indices (1-indexed based on _allPresets order)
-        var indicesList = new List<int>();
-        if (runMode == "select")
+        // Build preset list directly — no env-var juggling
+        var presetsToRun = runMode == "select" && _selectedPresets.Count > 0
+            ? _selectedPresets.ToList()
+            : _allPresets.ToList();
+
+        _diagnosticCts?.Cancel();
+        _diagnosticCts = new CancellationTokenSource();
+
+        _diagStartTime = DateTime.Now;
+        _totalDiagPresets = presetsToRun.Count;
+        _completedDiagPresets = 0;
+        _realtimeEtaTimer?.Start();
+
+        if (StatusStripTextBlock != null)
         {
-            foreach (var sel in _selectedPresets)
-            {
-                int idx = _allPresets.FindIndex(p => p.Equals(sel, StringComparison.OrdinalIgnoreCase));
-                if (idx != -1)
-                {
-                    indicesList.Add(idx + 1); // 1-indexed
-                }
-            }
+            StatusStripTextBlock.Text = $"Диагностика запущена • 1 из {_totalDiagPresets} (расчёт времени...)";
         }
 
-        Task.Run(() => RunPowerShellDiagnostics(testType, runMode, timeout, indicesList));
-    }
-
-    private void RunPowerShellDiagnostics(string testType, string runMode, string timeout, List<int> selectedIndices)
-    {
-        var root = ZapretService.FindZapretRoot();
-        var scriptPath = Path.Combine(root, "utils", "test zapret.ps1");
-
-        if (!File.Exists(scriptPath))
+        var options = new DiagnosticOptions
         {
-            AppendToConsole($"[ERROR] Скрипт диагностики не найден по пути: {scriptPath}\n");
-            ResetUIState("Ошибка: скрипт не найден");
-            return;
-        }
-
-        AppendToConsole($"[INFO] Запуск оригинального скрипта диагностики...\n");
-
-        var mockReadHost = 
-            "function Read-Host { " +
-            "param([Parameter(ValueFromPipeline=$true)]$Prompt, [switch]$AsSecureString); " +
-            "if ($Prompt -like '*numbers*' -or $Prompt -like '*ranges*' -or $Prompt -like '*mixed*') { " +
-            "if ([string]::IsNullOrEmpty($env:SELECTED_INDICES)) { return '0' } " +
-            "return $env:SELECTED_INDICES; " +
-            "} " +
-            "if (-not $script:readHostStep) { $script:readHostStep = 0 } " +
-            "if ($script:readHostStep -eq 0) { " +
-            "$script:readHostStep++; " +
-            "if ($env:TEST_TYPE -eq 'dpi') { return '2' } " +
-            "return '1'; " +
-            "} " +
-            "if ($script:readHostStep -eq 1) { " +
-            "$script:readHostStep++; " +
-            "if ($env:RUN_MODE -eq 'select') { return '2' } " +
-            "return '1'; " +
-            "} " +
-            "return ''; " +
-            "}";
-
-        string escapedScriptPath = scriptPath.Replace("'", "''");
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = "powershell.exe",
-            Arguments = $"-NonInteractive -NoProfile -ExecutionPolicy Bypass -Command \"& {{ {mockReadHost}; . '{escapedScriptPath}' }}\"",
-            WorkingDirectory = Path.Combine(root, "utils"),
-            CreateNoWindow = true,
-            UseShellExecute = false,
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            StandardOutputEncoding = Encoding.UTF8,
-            StandardErrorEncoding = Encoding.UTF8
+            Presets        = presetsToRun,
+            TimeoutSeconds = timeoutSec,
+            TestType       = testType,
+            InitDelaySeconds = 0
         };
 
-        // Pass timeout and GUI mode via Environment Variables
-        startInfo.EnvironmentVariables["MONITOR_TIMEOUT"] = timeout;
-        startInfo.EnvironmentVariables["GUI_MODE"] = "1";
-        startInfo.EnvironmentVariables["TEST_TYPE"] = testType;
-        startInfo.EnvironmentVariables["RUN_MODE"] = runMode;
-        if (runMode == "select")
-        {
-            var indicesStr = string.Join(",", selectedIndices);
-            if (string.IsNullOrEmpty(indicesStr)) indicesStr = "0"; 
-            startInfo.EnvironmentVariables["SELECTED_INDICES"] = indicesStr;
-        }
-
-        try
-        {
-            _powershellProcess = new Process { StartInfo = startInfo };
-            
-            _powershellProcess.OutputDataReceived += (s, e) =>
-            {
-                if (e.Data != null)
-                {
-                    var translated = TranslatePowerShellLine(e.Data);
-                    AppendToConsole(translated, isError: false);
-                    ParseStdoutLine(e.Data);
-                }
-            };
-            
-            _powershellProcess.ErrorDataReceived += (s, e) =>
-            {
-                if (e.Data != null)
-                {
-                    var translated = TranslatePowerShellLine(e.Data);
-                    AppendToConsole($"[Системная ошибка] {translated}", isError: true);
-                }
-            };
-
-            _powershellProcess.Start();
-            _powershellProcess.BeginOutputReadLine();
-            _powershellProcess.BeginErrorReadLine();
-
-            _powershellProcess.WaitForExit();
-            
-            var exitCode = _powershellProcess.ExitCode;
-            ResetUIState(exitCode == 0 ? "Проверка завершена" : "Проверка прервана");
-        }
-        catch (Exception ex)
-        {
-            AppendToConsole($"[ERROR] Ошибка запуска процесса: {ex.Message}\n");
-            ResetUIState("Ошибка запуска");
-        }
-    }
-
-    private readonly Regex _scoreRegex = new(@"^(?<config>general.*\.bat)\s*:\s*(?:HTTP\s*)?OK:\s*(?<ok>\d+),\s*(?:ERR|FAIL):\s*(?<fail>\d+),\s*UNSUP:\s*(?<unsup>\d+)", RegexOptions.IgnoreCase);
-    private readonly Regex _dpiScoreRegex = new(@"^(?<config>general.*\.bat)\s*:\s*OK:\s*(?<ok>\d+),\s*FAIL:\s*(?<fail>\d+),\s*UNSUP:\s*(?<unsup>\d+),\s*BLOCKED:\s*(?<blocked>\d+)", RegexOptions.IgnoreCase);
-    private readonly Regex _bestRegex = new(@"Best strategy:\s*(?<best>general.*)", RegexOptions.IgnoreCase);
-
-    private void ParseStdoutLine(string line)
-    {
-        // 1. Check Standard Results
-        var match = _scoreRegex.Match(line);
-        if (match.Success)
-        {
-            var config = match.Groups["config"].Value.Trim();
-            var ok = int.Parse(match.Groups["ok"].Value);
-            var fail = int.Parse(match.Groups["fail"].Value);
-            var unsup = int.Parse(match.Groups["unsup"].Value);
-
-            AddStrategyScore(config, ok, fail, unsup, 0, false);
-            return;
-        }
-
-        // 2. Check DPI Results
-        var dpiMatch = _dpiScoreRegex.Match(line);
-        if (dpiMatch.Success)
-        {
-            var config = dpiMatch.Groups["config"].Value.Trim();
-            var ok = int.Parse(dpiMatch.Groups["ok"].Value);
-            var fail = int.Parse(dpiMatch.Groups["fail"].Value);
-            var unsup = int.Parse(dpiMatch.Groups["unsup"].Value);
-            var blocked = int.Parse(dpiMatch.Groups["blocked"].Value);
-
-            AddStrategyScore(config, ok, fail, unsup, blocked, true);
-            return;
-        }
-
-        // 3. Check Best Strategy
-        var bestMatch = _bestRegex.Match(line);
-        if (bestMatch.Success)
-        {
-            var best = bestMatch.Groups["best"].Value.Trim();
-            // Append .bat extension if missing
-            if (!best.EndsWith(".bat", StringComparison.OrdinalIgnoreCase))
-            {
-                best += ".bat";
-            }
-
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                _bestPresetFound = best;
-                BestStrategyTextBlock.Text = best;
-                BestStrategyCard.Visibility = Visibility.Visible;
-            });
-
-            // Automatically stop PowerShell since results are declared
-            StopDiagnosticsProcess();
-        }
+        var engineProgress = new Progress<DiagnosticProgressEvent>(OnDiagnosticProgress);
+        _ = Task.Run(() => DiagnosticEngine.RunAsync(options, engineProgress, _diagnosticCts.Token));
     }
 
     private void AddStrategyScore(string config, int ok, int fail, int unsup, int blocked, bool isDpi)
@@ -627,22 +500,22 @@ public sealed partial class DiagnosticsPage : Page
                 currentItem.Rank = (i + 1).ToString();
                 if (i == 0)
                 {
-                    currentItem.RankColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 215, 0)); // Gold
-                    currentItem.RankGlyph = "👑";
+                    currentItem.RankColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 56, 189, 248)); // Blue/Accent
+                    currentItem.RankGlyph = "1";
                 }
                 else if (i == 1)
                 {
-                    currentItem.RankColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 192, 192, 192)); // Silver
-                    currentItem.RankGlyph = "🥈";
+                    currentItem.RankColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 161, 161, 170)); // Zinc
+                    currentItem.RankGlyph = "2";
                 }
                 else if (i == 2)
                 {
-                    currentItem.RankColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 205, 127, 50)); // Bronze
-                    currentItem.RankGlyph = "🥉";
+                    currentItem.RankColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 161, 161, 170)); // Zinc
+                    currentItem.RankGlyph = "3";
                 }
                 else
                 {
-                    currentItem.RankColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 128, 128, 128)); // Gray
+                    currentItem.RankColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 113, 113, 122)); // Gray
                     currentItem.RankGlyph = (i + 1).ToString();
                 }
 
@@ -807,39 +680,7 @@ public sealed partial class DiagnosticsPage : Page
         }
     }
 
-    private string TranslatePowerShellLine(string line)
-    {
-        if (string.IsNullOrEmpty(line)) return line;
 
-        var translations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "Run as Administrator to execute tests", "Запустите от имени Администратора для выполнения тестов" },
-            { "curl.exe found", "Файл curl.exe найден" },
-            { "Current ipset status:", "Текущий статус ipset:" },
-            { "Ipset will be switched to 'any' for accurate DPI tests.", "База ipset будет переключена на 'any' для точных тестов DPI." },
-            { "If you close the window with the X button, ipset will NOT restore immediately.", "Если вы закроете окно кнопкой X, ipset НЕ восстановится мгновенно." },
-            { "It will be restored automatically on the next script run.", "Он будет автоматически восстановлен при следующем запуске." },
-            { "Fix the errors above and rerun.", "Исправьте ошибки выше и запустите снова." },
-            { "Press any key to exit...", "Нажмите любую клавишу для выхода..." },
-            { "Script interrupted. Restoring ipset...", "Скрипт прерван. Восстановление исходного состояния ipset..." },
-            { "Best strategy:", "Лучшая стратегия:" },
-            { "Checking strategy", "Проверка стратегии" },
-            { "unsupported", "не поддерживается" },
-            { "blocked", "заблокировано" },
-            { "available", "доступно" },
-            { "none", "отсутствует" }
-        };
-
-        foreach (var pair in translations)
-        {
-            line = System.Text.RegularExpressions.Regex.Replace(line, System.Text.RegularExpressions.Regex.Escape(pair.Key), pair.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        }
-
-        line = System.Text.RegularExpressions.Regex.Replace(line, @"Checking strategy\s+(?<name>general.*\.bat)\s*\.\.\.", "Проверка стратегии ${name}...", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        line = System.Text.RegularExpressions.Regex.Replace(line, @"Testing:\s+(?<name>general.*\.bat)\s*\((?<sec>\d+)s timeout\)\s*\.\.\.", "Тестирование: ${name} (таймаут ${sec} сек)...", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-        return line;
-    }
 
     private void ScrollTextBoxToBottom(TextBox textBox)
     {
@@ -864,6 +705,7 @@ public sealed partial class DiagnosticsPage : Page
     private void ResetUIState(string statusText)
     {
         ZapretService.IsDiagnosticsRunning = false;
+        _realtimeEtaTimer?.Stop();
 
         DispatcherQueue.TryEnqueue(() =>
         {
@@ -885,24 +727,97 @@ public sealed partial class DiagnosticsPage : Page
 
     private void StopDiagnosticsProcess()
     {
-        if (_powershellProcess != null)
-        {
-            try
-            {
-                if (!_powershellProcess.HasExited)
-                {
-                    _powershellProcess.Kill(true);
-                }
-            }
-            catch { }
-            finally
-            {
-                _powershellProcess.Dispose();
-                _powershellProcess = null;
-            }
-        }
-        
+        // Cancel the native engine
+        _diagnosticCts?.Cancel();
+
+        // Kill any running winws immediately
         ZapretService.KillAllWinwsProcesses();
+
+        // Save whatever scores we've already collected
+        if (_strategyScores != null && _strategyScores.Count > 0)
+        {
+            var scores = _strategyScores.Select(s => new DiagnosticPresetScore
+            {
+                PresetName   = s.ConfigName.EndsWith(".bat", StringComparison.OrdinalIgnoreCase) ? s.ConfigName : s.ConfigName + ".bat",
+                SuccessCount = s.OkCount,
+                TotalCount   = s.OkCount + s.FailCount + s.BlockedCount,
+                AvgPingMs    = s.OkCount > 0 ? 45 : -1
+            }).ToList();
+            DiagnosticResultManager.SaveResults(scores);
+        }
+
+        ResetUIState("Диагностика остановлена");
+    }
+
+    // ── Native engine progress handler ─────────────────────────────────────────
+
+    private void OnDiagnosticProgress(DiagnosticProgressEvent evt)
+    {
+        // Log everything to console (Progress<T> already marshals to UI thread)
+        if (!string.IsNullOrEmpty(evt.Message) && evt.Message != "done")
+            AppendToConsole(evt.Message, evt.IsError);
+
+        // Update ETA status header
+        if (evt.Type == DiagnosticEventType.PresetFinished && evt.Result != null)
+        {
+            var r = evt.Result;
+            AddStrategyScore(r.PresetName, r.Ok, r.Fail, r.Unsup, r.Blocked, r.IsDpi);
+            _completedDiagPresets++;
+        }
+
+        // When everything is done, save results and reset UI
+        if (evt.Type == DiagnosticEventType.AllDone && ZapretService.IsDiagnosticsRunning)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (_strategyScores.Count > 0)
+                {
+                    var scores = _strategyScores.Select(s => new DiagnosticPresetScore
+                    {
+                        PresetName   = s.ConfigName.EndsWith(".bat", StringComparison.OrdinalIgnoreCase) ? s.ConfigName : s.ConfigName + ".bat",
+                        SuccessCount = s.OkCount,
+                        TotalCount   = s.OkCount + s.FailCount + s.BlockedCount,
+                        AvgPingMs    = s.OkCount > 0 ? 45 : -1
+                    }).ToList();
+                    DiagnosticResultManager.SaveResults(scores);
+
+                    var winner = DiagnosticResultManager.BestPresets.FirstOrDefault(p => p.IsWinner);
+                    if (winner != null)
+                    {
+                        _bestPresetFound = winner.PresetName;
+                        BestStrategyTextBlock.Text = winner.PresetName;
+                        BestStrategyCard.Visibility = Visibility.Visible;
+                    }
+                }
+            });
+
+            var totalElapsed = DateTime.Now - _diagStartTime;
+            ResetUIState($"Завершено за {totalElapsed:mm\\:ss} • Протестировано {_completedDiagPresets} пресетов");
+        }
+    }
+
+    private void RealtimeEtaTimer_Tick(object? sender, object e)
+    {
+        if (!ZapretService.IsDiagnosticsRunning || _diagStartTime == DateTime.MinValue)
+            return;
+
+        var elapsed = DateTime.Now - _diagStartTime;
+
+        double avgSecPerPreset = _completedDiagPresets > 0
+            ? elapsed.TotalSeconds / _completedDiagPresets
+            : 2.0;
+
+        int remainingPresets = Math.Max(0, _totalDiagPresets - _completedDiagPresets);
+        int etaSec = (int)Math.Max(0, Math.Ceiling(remainingPresets * avgSecPerPreset));
+
+        string etaStr = remainingPresets > 0 ? $" • Осталось ~{etaSec} сек" : "";
+        string elapsedStr = $"прошло {elapsed:mm\\:ss}";
+        int currentNumber = Math.Min(_totalDiagPresets, _completedDiagPresets + 1);
+
+        if (StatusStripTextBlock != null)
+        {
+            StatusStripTextBlock.Text = $"Тест {currentNumber} из {_totalDiagPresets}{etaStr} ({elapsedStr})";
+        }
     }
 
     private void StopButton_Click(object sender, RoutedEventArgs e)
@@ -954,18 +869,16 @@ public sealed partial class DiagnosticsPage : Page
             try { mode = File.ReadAllText(gameFilterFile).Trim().ToLower(); } catch { }
         }
 
-        // Install service
+        // Install service quietly without popping annoying dialogs
         ZapretService.InstallService(_bestPresetFound, mode);
 
-        var infoDialog = new ContentDialog
+        if (StatusStripTextBlock != null)
         {
-            Title = "Успех",
-            Content = $"Пресет '{_bestPresetFound}' успешно установлен и запущен как служба автозапуска Windows.",
-            CloseButtonText = "ОК",
-            XamlRoot = this.XamlRoot
-        };
-        _ = infoDialog.ShowAsync();
+            StatusStripTextBlock.Text = $"Стратегия '{_bestPresetFound}' успешно примена в системе.";
+        }
     }
+
+    // ─── System Diagnostics & Parity Actions ──────────────────────────────────
 
     // ─── System Diagnostics & Parity Actions ──────────────────────────────────
 
@@ -976,11 +889,8 @@ public sealed partial class DiagnosticsPage : Page
         ClearDiscordCacheBtn.IsEnabled = false;
         SystemDiagnosticsLogTextBox.Text = "Запуск системной проверки...\n";
 
-        // 1. BFE Check
-        var bfeRunning = await Task.Run(() => {
-            var output = ZapretService.ExecuteCommand("sc.exe", "query BFE");
-            return output.Contains("RUNNING", StringComparison.OrdinalIgnoreCase);
-        });
+        // 1. BFE Check (Native Win32 Service Query)
+        var bfeRunning = await Task.Run(() => Win32ServiceManager.GetServiceStatusName("BFE") == "RUNNING");
         UpdateStatusCard(BfeStatusIcon, BfeStatusDetails, bfeRunning, "Служба BFE активна и работает", "Служба BFE отключена! Zapret не сможет работать.");
         LogDiag(bfeRunning ? "[PASS] Служба BFE активна." : "[FAIL] Служба BFE отключена.");
 
@@ -1001,23 +911,18 @@ public sealed partial class DiagnosticsPage : Page
         UpdateStatusCard(ProxyStatusIcon, ProxyStatusDetails, !proxyActive, "Системный прокси не используется", "Включен системный прокси! Может мешать обходу.");
         LogDiag(!proxyActive ? "[PASS] Системный прокси отключен." : "[WARN] Включен системный прокси.");
 
-        // 3. TCP Timestamps Check
-        var timestampsActive = await Task.Run(() => {
-            var output = ZapretService.ExecuteCommand("netsh.exe", "interface tcp show global");
-            return output.Contains("timestamps", StringComparison.OrdinalIgnoreCase) && 
-                   output.Contains("enabled", StringComparison.OrdinalIgnoreCase);
-        });
+        // 3. TCP Timestamps Check (Native Registry Query)
+        var timestampsActive = await Task.Run(() => CheckTcpTimestampsInRegistry());
         UpdateStatusCard(TimestampsStatusIcon, TimestampsStatusDetails, timestampsActive, "TCP timestamps включены", "TCP timestamps отключены! Рекомендуется включить.");
         LogDiag(timestampsActive ? "[PASS] TCP Timestamps включены." : "[WARN] TCP Timestamps отключены.");
 
-        // 4. Conflicts Check
+        // 4. Conflicts Check (Native Service Manager)
         var conflictingServices = new[] { "GoodbyeDPI", "discordfix_zapret", "winws1", "winws2", "SmartByte", "EPWD", "TracSrvWrapper" };
         var foundConflicts = new List<string>();
         await Task.Run(() => {
             foreach (var svc in conflictingServices)
             {
-                var output = ZapretService.ExecuteCommand("sc.exe", $"query {svc}");
-                if (!output.Contains("FAILED 1060") && !output.Contains("не установлена") && !output.Contains("не существует"))
+                if (Win32ServiceManager.IsServiceInstalled(svc))
                 {
                     foundConflicts.Add(svc);
                 }
@@ -1079,13 +984,10 @@ public sealed partial class DiagnosticsPage : Page
         UpdateStatusCard(HostsStatusIcon, HostsStatusDetails, !hostsNeedsUpdate, "В файле hosts присутствуют записи обхода", hostsStatus);
         LogDiag(!hostsNeedsUpdate ? "[PASS] Файл hosts содержит нужные записи обхода." : $"[WARN] {hostsStatus}");
 
-        // 8. WinDivert Check
+        // 8. WinDivert Check (Native Service Query)
         var divertConflict = await Task.Run(() => {
-            var output = ZapretService.ExecuteCommand("sc.exe", "query WinDivert");
-            var output14 = ZapretService.ExecuteCommand("sc.exe", "query WinDivert14");
-            bool divertRunning = output.Contains("RUNNING", StringComparison.OrdinalIgnoreCase) || 
-                                 output14.Contains("RUNNING", StringComparison.OrdinalIgnoreCase);
-            // If winws is not running but windivert is, it is a conflict
+            bool divertRunning = Win32ServiceManager.GetServiceStatusName("WinDivert") == "RUNNING" || 
+                                 Win32ServiceManager.GetServiceStatusName("WinDivert14") == "RUNNING";
             return divertRunning && !ZapretService.IsRunning;
         });
         UpdateStatusCard(DivertStatusIcon, DivertStatusDetails, !divertConflict, "Драйвер WinDivert чист и готов к работе", "Обнаружена зависшая служба драйвера WinDivert!");
@@ -1096,6 +998,25 @@ public sealed partial class DiagnosticsPage : Page
         RunSystemDiagnosticsBtn.IsEnabled = true;
         FixSystemConflictsBtn.IsEnabled = true;
         ClearDiscordCacheBtn.IsEnabled = true;
+    }
+
+    private static bool CheckTcpTimestampsInRegistry()
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"System\CurrentControlSet\Services\Tcpip\Parameters");
+            if (key != null)
+            {
+                var val = key.GetValue("Tcp1323Opts");
+                if (val != null)
+                {
+                    int opts = Convert.ToInt32(val);
+                    return opts == 1 || opts == 3;
+                }
+            }
+        }
+        catch { }
+        return false;
     }
 
     private void UpdateStatusCard(FontIcon icon, TextBlock details, bool success, string passText, string failText)
@@ -1113,29 +1034,25 @@ public sealed partial class DiagnosticsPage : Page
     private async void FixSystemConflictsBtn_Click(object sender, RoutedEventArgs e)
     {
         FixSystemConflictsBtn.IsEnabled = false;
-        SystemDiagnosticsLogTextBox.Text += "\nУстранение конфликтов служб...\n";
+        SystemDiagnosticsLogTextBox.Text += "\nУстранение конфликтов служб через Win32 API...\n";
 
         await Task.Run(() => {
             var conflictingServices = new[] { "GoodbyeDPI", "discordfix_zapret", "winws1", "winws2", "SmartByte", "EPWD", "TracSrvWrapper" };
             foreach (var svc in conflictingServices)
             {
-                var check = ZapretService.ExecuteCommand("sc.exe", $"query {svc}");
-                if (!check.Contains("FAILED 1060") && !check.Contains("не установлена") && !check.Contains("не существует"))
+                if (Win32ServiceManager.IsServiceInstalled(svc))
                 {
-                    DispatcherQueue.TryEnqueue(() => SystemDiagnosticsLogTextBox.Text += $"[FIX] Удаление конфликтующей службы: {svc}...\n");
-                    ZapretService.ExecuteCommand("sc.exe", $"stop {svc}");
-                    ZapretService.ExecuteCommand("sc.exe", $"delete {svc}");
+                    DispatcherQueue.TryEnqueue(() => SystemDiagnosticsLogTextBox.Text += $"[FIX] Нативное удаление конфликтующей службы: {svc}...\n");
+                    Win32ServiceManager.RemoveWin32Service(svc);
                 }
             }
 
             // Cleanup WinDivert driver if process not running
             if (!ZapretService.IsRunning)
             {
-                DispatcherQueue.TryEnqueue(() => SystemDiagnosticsLogTextBox.Text += "[FIX] Удаление зависшей службы драйвера WinDivert...\n");
-                ZapretService.ExecuteCommand("sc.exe", "stop WinDivert");
-                ZapretService.ExecuteCommand("sc.exe", "delete WinDivert");
-                ZapretService.ExecuteCommand("sc.exe", "stop WinDivert14");
-                ZapretService.ExecuteCommand("sc.exe", "delete WinDivert14");
+                DispatcherQueue.TryEnqueue(() => SystemDiagnosticsLogTextBox.Text += "[FIX] Нативное удаление зависшей службы драйвера WinDivert...\n");
+                Win32ServiceManager.RemoveWin32Service("WinDivert");
+                Win32ServiceManager.RemoveWin32Service("WinDivert14");
             }
         });
 

@@ -13,8 +13,10 @@ namespace ZapretMirrlyGUI.Pages;
 public sealed partial class TgWsProxyPage : Page
 {
     private readonly DispatcherTimer _orbTimer;
+    private readonly DispatcherTimer _autoMetricsTimer;
     private double _orbOpacity = 1.0;
     private bool _orbFadeDir = true;
+    private bool _isMeasuring = false;
 
     public TgWsProxyPage()
     {
@@ -22,6 +24,9 @@ public sealed partial class TgWsProxyPage : Page
 
         _orbTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
         _orbTimer.Tick += OrbTimer_Tick;
+
+        _autoMetricsTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+        _autoMetricsTimer.Tick += (s, e) => _ = MeasureTgMetricsAsync();
 
         // Initialize UI settings from SettingsManager
         ProxyPortTextBox.Text = SettingsManager.Instance.TgWsProxyPort.ToString();
@@ -45,6 +50,8 @@ public sealed partial class TgWsProxyPage : Page
         TgWsProxyService.OnLogReceived += OnLogReceivedHandler;
 
         UpdateStatusUI(TgWsProxyService.IsRunning);
+        _ = MeasureTgMetricsAsync();
+        _autoMetricsTimer.Start();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -55,6 +62,7 @@ public sealed partial class TgWsProxyPage : Page
         TgWsProxyService.OnLogReceived -= OnLogReceivedHandler;
 
         _orbTimer.Stop();
+        _autoMetricsTimer.Stop();
     }
 
     private void OnStatusChangedHandler(bool isRunning)
@@ -224,5 +232,50 @@ public sealed partial class TgWsProxyPage : Page
         var randomBytes = new byte[16];
         System.Security.Cryptography.RandomNumberGenerator.Fill(randomBytes);
         ProxySecretTextBox.Text = Convert.ToHexString(randomBytes).ToLower();
+    }
+
+    private async Task MeasureTgMetricsAsync()
+    {
+        if (_isMeasuring) return;
+        _isMeasuring = true;
+
+        try
+        {
+            int port = SettingsManager.Instance.TgWsProxyPort;
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (ProxyPortText != null) ProxyPortText.Text = $"127.0.0.1:{port}";
+            });
+
+            var dc2Task = NetworkLatencyService.MeasureTgProxyDcLatencyAsync("DC2", port, 1000);
+            var dc4Task = NetworkLatencyService.MeasureTgProxyDcLatencyAsync("DC4", port, 1000);
+
+            await Task.WhenAll(dc2Task, dc4Task);
+
+            var res2 = dc2Task.Result;
+            var res4 = dc4Task.Result;
+
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (Dc2PingText != null)
+                {
+                    Dc2PingText.Text = res2.FormattedText;
+                    Dc2PingText.Foreground = res2.IsSuccess
+                        ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 16, 185, 129))  // #10B981 Green
+                        : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 161, 161, 170)); // #A1A1AA Grey
+                }
+                if (Dc4PingText != null)
+                {
+                    Dc4PingText.Text = res4.FormattedText;
+                    Dc4PingText.Foreground = res4.IsSuccess
+                        ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 16, 185, 129))  // #10B981 Green
+                        : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 161, 161, 170)); // #A1A1AA Grey
+                }
+            });
+        }
+        finally
+        {
+            _isMeasuring = false;
+        }
     }
 }

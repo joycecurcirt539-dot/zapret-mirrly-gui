@@ -23,11 +23,41 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,24">
-                <TextBlock Text="DPI обход discord + youtube" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
-                <TextBlock Text="Запуск локального обхода DPI и мониторинг состояния соединения" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
-            </StackPanel>
+            <!-- Header with Top-Bar Metrics -->
+            <Grid Grid.Row="0" Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Title & Subtitle -->
+                <StackPanel Grid.Column="0" Spacing="4" VerticalAlignment="Center">
+                    <TextBlock Text="DPI обход discord + youtube" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
+                    <TextBlock Text="Запуск локального обхода DPI и мониторинг состояния соединения" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
+                </StackPanel>
+
+                <!-- Right: Top-Bar Network Latency Metrics -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="YouTube:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
+                        <TextBlock x:Name="YtPingText" Text="-- мс" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                    </StackPanel>
+
+                    <TextBlock Text="│" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.3" FontSize="11" VerticalAlignment="Center" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="Discord:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
+                        <TextBlock x:Name="DcPingText" Text="-- мс" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                    </StackPanel>
+
+                    <TextBlock Text="│" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.3" FontSize="11" VerticalAlignment="Center" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="Потери:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
+                        <TextBlock x:Name="LossText" Text="0%" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
 
             <!-- ─── CONNECTION MONITOR ─── -->
             <Border Grid.Row="1" x:Name="MonitorCard" Style="{StaticResource GlassCardStyle}" Padding="0" Margin="0,0,0,16" CornerRadius="12">
@@ -175,6 +205,55 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- NOTIFICATION OVERLAY: AUTO-APPLIED BEST STRATEGY        -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Grid x:Name="DiagnosticRecommendationOverlay" Visibility="Collapsed" Canvas.ZIndex="999" Margin="-32">
+            <!-- Light, non-intrusive backdrop -->
+            <Grid Background="#35000000">
+                <!-- Acrylic Glass Card Container -->
+                <Border Width="580" Height="370" CornerRadius="16" Style="{StaticResource GlassCardStyle}" BorderBrush="#3F3F46" BorderThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="28">
+                    <Border.Background>
+                        <AcrylicBrush TintColor="#141416" TintOpacity="0.88" FallbackColor="#141416" />
+                    </Border.Background>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <StackPanel Grid.Row="0" Spacing="4">
+                            <TextBlock Text="АВТОМАТИЧЕСКАЯ НАСТРОЙКА DPI" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#38BDF8" />
+                            <TextBlock Text="Применена лучшая стратегия" FontSize="18" FontWeight="ExtraBold" Foreground="#FAFAFA" Margin="0,2,0,0" />
+                            <TextBlock Text="По результатам проведенной диагностики система автоматически активировала оптимальный пресет:" FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+
+                        <!-- Big Applied Strategy Card -->
+                        <Border Grid.Row="1" Background="#1E1E22" BorderBrush="#38BDF8" BorderThickness="1.5" CornerRadius="12" Padding="20" Margin="0,16,0,16" VerticalAlignment="Center">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="6">
+                                    <TextBlock Text="Победитель диагностики:" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" />
+                                    <TextBlock x:Name="OverlayWinnerPresetName" Text="general.bat" FontSize="20" FontWeight="Black" Foreground="White" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="OverlayWinnerStatsText" Text="100% доступности" FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <Border Grid.Column="1" Background="#102A1D" BorderBrush="#10B981" BorderThickness="1" Padding="10,6" CornerRadius="8" VerticalAlignment="Center">
+                                    <TextBlock Text="Рекомендуется для провайдера" FontSize="10" FontWeight="Bold" Foreground="#10B981" TextWrapping="Wrap" Width="120" TextAlignment="Center" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Action Button -->
+                        <Button Grid.Row="2" x:Name="ApplyWinnerNowButton" Click="ApplyWinnerNowButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="42" HorizontalAlignment="Stretch" CornerRadius="8">
+                            <TextBlock x:Name="ApplyWinnerNowButtonText" Text="Отлично (15 с)" FontWeight="Bold" HorizontalAlignment="Center" FontSize="14" />
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Page>

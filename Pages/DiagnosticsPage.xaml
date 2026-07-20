@@ -33,62 +33,71 @@
                                     <TextBlock Text="Автоматический прогон пресетов для выявления лучшего способа обхода" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
                                 </StackPanel>
 
-                                <!-- 1. Parameters Control Deck -->
-                                <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="20" Margin="0,0,0,20">
-                                    <Grid RowSpacing="12" ColumnSpacing="12" RowDefinitions="Auto,Auto">
-                                        <!-- Section Title -->
-                                        <StackPanel Grid.Row="0" Grid.ColumnSpan="7" Orientation="Horizontal" Spacing="8">
-                                            <TextBlock Text="ПАРАМЕТРЫ ПРОВЕРКИ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
-                                            <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Параметры запуска тестирования сценариев обхода (.bat). Результаты тестов заносятся в Таблицу лидеров." VerticalAlignment="Center" />
-                                        </StackPanel>
+                                <!-- 1. Parameters Control Deck (Transparent with thin dark border) -->
+                                <Border Grid.Row="1" Background="Transparent" BorderBrush="#27272A" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,16">
+                                    <Grid RowSpacing="14">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Section Title & ISP Badge -->
+                                        <Grid Grid.Row="0">
+                                            <TextBlock Text="ПАРАМЕТРЫ ПРОВЕРКИ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#FAFAFA" VerticalAlignment="Center" />
+                                            <Border HorizontalAlignment="Right" Background="#1E1E22" BorderBrush="#27272A" BorderThickness="1" CornerRadius="6" Padding="10,4">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <FontIcon Glyph="&#xE839;" FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" />
+                                                    <TextBlock x:Name="IspStatusTextBlock" Text="Провайдер: Определение..." FontSize="11" FontWeight="SemiBold" Foreground="#FAFAFA" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
 
                                         <!-- Filter Controls Grid -->
-                                        <Grid Grid.Row="1" ColumnSpacing="10" ColumnDefinitions="*,*,Auto,Auto,Auto,Auto">
-                                            <!-- Test Type Dropdown -->
-                                            <StackPanel Grid.Column="0" Spacing="4">
-                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <TextBlock Text="Тип проверки:" Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Opacity="0.75" />
-                                                    <FontIcon Glyph="&#xE946;" FontSize="10" Foreground="#8A8A8F" ToolTipService.ToolTip="Стандартный: базовая проверка доступности сайтов по HTTP. DPI Checker: глубокий анализ блокировок TCP-соединений. Начните со Стандартного, а если сайты не грузятся - перейдите на DPI Checker." VerticalAlignment="Center" />
-                                                </StackPanel>
-                                                <ComboBox x:Name="TestTypeComboBox" HorizontalAlignment="Stretch" SelectionChanged="TestTypeComboBox_SelectionChanged" Height="36">
+                                        <Grid Grid.Row="1" ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="180" />
+                                                <ColumnDefinition Width="260" />
+                                                <ColumnDefinition Width="100" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Col 0: Test Type -->
+                                            <StackPanel Grid.Column="0" Spacing="6">
+                                                <TextBlock Text="Тип проверки" Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Foreground="#A1A1AA" />
+                                                <ComboBox x:Name="TestTypeComboBox" HorizontalAlignment="Stretch" SelectionChanged="TestTypeComboBox_SelectionChanged" Height="36" CornerRadius="8">
                                                     <ComboBoxItem Content="Стандартный (HTTP)" Tag="standard" IsSelected="True" />
                                                     <ComboBoxItem Content="DPI Checker (TCP)" Tag="dpi" />
                                                 </ComboBox>
                                             </StackPanel>
 
-                                            <!-- Run Mode Dropdown -->
-                                            <StackPanel Grid.Column="1" Spacing="4">
-                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <TextBlock Text="Режим прогона:" Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Opacity="0.75" />
-                                                    <FontIcon Glyph="&#xE946;" FontSize="10" Foreground="#8A8A8F" ToolTipService.ToolTip="Все пресеты: автоматический тест всех сценариев из папки zapret. Выборочно: тест только отмеченных вами файлов. Запуск теста всех пресетов позволяет выявить оптимальный обход." VerticalAlignment="Center" />
-                                                </StackPanel>
-                                                <ComboBox x:Name="RunModeComboBox" HorizontalAlignment="Stretch" SelectionChanged="RunModeComboBox_SelectionChanged" Height="36">
-                                                    <ComboBoxItem Content="Все пресеты" Tag="all" IsSelected="True" />
-                                                    <ComboBoxItem Content="Выборочно..." Tag="select" />
-                                                </ComboBox>
+                                            <!-- Col 1: Run Mode & Optional Config Selector -->
+                                            <StackPanel Grid.Column="1" Spacing="6">
+                                                <TextBlock Text="Режим прогона" Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Foreground="#A1A1AA" />
+                                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                                    <ComboBox Grid.Column="0" x:Name="RunModeComboBox" HorizontalAlignment="Stretch" SelectionChanged="RunModeComboBox_SelectionChanged" Height="36" CornerRadius="8">
+                                                        <ComboBoxItem Content="Все пресеты" Tag="all" IsSelected="True" />
+                                                        <ComboBoxItem Content="Выборочно" Tag="select" />
+                                                    </ComboBox>
+
+                                                    <Button Grid.Column="1" x:Name="SelectConfigsButton" Content="Выбрать" IsEnabled="False" Height="36" CornerRadius="8" Padding="12,0" Background="#27272A" BorderBrush="#3F3F46" Foreground="#FAFAFA">
+                                                        <Button.Flyout>
+                                                            <Flyout x:Name="ConfigsFlyout" Opened="ConfigsFlyout_Opened" Closed="ConfigsFlyout_Closed">
+                                                                <StackPanel Width="260" Spacing="8">
+                                                                    <TextBlock Text="Выберите файлы для теста:" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Foreground="#FAFAFA" />
+                                                                    <ListView x:Name="ConfigsListView" SelectionMode="None" Height="220">
+                                                                        <!-- Populated programmatically -->
+                                                                    </ListView>
+                                                                </StackPanel>
+                                                            </Flyout>
+                                                        </Button.Flyout>
+                                                    </Button>
+                                                </Grid>
                                             </StackPanel>
 
-                                            <!-- Preset List checklist trigger -->
-                                            <Button Grid.Column="2" x:Name="SelectConfigsButton" Content="Выбрать (0)..." IsEnabled="False" Height="36" VerticalAlignment="Bottom">
-                                                <Button.Flyout>
-                                                    <Flyout x:Name="ConfigsFlyout" Opened="ConfigsFlyout_Opened" Closed="ConfigsFlyout_Closed">
-                                                        <StackPanel Width="220" Spacing="8">
-                                                            <TextBlock Text="Выберите файлы для теста:" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" />
-                                                                                            <ListView x:Name="ConfigsListView" SelectionMode="None" Height="200">
-                                                                <!-- Populated programmatically -->
-                                                            </ListView>
-                                                        </StackPanel>
-                                                    </Flyout>
-                                                </Button.Flyout>
-                                            </Button>
-
-                                            <!-- Timeout Dropdown -->
-                                            <StackPanel Grid.Column="3" Spacing="4">
-                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <TextBlock Text="Таймаут:" Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Opacity="0.75" />
-                                                    <FontIcon Glyph="&#xE946;" FontSize="10" Foreground="#8A8A8F" ToolTipService.ToolTip="Время ожидания сетевого отклика. 2/5 сек подходят для стабильного интернета. 10/15 сек нужны при медленном соединении (мобильный интернет, Wi-Fi), чтобы избежать ложных ошибок." VerticalAlignment="Center" />
-                                                </StackPanel>
-                                                <ComboBox x:Name="TimeoutComboBox" Width="90" Height="36">
+                                            <!-- Col 2: Timeout -->
+                                            <StackPanel Grid.Column="2" Spacing="6">
+                                                <TextBlock Text="Таймаут" Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Foreground="#A1A1AA" />
+                                                <ComboBox x:Name="TimeoutComboBox" HorizontalAlignment="Stretch" Height="36" CornerRadius="8">
                                                     <ComboBoxItem Content="2 сек" Tag="2" />
                                                     <ComboBoxItem Content="5 сек" Tag="5" IsSelected="True" />
                                                     <ComboBoxItem Content="10 сек" Tag="10" />
@@ -96,20 +105,22 @@
                                                 </ComboBox>
                                             </StackPanel>
 
-                                            <!-- Play Trigger -->
-                                            <Button Grid.Column="4" x:Name="PlayButton" Click="PlayButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" Width="100" VerticalAlignment="Bottom">
-                                                <Grid ColumnDefinitions="*,Auto">
-                                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="Запуск" VerticalAlignment="Center" />
-                                                    <ProgressRing Grid.Column="1" x:Name="PlayProgressRing" IsActive="False" Width="16" Height="16" Foreground="White" Margin="8,0,0,0" Visibility="Collapsed" />
-                                                </Grid>
-                                            </Button>
+                                            <!-- Col 3: Actions (Play / Stop) -->
+                                            <StackPanel Grid.Column="3" Spacing="6" HorizontalAlignment="Left" Margin="8,0,0,0">
+                                                <TextBlock Text=" " Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Foreground="Transparent" />
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <Button x:Name="PlayButton" Click="PlayButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" Width="100" CornerRadius="8">
+                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="Запуск" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#FAFAFA" />
+                                                            <ProgressRing Grid.Column="1" x:Name="PlayProgressRing" IsActive="False" Width="16" Height="16" Foreground="White" Margin="6,0,0,0" Visibility="Collapsed" />
+                                                        </Grid>
+                                                    </Button>
 
-                                            <!-- Stop Trigger -->
-                                            <Button Grid.Column="5" x:Name="StopButton" Click="StopButton_Click" IsEnabled="False" Height="36" Width="80" VerticalAlignment="Bottom">
-                                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                                    <TextBlock Text="Стоп" />
+                                                    <Button x:Name="StopButton" Click="StopButton_Click" IsEnabled="False" Height="36" Width="80" CornerRadius="8" Background="#27272A" BorderBrush="#3F3F46" Foreground="#A1A1AA">
+                                                        <TextBlock Text="Стоп" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Button>
                                                 </StackPanel>
-                                            </Button>
+                                            </StackPanel>
                                         </Grid>
                                     </Grid>
                                 </Border>
@@ -124,7 +135,7 @@
                                     <!-- Console header actions -->
                                     <Grid Grid.Row="0" Margin="0,0,0,10" ColumnDefinitions="*,Auto,Auto">
                                         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                                            <TextBlock Text="ХОД ПРОВЕРКИ" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                                            <TextBlock Text="ХОД ПРОВЕРКИ" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="Bold" Foreground="#FAFAFA" />
                                             <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" VerticalAlignment="Center">
                                                 <ToolTipService.ToolTip>
                                                     <ToolTip Background="#1F1F1F" BorderBrush="#333" Foreground="#F3EFE6">
@@ -221,17 +232,14 @@
                                     </Grid>
                                 </Border>
 
-                                <!-- 2. Glowing Best Strategy Card -->
-                                <Border Grid.Row="1" x:Name="BestStrategyCard" Background="#1D1914" BorderBrush="#524838" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,16,0,0" Visibility="Collapsed">
-                                    <StackPanel Spacing="10">
-                                        <TextBlock Text="💡 ОПТИМАЛЬНАЯ СТРАТЕГИЯ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
+                                 <!-- 2. Clean Neutral Best Strategy Card -->
+                                <Border Grid.Row="1" x:Name="BestStrategyCard" Background="#141416" BorderBrush="#27272A" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,16,0,0" Visibility="Collapsed">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="ОПТИМАЛЬНАЯ СТРАТЕГИЯ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A1A1AA" />
                                         <TextBlock x:Name="BestStrategyTextBlock" Text="Не определен" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" FontSize="15" />
                                         
-                                        <Button x:Name="ApplyBestStrategyButton" Click="ApplyBestStrategyButton_Click" HorizontalAlignment="Stretch" Style="{StaticResource PremiumAccentButtonStyle}" Height="36">
-                                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                                <FontIcon Glyph="&#xE73E;" FontSize="12" />
-                                                <TextBlock Text="Применить пресет в систему" />
-                                            </StackPanel>
+                                        <Button x:Name="ApplyBestStrategyButton" Click="ApplyBestStrategyButton_Click" HorizontalAlignment="Stretch" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" CornerRadius="8">
+                                            <TextBlock Text="Применить стратегию" FontWeight="SemiBold" HorizontalAlignment="Center" />
                                         </Button>
                                     </StackPanel>
                                 </Border>

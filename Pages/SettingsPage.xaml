@@ -81,8 +81,8 @@
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="Персонализация и эффекты размытия" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
-                                    <FontIcon Glyph="&#xE790;" FontSize="13" Foreground="#A79A83" VerticalAlignment="Center" />
+                                    <TextBlock Text="Персонализация и эффекты размытия" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
+                                    <FontIcon Glyph="&#xE790;" FontSize="13" Foreground="#A1A1AA" VerticalAlignment="Center" />
                                 </StackPanel>
 
                                 <Grid ColumnDefinitions="*, Auto" RowSpacing="12">
@@ -123,15 +123,43 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- Card: Windows Service Management -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE839;" FontSize="14" Foreground="#A1A1AA" VerticalAlignment="Center" />
+                                    <TextBlock Text="Служба Windows (Системный автозапуск обхода)" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
+                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Установка zapret в виде фоновой службы Windows. Обход работает безотказно и незаметно без необходимости держать открытым GUI." VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <Grid ColumnDefinitions="*, Auto" RowSpacing="12">
+                                    <StackPanel Grid.Column="0" Spacing="4" VerticalAlignment="Center" Margin="0,0,16,0">
+                                        <TextBlock Text="Статус службы Windows:" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <TextBlock x:Name="SettingsServiceStatusText" Text="Проверка статуса..." Style="{StaticResource MirrlyTextSmallStyle}" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                        <Button x:Name="SettingsToggleServiceButton" Click="SettingsToggleServiceButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" Padding="14,0" CornerRadius="8">
+                                            <TextBlock x:Name="SettingsToggleServiceButtonText" Text="Установить службу" FontWeight="Bold" FontSize="12" />
+                                        </Button>
+
+                                        <Button x:Name="SettingsRemoveServiceButton" Click="SettingsRemoveServiceButton_Click" Height="36" Padding="12,0" Background="#27272A" BorderBrush="#3F3F46" CornerRadius="8">
+                                            <TextBlock Text="Удалить службу" FontSize="12" Foreground="#F87171" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Card: Startup -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <Grid ColumnDefinitions="*,Auto">
                                 <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="Автозапуск при старте Windows" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <TextBlock Text="Автозапуск приложения при старте Windows" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
                                         <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Автоматический запуск графического интерфейса при входе в Windows. Программа будет запускаться свернутой в трей." VerticalAlignment="Center" />
                                     </StackPanel>
-                                    <TextBlock Text="Запуск приложения в свернутом виде при входе пользователя в систему." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                    <TextBlock Text="Запуск GUI приложения в свернутом виде при входе пользователя в систему." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" x:Name="RunAtStartupToggle" OnContent="Да" OffContent="Нет" VerticalAlignment="Center" />
                             </Grid>
@@ -168,49 +196,49 @@
 
                     <!-- 2. Packet Filters Panel -->
                     <StackPanel x:Name="FiltersPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
-                        <TextBlock Text="Параметры фильтрации трафика" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,4" />
+                        <TextBlock Text="Параметры фильтрации трафика" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#FAFAFA" Margin="0,0,0,4" />
                         <TextBlock Text="Настройки правил перехвата и ограничений портов для выборочного обхода DPI." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" Margin="0,0,0,12" />
 
                         <!-- Interactive Strategy Visual Filtering Map -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Схема фильтрации и перехвата сетевых пакетов" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                <TextBlock Text="Схема фильтрации и перехвата сетевых пакетов" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                 <Grid ColumnDefinitions="*, Auto, *, Auto, *, Auto, *" ColumnSpacing="6" Margin="0,8,0,0">
                                     <!-- Block 1: Adapter & IP -->
                                     <Border Grid.Column="0" Padding="8,10" CornerRadius="8" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" Height="90" VerticalAlignment="Center">
                                         <StackPanel VerticalAlignment="Center" Spacing="4">
-                                            <FontIcon Glyph="&#xE774;" FontSize="18" Foreground="#A79A83" />
+                                            <FontIcon Glyph="&#xE774;" FontSize="18" Foreground="#FAFAFA" />
                                             <TextBlock Text="1. Сетевой фильтр" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" />
                                             <TextBlock x:Name="VisualFilterInterfaceText" Text="Все адаптеры" FontSize="9" Opacity="0.85" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" />
                                         </StackPanel>
                                     </Border>
                                     
                                     <!-- Arrow 1 -->
-                                    <FontIcon Grid.Column="1" Glyph="&#xE72A;" FontSize="14" Foreground="#A79A83" Opacity="0.6" VerticalAlignment="Center" />
+                                    <FontIcon Grid.Column="1" Glyph="&#xE72A;" FontSize="14" Foreground="#FAFAFA" Opacity="0.6" VerticalAlignment="Center" />
                                     
                                     <!-- Block 2: Ports / Game filter -->
                                     <Border Grid.Column="2" Padding="8,10" CornerRadius="8" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" Height="90" VerticalAlignment="Center">
                                         <StackPanel VerticalAlignment="Center" Spacing="4">
-                                            <FontIcon x:Name="VisualFilterPortsIcon" Glyph="&#xE9A1;" FontSize="18" Foreground="#A79A83" />
+                                            <FontIcon x:Name="VisualFilterPortsIcon" Glyph="&#xE9A1;" FontSize="18" Foreground="#FAFAFA" />
                                             <TextBlock Text="2. Порты обхода" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" />
                                             <TextBlock x:Name="VisualFilterPortsText" Text="Все порты" FontSize="9" Opacity="0.85" HorizontalAlignment="Center" />
                                         </StackPanel>
                                     </Border>
 
                                     <!-- Arrow 2 -->
-                                    <FontIcon Grid.Column="3" Glyph="&#xE72A;" FontSize="14" Foreground="#A79A83" Opacity="0.6" VerticalAlignment="Center" />
+                                    <FontIcon Grid.Column="3" Glyph="&#xE72A;" FontSize="14" Foreground="#FAFAFA" Opacity="0.6" VerticalAlignment="Center" />
 
                                     <!-- Block 3: Site List Matching -->
                                     <Border Grid.Column="4" Padding="8,10" CornerRadius="8" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" Height="90" VerticalAlignment="Center">
                                         <StackPanel VerticalAlignment="Center" Spacing="4">
-                                            <FontIcon x:Name="VisualFilterListIcon" Glyph="&#xE8F1;" FontSize="18" Foreground="#A79A83" />
+                                            <FontIcon x:Name="VisualFilterListIcon" Glyph="&#xE8F1;" FontSize="18" Foreground="#FAFAFA" />
                                             <TextBlock Text="3. База правил" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" />
                                             <TextBlock x:Name="VisualFilterListText" Text="Весь интернет" FontSize="9" Opacity="0.85" HorizontalAlignment="Center" />
                                         </StackPanel>
                                     </Border>
 
                                     <!-- Arrow 3 -->
-                                    <FontIcon Grid.Column="5" Glyph="&#xE72A;" FontSize="14" Foreground="#A79A83" Opacity="0.6" VerticalAlignment="Center" />
+                                    <FontIcon Grid.Column="5" Glyph="&#xE72A;" FontSize="14" Foreground="#FAFAFA" Opacity="0.6" VerticalAlignment="Center" />
 
                                     <!-- Block 4: Auto Learning status -->
                                     <Border Grid.Column="6" Padding="8,10" CornerRadius="8" Background="#1210B981" BorderBrush="#2510B981" BorderThickness="1" Height="90" VerticalAlignment="Center">
@@ -228,7 +256,7 @@
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="Ограничение портов (Игровой фильтр)" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                    <TextBlock Text="Ограничение портов (Игровой фильтр)" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                     <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Ограничивает применение обхода только указанными портами (1024-65535). Это необходимо для обхода блокировок голосовых каналов Discord (WebRTC/UDP), но не мешает обычным играм." VerticalAlignment="Center" />
                                 </StackPanel>
                                 
@@ -274,7 +302,7 @@
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="Режим списков сайтов (IPSet)" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                    <TextBlock Text="Режим списков сайтов (IPSet)" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                     <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Ограничивает обход только IP-адресами из файла lists\ipset-all.txt. Полезно, если вы хотите обходить DPI только для конкретного списка сайтов, а не для всего интернета." VerticalAlignment="Center" />
                                 </StackPanel>
                                 
@@ -337,7 +365,7 @@
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="Фильтрация по протоколам IP" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                    <TextBlock Text="Фильтрация по протоколам IP" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                     <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Ограничивает правила обхода только IPv4 или IPv6 трафиком." VerticalAlignment="Center" />
                                 </StackPanel>
                                 
@@ -373,42 +401,42 @@
 
                     <!-- 3. Files & Folders Panel -->
                     <StackPanel x:Name="FilesFoldersPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
-                        <TextBlock Text="Настройки папок и файлов" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,4" />
+                        <TextBlock Text="Настройки папок и файлов" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#FAFAFA" Margin="0,0,0,4" />
                         <TextBlock Text="Управление рабочими каталогами, списками обхода DPI и созданием резервных копий." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" Margin="0,0,0,12" />
 
                         <!-- Interactive Storage and Paths Visual Map -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Структура расположения файлов и архивов" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                <TextBlock Text="Структура расположения файлов и архивов" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                 <Grid ColumnDefinitions="*, Auto, *, Auto, *" ColumnSpacing="8" Margin="0,8,0,0">
                                     <!-- Block 1: Zapret Root path -->
                                     <Border Grid.Column="0" Padding="8,10" CornerRadius="8" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" Height="90" VerticalAlignment="Center">
                                         <StackPanel VerticalAlignment="Center" Spacing="4">
-                                            <FontIcon Glyph="&#xE8B7;" FontSize="18" Foreground="#A79A83" />
+                                            <FontIcon Glyph="&#xE8B7;" FontSize="18" Foreground="#FAFAFA" />
                                             <TextBlock Text="Корневая папка" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" />
                                             <TextBlock x:Name="VisualZapretRootText" Text="Автоопределение" FontSize="9" Opacity="0.85" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" />
                                         </StackPanel>
                                     </Border>
                                     
                                     <!-- Arrow 1 -->
-                                    <FontIcon Grid.Column="1" Glyph="&#xE72A;" FontSize="14" Foreground="#A79A83" Opacity="0.6" VerticalAlignment="Center" />
+                                    <FontIcon Grid.Column="1" Glyph="&#xE72A;" FontSize="14" Foreground="#FAFAFA" Opacity="0.6" VerticalAlignment="Center" />
                                     
                                     <!-- Block 2: Lists path -->
                                     <Border Grid.Column="2" Padding="8,10" CornerRadius="8" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" Height="90" VerticalAlignment="Center">
                                         <StackPanel VerticalAlignment="Center" Spacing="4">
-                                            <FontIcon Glyph="&#xE8C3;" FontSize="18" Foreground="#A79A83" />
+                                            <FontIcon Glyph="&#xE8C3;" FontSize="18" Foreground="#FAFAFA" />
                                             <TextBlock Text="Списки доменов" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" />
                                             <TextBlock x:Name="VisualListsPathText" Text="zapret\lists" FontSize="9" Opacity="0.85" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" />
                                         </StackPanel>
                                     </Border>
 
                                     <!-- Arrow 2 -->
-                                    <FontIcon Grid.Column="3" Glyph="&#xE72A;" FontSize="14" Foreground="#A79A83" Opacity="0.6" VerticalAlignment="Center" />
+                                    <FontIcon Grid.Column="3" Glyph="&#xE72A;" FontSize="14" Foreground="#FAFAFA" Opacity="0.6" VerticalAlignment="Center" />
 
                                     <!-- Block 3: Backup folder -->
                                     <Border Grid.Column="4" Padding="8,10" CornerRadius="8" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" Height="90" VerticalAlignment="Center">
                                         <StackPanel VerticalAlignment="Center" Spacing="4">
-                                            <FontIcon Glyph="&#xE949;" FontSize="18" Foreground="#A79A83" />
+                                            <FontIcon Glyph="&#xE949;" FontSize="18" Foreground="#FAFAFA" />
                                             <TextBlock Text="Резервные копии" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" />
                                             <TextBlock x:Name="VisualBackupPathText" Text="Не выбрана" FontSize="9" Opacity="0.85" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" />
                                         </StackPanel>
@@ -447,7 +475,7 @@
                             <StackPanel Spacing="16">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="4">
-                                        <TextBlock Text="Пользовательские папки и пути" FontSize="14" FontWeight="SemiBold" Foreground="#A79A83" />
+                                        <TextBlock Text="Пользовательские папки и пути" FontSize="14" FontWeight="SemiBold" Foreground="#FAFAFA" />
                                         <TextBlock Text="Включите автоопределение путей, чтобы скрыть ручной выбор папок." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
                                     </StackPanel>
                                     <ToggleSwitch Grid.Column="1" x:Name="AutoPathsToggle" OnContent="Авто" OffContent="Ручной" Toggled="AutoPathsToggle_Toggled" VerticalAlignment="Center" />
@@ -491,7 +519,7 @@
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="Резервное копирование данных" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                    <TextBlock Text="Резервное копирование данных" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                     <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#FFCC00" ToolTipService.ToolTip="⚠️ Сначала укажите папку для сохранения резервных копий. Бэкапы будут автоматически создаваться в этой папке." VerticalAlignment="Center" />
                                 </StackPanel>
 
@@ -525,7 +553,7 @@
 
                     <!-- 4. Updates Panel -->
                     <StackPanel x:Name="UpdatesPanel" Spacing="16" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
-                        <TextBlock Text="Центр обновлений и модулей" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,4" />
+                        <TextBlock Text="Центр обновлений и модулей" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#FAFAFA" Margin="0,0,0,4" />
                         <TextBlock Text="Управление версиями графического интерфейса, утилит обхода DPI и базами фильтрации." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" Margin="0,0,0,12" />
 
                         <!-- CARD 1: Mirrly GUI -->
@@ -533,7 +561,7 @@
                             <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="12">
                                 <!-- Icon Circle -->
                                 <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xE7F4;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <FontIcon Glyph="&#xE7F4;" FontSize="16" Foreground="#FAFAFA" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
 
                                 <!-- Text Details -->
@@ -565,7 +593,7 @@
                             <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="12">
                                 <!-- Icon Circle -->
                                 <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xE950;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <FontIcon Glyph="&#xE950;" FontSize="16" Foreground="#FAFAFA" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
 
                                 <!-- Text Details -->
@@ -597,7 +625,7 @@
                             <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="12">
                                 <!-- Icon Circle -->
                                 <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xE8F1;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <FontIcon Glyph="&#xE8F1;" FontSize="16" Foreground="#FAFAFA" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
 
                                 <!-- Text Details -->
@@ -629,7 +657,7 @@
                             <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="12">
                                 <!-- Icon Circle -->
                                 <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xE7C1;" FontSize="16" Foreground="#A79A83" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <FontIcon Glyph="&#xE7C1;" FontSize="16" Foreground="#FAFAFA" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
 
                                 <!-- Text Details -->
@@ -664,7 +692,7 @@
                         <!-- Card 5: Auto-Update Settings -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Параметры автоматического обновления" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                <TextBlock Text="Параметры автоматического обновления" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                 
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,16,0">
@@ -699,13 +727,13 @@
 
                     <!-- 5. TgWsProxy Advanced Panel -->
                     <StackPanel x:Name="TgWsProxyPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
-                        <TextBlock Text="Обход блокировок Telegram (TgWsProxy)" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#A79A83" Margin="0,0,0,4" />
+                        <TextBlock Text="Обход блокировок Telegram (TgWsProxy)" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#FAFAFA" Margin="0,0,0,4" />
                         <TextBlock Text="Параметры встроенного транспортного прокси-сервера для стабильной связи Telegram в обход DPI." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" Margin="0,0,0,12" />
 
                         <!-- Interactive Strategy Visual Map -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Визуальная схема маршрутизации трафика" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                <TextBlock Text="Визуальная схема маршрутизации трафика" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                 <Grid ColumnDefinitions="*, Auto, *, Auto, *" ColumnSpacing="8" Margin="0,8,0,0">
                                     <!-- Block 1: Telegram Client -->
                                     <Border Grid.Column="0" Padding="12,14" CornerRadius="10" Background="#120088CC" BorderBrush="#250088CC" BorderThickness="1" Height="95" VerticalAlignment="Center">
@@ -717,19 +745,19 @@
                                     </Border>
                                     
                                     <!-- Arrow 1 -->
-                                    <FontIcon Grid.Column="1" Glyph="&#xE72A;" FontSize="18" Foreground="#A79A83" Opacity="0.6" VerticalAlignment="Center" />
+                                    <FontIcon Grid.Column="1" Glyph="&#xE72A;" FontSize="18" Foreground="#FAFAFA" Opacity="0.6" VerticalAlignment="Center" />
                                     
                                     <!-- Block 2: TgWsProxy Local Server -->
                                     <Border Grid.Column="2" Padding="12,14" CornerRadius="10" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" Height="95" VerticalAlignment="Center">
                                         <StackPanel VerticalAlignment="Center" Spacing="6">
-                                            <FontIcon Glyph="&#xE8F1;" FontSize="22" Foreground="#A79A83" />
+                                            <FontIcon Glyph="&#xE8F1;" FontSize="22" Foreground="#FAFAFA" />
                                             <TextBlock Text="Локальный прокси" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" />
                                             <TextBlock x:Name="VisualProxyPortText" Text="Порт: 1443" FontSize="11" Opacity="0.85" HorizontalAlignment="Center" />
                                         </StackPanel>
                                     </Border>
 
                                     <!-- Arrow 2 -->
-                                    <FontIcon Grid.Column="3" Glyph="&#xE72A;" FontSize="18" Foreground="#A79A83" Opacity="0.6" VerticalAlignment="Center" />
+                                    <FontIcon Grid.Column="3" Glyph="&#xE72A;" FontSize="18" Foreground="#FAFAFA" Opacity="0.6" VerticalAlignment="Center" />
 
                                     <!-- Block 3: Exit Nodes -->
                                     <Border Grid.Column="4" Padding="12,14" CornerRadius="10" Background="#1210B981" BorderBrush="#2510B981" BorderThickness="1" Height="95" VerticalAlignment="Center">
@@ -746,7 +774,7 @@
                         <!-- Card 1: Connection Setup (Host only) -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Параметры локального прокси-сервера" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                <TextBlock Text="Параметры локального прокси-сервера" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                 
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                                     <StackPanel Grid.Column="0" Spacing="4">
@@ -761,7 +789,7 @@
                         <!-- Card 2: Cloud Tunneling and Workers -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Облачная интеграция (Cloud Tunneling)" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                <TextBlock Text="Облачная интеграция (Cloud Tunneling)" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
 
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,16,0">
@@ -786,7 +814,7 @@
                         <!-- Card 3: Traffic Masking & Advanced Tuning -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Маскировка трафика и оптимизация" FontSize="14" FontWeight="Bold" Foreground="#A79A83" />
+                                <TextBlock Text="Маскировка трафика и оптимизация" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
 
                                 <StackPanel Spacing="8">
                                     <StackPanel Orientation="Horizontal" Spacing="8">

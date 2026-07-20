@@ -9,6 +9,8 @@ namespace ZapretMirrlyGUI
     public sealed partial class TrayWindow : Window
     {
         private readonly MainWindow _mainWindow;
+        private readonly DispatcherTimer _autoPingTimer;
+        private bool _isPingMeasuring = false;
 
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
         private struct POINT
@@ -70,6 +72,9 @@ namespace ZapretMirrlyGUI
             ExtendsContentIntoTitleBar = true;
             _mainWindow = mainWindow;
 
+            _autoPingTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            _autoPingTimer.Tick += (s, e) => _ = UpdateTrayMetricsAsync();
+
             // Get HWND and AppWindow
             var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
@@ -97,7 +102,6 @@ namespace ZapretMirrlyGUI
             int borderColor = 0x111010;
             DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, ref borderColor, sizeof(int));
 
-
             // Force rounded corners (3 = DWMWCP_ROUND)
             int cornerPreference = 3;
             DwmSetWindowAttribute(hWnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
@@ -118,12 +122,13 @@ namespace ZapretMirrlyGUI
             this.Activated += TrayWindow_Activated;
             this.Closed += TrayWindow_Closed;
         }
- 
+
         private void ZapretService_OnStatusChanged(bool isRunning)
         {
             DispatcherQueue.TryEnqueue(() =>
             {
                 UpdateUiState();
+                _ = UpdateTrayMetricsAsync();
             });
         }
 
@@ -132,6 +137,7 @@ namespace ZapretMirrlyGUI
             DispatcherQueue.TryEnqueue(() =>
             {
                 UpdateUiState();
+                _ = UpdateTrayMetricsAsync();
             });
         }
 
@@ -141,11 +147,18 @@ namespace ZapretMirrlyGUI
             {
                 // Auto-hide when focus is lost
                 AppWindow.Hide();
+                _autoPingTimer.Stop();
+            }
+            else
+            {
+                _autoPingTimer.Start();
+                _ = UpdateTrayMetricsAsync();
             }
         }
 
         private void TrayWindow_Closed(object sender, WindowEventArgs args)
         {
+            _autoPingTimer.Stop();
             ZapretService.OnStatusChanged -= ZapretService_OnStatusChanged;
             TgWsProxyService.OnStatusChanged -= TgWsProxyService_OnStatusChanged;
         }
@@ -506,6 +519,40 @@ namespace ZapretMirrlyGUI
             // Re-apply backdrop with theme-aware colors
             ApplyBackdropSettings();
             UpdateUiState();
+        }
+
+        private async System.Threading.Tasks.Task UpdateTrayMetricsAsync()
+        {
+            if (_isPingMeasuring) return;
+            _isPingMeasuring = true;
+
+            try
+            {
+                // Measure DPI Bypass Latency (YouTube SNI)
+                var dpiTask = NetworkLatencyService.MeasureHttpSniLatencyAsync("YouTube", "https://www.youtube.com/generate_204", 2000);
+                
+                // Measure Telegram Proxy Latency
+                int tgPort = SettingsManager.Instance.TgWsProxyPort;
+                var tgTask = NetworkLatencyService.MeasureTgProxyDcLatencyAsync("DC2", tgPort, 1500);
+
+                await System.Threading.Tasks.Task.WhenAll(dpiTask, tgTask);
+
+                var dpiRes = dpiTask.Result;
+                var tgRes = tgTask.Result;
+
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (TrayDpiPingText != null)
+                        TrayDpiPingText.Text = dpiRes.FormattedText;
+
+                    if (TrayTgPingText != null)
+                        TrayTgPingText.Text = tgRes.FormattedText;
+                });
+            }
+            finally
+            {
+                _isPingMeasuring = false;
+            }
         }
     }
 }
