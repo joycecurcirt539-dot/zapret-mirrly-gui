@@ -70,4 +70,22 @@ public sealed partial class TgWsProxyPage : Page
             _ = dialog.ShowAsync();
         }
     }
+
+    private void CopyPsCommandButton_Click(object sender, RoutedEventArgs e)
+    {
+        var psCommand = "Set-NetIPInterface -Forwarding Enabled; reg add HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /v IPEnableRouter /t REG_DWORD /d 1 /f; netsh interface portproxy reset; netsh interface portproxy add v4tov4 listenport=1443 listenaddress=0.0.0.0 connectport=1080 connectaddress=127.0.0.1; New-NetFirewallRule -DisplayName \"TgWsProxy Tailscale 1443\" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 1443; net stop tailscaled; net start tailscaled";
+        var package = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        package.SetText(psCommand);
+        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(package);
+
+        OverlayNotificationWindow.ShowToast(true, true, "Команда PowerShell скопирована в буфер!");
+    }
+
+    private void ShowMobileGuideButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (App.Current is App myApp && myApp.MainWindowInstance != null)
+        {
+            myApp.MainWindowInstance.NavigateToPublic("guide", 1);
+        }
+    }
 }

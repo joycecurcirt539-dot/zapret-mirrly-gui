@@ -367,6 +367,23 @@ public sealed partial class MainWindow : Window
             _ => typeof(DashboardPage)
         };
 
+        Microsoft.UI.Xaml.Controls.NavigationViewItem? navItem = tag switch
+        {
+            "dashboard" => DashboardItem,
+            "settings" => SettingsItem,
+            "lists" => ListsItem,
+            "logs" => LogsItem,
+            "diagnostics" => DiagnosticsItem,
+            "tgwsproxy" => TgWsProxyItem,
+            "support" => SupportItem,
+            "guide" => GuideItem,
+            _ => null
+        };
+        if (navItem != null && RootNavigationView.SelectedItem != navItem)
+        {
+            RootNavigationView.SelectedItem = navItem;
+        }
+
         if (RootFrame.CurrentSourcePageType != targetPage)
         {
             _currentTag = tag;
@@ -377,6 +394,10 @@ public sealed partial class MainWindow : Window
             if (page is DiagnosticsPage diagPage && parameter.ToString() == "start")
             {
                 diagPage.TriggerAutoStart();
+            }
+            else if (page is GuidePage guidePage && parameter is int tabIdx)
+            {
+                guidePage.SelectTab(tabIdx);
             }
         }
     }
@@ -695,30 +716,17 @@ public sealed partial class MainWindow : Window
         var changelog = AppUpdateService.LastCheckResult?.Changelog;
         if (string.IsNullOrWhiteSpace(changelog))
         {
-            changelog = @"### Zapret Mirrly GUI v1.1.6 — Что нового в этом обновлении:
+            changelog = @"### Zapret Mirrly GUI v1.1.7 — Проксирование на телефон (Tailscale + TgWsProxy):
 
-• **Полное восстановление работы ядра обхода**:
-  - Прямой скрытый запуск `winws.exe` с правами Администратора (`Verb = runas`) и фоновым режимом без окон консоли.
-  - Восстановлена подгрузка `service.bat` и оригинальный 1:1 парсер батников Flowseal.
+• **Проксирование Telegram и всего трафика на мобильный телефон (4G/5G)**:
+  - Интеграция пошагового руководства по созданию персонального узла обхода (Tailscale Exit Node + TgWsProxy + PortProxy).
+  - Весь трафик телефона (YouTube 4K, Discord, сайты) проходит через домашний Zapret.
+  - Telegram на телефоне подключается через WebSocket-маскированный туннель Cloudflare.
 
-• **Глобальные горячие клавиши (Win32 API)**:
-  - `Ctrl + Alt + Z` — Включить / выключить DPI обход.
-  - `Ctrl + Alt + X` — Включить / выключить Telegram Proxy.
-  - `Ctrl + Alt + C` — Глобальное переключение всех обходов.
-  - Работают из любых игр, браузеров и полноэкранных приложений.
-
-• **Компактный Акрил-Оверлей (AlwaysOnTop)**:
-  - Всплывающее уведомление поверх всех окон на 3.5 секунды при нажатии горячих клавиш или смене сети.
-  - Отображение статусов подключения и пинга в реальном времени.
-
-• **Авто-мониторинг сети (NetworkMonitorService)**:
-  - Отслеживание переключения адаптеров (Wi-Fi, Ethernet, VPN, телефон) с автоматическим переподключением.
-
-• **Архитектурный рефакторинг на MVVM**:
-  - Полное разделение слоя представления (WinUI 3 XAML Pages) и бизнес-логики (`ViewModels`).
-
-• **Визуальные улучшения и микро-анимации**:
-  - Новые эффекты плавного появления элементов и мелкие фиксы интерфейса.";
+• **Улучшенная навигация и векторный интерфейс**:
+  - В разделе «Инструкция» добавлена отдельная вкладка со всеми ссылками, кнопками и математически прорисованными векторными иконками.
+  - Прямой переход по кнопке «Инструкция» со страницы TgWsProxy на подробное руководство.
+  - Кнопка копирования PowerShell в один клик копирует чистые команды без комментариев.";
         }
 
         ShowVersionModal(

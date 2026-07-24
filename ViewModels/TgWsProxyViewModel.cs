@@ -209,7 +209,8 @@ public partial class TgWsProxyViewModel : ObservableObject
     private void ConnectTelegram()
     {
         var port = SettingsManager.Instance.TgWsProxyPort;
-        var host = SettingsManager.Instance.TgWsProxyHost;
+        var rawHost = SettingsManager.Instance.TgWsProxyHost;
+        var host = (rawHost == "0.0.0.0" || string.IsNullOrWhiteSpace(rawHost)) ? "127.0.0.1" : rawHost;
         var secret = SettingsManager.Instance.TgWsProxySecret;
 
         string link = !string.IsNullOrWhiteSpace(secret)

@@ -51,7 +51,7 @@ public record TargetConfig(string Name, string? Url, string? PingHost);
 
 public static class DiagnosticEngine
 {
-    private const int MaxParallel = 8;
+    private const int MaxParallel = 16;
 
     public static async Task RunAsync(
         DiagnosticOptions options,
@@ -110,7 +110,7 @@ public static class DiagnosticEngine
                     DiagnosticEventType.PresetStarted, $"[▶] Запуск проверки: {preset}", PresetName: preset));
 
                 ZapretService.KillAllWinwsProcesses();
-                await Task.Delay(200, ct);
+                await Task.Delay(100, ct);
 
                 using var winws = StartWinwsForPreset(root, preset, progress);
                 if (winws == null)
@@ -119,7 +119,8 @@ public static class DiagnosticEngine
                     continue;
                 }
 
-                int waitMs = Math.Max(3, options.InitDelaySeconds) * 1000;
+                // Fast init delay (400ms) - WinDivert attaches in kernel < 100ms
+                int waitMs = Math.Min(400, options.InitDelaySeconds * 1000);
                 if (waitMs > 0)
                 {
                     await Task.Delay(waitMs, ct);
@@ -188,6 +189,8 @@ public static class DiagnosticEngine
             new { Label = "TLS1.3", Args = new[] { "--tlsv1.3", "--tls-max", "1.3" } }
         };
 
+        int connectTimeoutSec = Math.Min(2, timeoutSec);
+
         var tasks = targets.Select(async target =>
         {
             ct.ThrowIfCancellationRequested();
@@ -198,7 +201,7 @@ public static class DiagnosticEngine
 
             if (target.Url != null)
             {
-                foreach (var test in tests)
+                var testTasks = tests.Select(async test =>
                 {
                     await sem.WaitAsync(ct);
                     try
@@ -208,7 +211,7 @@ public static class DiagnosticEngine
                             "-I",
                             "-s", "-S",
                             "-m", timeoutSec.ToString(),
-                            "--connect-timeout", timeoutSec.ToString(),
+                            "--connect-timeout", connectTimeoutSec.ToString(),
                             "-w", "%{http_code}",
                             "-o", "NUL"
                         };
@@ -233,29 +236,34 @@ public static class DiagnosticEngine
 
                         bool isHttpOk = (exit == 0) || (outStr.Length == 3 && int.TryParse(outStr, out int httpStatusCode) && httpStatusCode >= 200 && httpStatusCode < 600);
 
-                        if (dnsHijack)
+                        lock (httpParts)
                         {
-                            fail++;
-                            httpParts.Add($"{test.Label}:DNS_FAIL");
-                        }
-                        else if (unsupported)
-                        {
-                            unsup++;
-                            httpParts.Add($"{test.Label}:UNSUP");
-                        }
-                        else if (isHttpOk)
-                        {
-                            ok++;
-                            httpParts.Add($"{test.Label}:OK");
-                        }
-                        else
-                        {
-                            fail++;
-                            httpParts.Add($"{test.Label}:ERROR");
+                            if (dnsHijack)
+                            {
+                                fail++;
+                                httpParts.Add($"{test.Label}:DNS_FAIL");
+                            }
+                            else if (unsupported)
+                            {
+                                unsup++;
+                                httpParts.Add($"{test.Label}:UNSUP");
+                            }
+                            else if (isHttpOk)
+                            {
+                                ok++;
+                                httpParts.Add($"{test.Label}:OK");
+                            }
+                            else
+                            {
+                                fail++;
+                                httpParts.Add($"{test.Label}:ERROR");
+                            }
                         }
                     }
                     finally { sem.Release(); }
-                }
+                });
+
+                await Task.WhenAll(testTasks);
             }
 
             if (target.PingHost != null)
@@ -312,6 +320,8 @@ public static class DiagnosticEngine
             new { Label = "TLS1.3", Args = new[] { "--tlsv1.3", "--tls-max", "1.3" } }
         };
 
+        int connectTimeoutSec = Math.Min(2, timeoutSec);
+
         try
         {
             var tasks = dpiHosts.Select(async host =>
@@ -321,7 +331,7 @@ public static class DiagnosticEngine
                 int ok = 0, fail = 0, blockedCount = 0, unsup = 0;
                 var httpParts = new List<string>();
 
-                foreach (var test in tests)
+                var testTasks = tests.Select(async test =>
                 {
                     await sem.WaitAsync(ct);
                     try
@@ -330,7 +340,7 @@ public static class DiagnosticEngine
                             "-k", "--ssl-no-revoke",
                             "--range", rangeSpec,
                             "-m", timeoutSec.ToString(),
-                            "--connect-timeout", timeoutSec.ToString(),
+                            "--connect-timeout", connectTimeoutSec.ToString(),
                             "-w", "%{http_code} %{size_upload} %{size_download} %{time_total}",
                             "-o", "NUL",
                             "-X", "POST",
@@ -343,7 +353,6 @@ public static class DiagnosticEngine
                         var (outStr, errStr, exit) = await RunCurlAsync(curlPath, argsList.ToArray(), ct);
                         ParseDpiOutput(outStr, errStr, exit, out string code, out long upBytes, out long downBytes, out double time);
 
-                        bool isBlocked = (upBytes > 0 && downBytes == 0 && time >= timeoutSec && exit != 0);
                         bool unsupported = (exit == 35) || 
                                            errStr.Contains("does not support", StringComparison.OrdinalIgnoreCase) ||
                                            errStr.Contains("not supported", StringComparison.OrdinalIgnoreCase) ||
@@ -356,29 +365,37 @@ public static class DiagnosticEngine
                                            errStr.Contains("unsupported feature", StringComparison.OrdinalIgnoreCase) ||
                                            errStr.Contains("schannel", StringComparison.OrdinalIgnoreCase);
 
-                        if (isBlocked)
+                        bool isHttpOk = (exit == 0) || (code.Length == 3 && int.TryParse(code, out int httpStatusCode) && httpStatusCode >= 200 && httpStatusCode < 600);
+                        bool isBlocked = (upBytes > 0 && downBytes == 0 && time >= timeoutSec && exit != 0);
+
+                        lock (httpParts)
                         {
-                            blockedCount++;
-                            httpParts.Add($"{test.Label}:BLOCKED");
-                        }
-                        else if (unsupported)
-                        {
-                            unsup++;
-                            httpParts.Add($"{test.Label}:UNSUP");
-                        }
-                        else if (exit == 0 && code != "UNSUP" && code != "ERR")
-                        {
-                            ok++;
-                            httpParts.Add($"{test.Label}:OK");
-                        }
-                        else
-                        {
-                            fail++;
-                            httpParts.Add($"{test.Label}:FAIL");
+                            if (isBlocked)
+                            {
+                                blockedCount++;
+                                httpParts.Add($"{test.Label}:BLOCKED");
+                            }
+                            else if (unsupported)
+                            {
+                                unsup++;
+                                httpParts.Add($"{test.Label}:UNSUP");
+                            }
+                            else if (isHttpOk)
+                            {
+                                ok++;
+                                httpParts.Add($"{test.Label}:OK");
+                            }
+                            else
+                            {
+                                fail++;
+                                httpParts.Add($"{test.Label}:FAIL");
+                            }
                         }
                     }
                     finally { sem.Release(); }
-                }
+                });
+
+                await Task.WhenAll(testTasks);
 
                 string httpStr = string.Join("  ", httpParts);
                 progress.Report(new DiagnosticProgressEvent(DiagnosticEventType.TargetTested,

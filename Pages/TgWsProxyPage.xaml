@@ -186,6 +186,42 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Mobile Broadcasting Card (Tailscale + PortProxy) -->
+                <Border Style="{StaticResource GlassCardStyle}" Padding="20">
+                    <StackPanel Spacing="12">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8EA;" FontSize="14" Foreground="#00F5D4" />
+                            <TextBlock Text="ТРАНСЛЯЦИЯ НА ТЕЛЕФОН (4G/5G)" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#00F5D4" />
+                        </StackPanel>
+
+                        <TextBlock Text="Транслируйте работу Запрета и TgWsProxy с домашнего ПК на мобильный телефон вне дома." FontSize="11" TextWrapping="Wrap" Opacity="0.85" />
+
+                        <Border CornerRadius="6" Padding="10,8" Background="#1500F5D4">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Связка Tailscale + PortProxy:" FontWeight="Bold" FontSize="11" Foreground="#00F5D4" />
+                                <TextBlock Text="1. Весь трафик телефона (YouTube, сайты) уходит на ПК через Tailscale Exit Node." FontSize="10.5" Opacity="0.85" TextWrapping="Wrap" />
+                                <TextBlock Text="2. Telegram на телефоне подключается к порту 1443 ПК и маскируется через TgWsProxy без блокировок ТСПУ." FontSize="10.5" Opacity="0.85" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,4,0,0">
+                            <Button Grid.Column="0" Click="CopyPsCommandButton_Click" ToolTipService.ToolTip="Скопировать готовые безопасные команды PowerShell" Height="36" Style="{StaticResource PremiumAccentButtonStyle}">
+                                <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                    <FontIcon Glyph="&#xE8C8;" FontSize="11" />
+                                    <TextBlock Text="Команда PS" FontSize="11" FontWeight="Bold" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Grid.Column="1" Click="ShowMobileGuideButton_Click" ToolTipService.ToolTip="Открыть пошаговое руководство" Height="36">
+                                <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                    <FontIcon Glyph="&#xE897;" FontSize="11" />
+                                    <TextBlock Text="Инструкция" FontSize="11" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
                 <!-- Information Card (TgWsProxy C# Native Engine explanation) -->
                 <Border Style="{StaticResource GlassCardStyle}" Padding="20">
                     <StackPanel Spacing="12">
