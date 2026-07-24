@@ -37,30 +37,30 @@
                 </StackPanel>
 
                 <!-- Right: Top-Bar Telegram Proxy Metrics -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" x:Name="TopTgMetricsPanel" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <TextBlock Text="DC2:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
-                        <TextBlock x:Name="Dc2PingText" Text="-- мс" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock x:Name="Dc2PingText" Text="{x:Bind ViewModel.Dc2PingText, Mode=OneWay}" Foreground="{x:Bind ViewModel.Dc2PingBrush, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" />
                     </StackPanel>
 
                     <TextBlock Text="│" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.3" FontSize="11" VerticalAlignment="Center" />
 
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <TextBlock Text="DC4:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
-                        <TextBlock x:Name="Dc4PingText" Text="-- мс" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock x:Name="Dc4PingText" Text="{x:Bind ViewModel.Dc4PingText, Mode=OneWay}" Foreground="{x:Bind ViewModel.Dc4PingBrush, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" />
                     </StackPanel>
 
                     <TextBlock Text="│" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.3" FontSize="11" VerticalAlignment="Center" />
 
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <TextBlock Text="Прокси:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
-                        <TextBlock x:Name="ProxyPortText" Text="127.0.0.1:1443" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock x:Name="ProxyPortText" Text="{x:Bind ViewModel.ProxyPortDisplayText, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
                     </StackPanel>
                 </StackPanel>
             </Grid>
 
             <!-- ─── CONNECTION MONITOR & ACTIONS ─── -->
-            <StackPanel Grid.Row="1" Spacing="16" Margin="0,0,0,16">
+            <StackPanel Grid.Row="1" x:Name="TgLeftMonitorPanel" Spacing="16" Margin="0,0,0,16">
                 <!-- Monitor Card -->
                 <Border Style="{StaticResource GlassCardStyle}" Padding="0" CornerRadius="12">
                     <Grid>
@@ -78,41 +78,31 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- Pulsing status orb -->
-                            <Border Grid.Column="0" x:Name="StatusOrbOuter" Width="52" Height="52" CornerRadius="26" Margin="0,0,20,0" VerticalAlignment="Center">
-                                <Border.Background>
-                                    <SolidColorBrush x:Name="StatusOrbBg" Color="#1F2A1F" />
-                                </Border.Background>
-                                <Border x:Name="StatusOrbInner" Width="34" Height="34" CornerRadius="17" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Border.Background>
-                                        <SolidColorBrush x:Name="StatusOrbInnerBg" Color="#2F2F2F" />
-                                    </Border.Background>
-                                    <FontIcon x:Name="StatusIndicatorIcon" Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <FontIcon.Foreground>
-                                            <SolidColorBrush x:Name="StatusIconFg" Color="#8D8577" />
-                                        </FontIcon.Foreground>
-                                    </FontIcon>
+                            <Border Grid.Column="0" x:Name="StatusOrbOuter" Width="52" Height="52" CornerRadius="26" Margin="0,0,20,0" VerticalAlignment="Center" Background="{x:Bind ViewModel.StatusOrbBg, Mode=OneWay}">
+                                <Border x:Name="StatusOrbInner" Width="34" Height="34" CornerRadius="17" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Bind ViewModel.StatusOrbInnerBg, Mode=OneWay}" Opacity="{x:Bind ViewModel.StatusOrbInnerOpacity, Mode=OneWay}">
+                                    <FontIcon x:Name="StatusIndicatorIcon" Glyph="{x:Bind ViewModel.StatusIndicatorIconGlyph, Mode=OneWay}" Foreground="{x:Bind ViewModel.StatusIconFg, Mode=OneWay}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                             </Border>
 
                             <!-- Status text -->
                             <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
                                 <TextBlock Text="СОСТОЯНИЕ СЛУЖБЫ PROXY" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
-                                <TextBlock x:Name="StatusText" Text="Прокси-сервер не запущен" Style="{StaticResource MirrlyTextLargeStyle}" FontSize="17" FontWeight="Bold" />
-                                <TextBlock x:Name="ServiceStatusText" Text="Работает параллельно с основным обходом" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
+                                <TextBlock x:Name="StatusText" Text="{x:Bind ViewModel.StatusTitle, Mode=OneWay}" Style="{StaticResource MirrlyTextLargeStyle}" FontSize="17" FontWeight="Bold" />
+                                <TextBlock x:Name="ServiceStatusText" Text="{x:Bind ViewModel.ServiceNote, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
                             </StackPanel>
                         </Grid>
 
                         <!-- Bottom band: Actions -->
                         <Grid Grid.Row="1" Padding="24,0,24,20" ColumnDefinitions="*,*">
                             <!-- Toggle Button -->
-                            <Button Grid.Column="0" x:Name="ActionBypassButton" Click="ActionBypassButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48" Margin="0,0,8,0">
+                            <Button Grid.Column="0" x:Name="ActionBypassButton" Command="{x:Bind ViewModel.ToggleProxyCommand}" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48" Margin="0,0,8,0">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" x:Name="ActionBypassText" Text="Запустить прокси" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" x:Name="ActionBypassText" Text="{x:Bind ViewModel.ActionButtonText, Mode=OneWay}" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
                                 </Grid>
                             </Button>
 
                             <!-- Telegram Connect Link -->
-                            <Button Grid.Column="1" x:Name="ConnectTelegramButton" Click="ConnectTelegramButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Background="{ThemeResource ConnectTelegramBackground}" BorderBrush="{ThemeResource ConnectTelegramBorder}" Foreground="{ThemeResource ConnectTelegramForeground}" HorizontalAlignment="Stretch" Height="48" Margin="8,0,0,0" IsEnabled="False">
+                            <Button Grid.Column="1" x:Name="ConnectTelegramButton" Command="{x:Bind ViewModel.ConnectTelegramCommand}" IsEnabled="{x:Bind ViewModel.IsConnectTelegramEnabled, Mode=OneWay}" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48" Margin="8,0,0,0">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="Подключить Telegram" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
                                 </Grid>
@@ -123,7 +113,7 @@
             </StackPanel>
 
             <!-- ─── LAUNCH LOG ─── -->
-            <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}" Padding="0">
+            <Border Grid.Row="2" x:Name="TgLogCard" Style="{StaticResource GlassCardStyle}" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -141,10 +131,10 @@
                             <TextBlock Text="ЛОГИ РАБОТЫ TGWSROOT" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                            <Button x:Name="CopyLogButton" Click="CopyLogButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
+                            <Button x:Name="CopyLogButton" Command="{x:Bind ViewModel.CopyLogCommand}" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="13" />
                             </Button>
-                            <Button x:Name="ClearLogButton" Click="ClearLogButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Очистить журнал">
+                            <Button x:Name="ClearLogButton" Command="{x:Bind ViewModel.ClearLogCommand}" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Очистить журнал">
                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="13" />
                             </Button>
                         </StackPanel>
@@ -152,7 +142,7 @@
 
                     <!-- Log output -->
                     <ScrollViewer Grid.Row="1" x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
-                        <TextBlock x:Name="LaunchLogTextBlock" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
+                        <TextBlock x:Name="LaunchLogTextBlock" Text="{x:Bind ViewModel.LaunchLogText, Mode=OneWay}" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
                     </ScrollViewer>
                 </Grid>
             </Border>
@@ -161,7 +151,7 @@
         <!-- ═══════════════════════════════════════════════════════ -->
         <!-- RIGHT COLUMN: Strategy Config & Info                   -->
         <!-- ═══════════════════════════════════════════════════════ -->
-        <ScrollViewer Grid.Column="1" Margin="0,80,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer Grid.Column="1" x:Name="TgRightScrollViewer" Margin="0,80,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel Spacing="16" Margin="0,0,12,0">
                 <!-- Configuration Card -->
                 <Border Style="{StaticResource GlassCardStyle}" Padding="20">
@@ -174,7 +164,7 @@
                                 <TextBlock Text="Порт прокси (SOCKS5/MTProto)" FontSize="12" Opacity="0.8" />
                                 <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Порт, на котором будет запущен SOCKS5/MTProto прокси-сервер. Этот порт нужно указать в настройках Telegram на вашем устройстве." VerticalAlignment="Center" />
                             </StackPanel>
-                            <TextBox x:Name="ProxyPortTextBox" Text="1443" PlaceholderText="1443" />
+                            <TextBox x:Name="ProxyPortTextBox" Text="{x:Bind ViewModel.ProxyPortText, Mode=TwoWay}" PlaceholderText="1443" />
                         </StackPanel>
 
                         <!-- Secret Setting -->
@@ -184,10 +174,10 @@
                                 <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Криптографический ключ для подключения к MTProto прокси. Должен быть длиной ровно 32 шестнадцатеричных символа (hex)." VerticalAlignment="Center" />
                             </StackPanel>
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                <TextBox Grid.Column="0" x:Name="ProxySecretTextBox" Text="2924fc12c2c0e18a00cd7ddf5a5e5db6" PlaceholderText="32-значный hex-секрет" />
-                                <Button Grid.Column="1" Click="RegenerateSecretButton_Click" ToolTipService.ToolTip="Сгенерировать случайный секрет" Height="32">
-<TextBlock Text="Новый" FontSize="11" />
-</Button>
+                                <TextBox Grid.Column="0" x:Name="ProxySecretTextBox" Text="{x:Bind ViewModel.ProxySecretText, Mode=TwoWay}" PlaceholderText="32-значный hex-секрет" />
+                                <Button Grid.Column="1" Command="{x:Bind ViewModel.RegenerateSecretCommand}" ToolTipService.ToolTip="Сгенерировать случайный секрет" Height="32">
+                                    <TextBlock Text="Новый" FontSize="11" />
+                                </Button>
                             </Grid>
                         </StackPanel>
 
@@ -196,21 +186,23 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Information Card (Flowseal & Future structure explanation) -->
+                <!-- Information Card (TgWsProxy C# Native Engine explanation) -->
                 <Border Style="{StaticResource GlassCardStyle}" Padding="20">
                     <StackPanel Spacing="12">
                         <TextBlock Text="О ПРОЕКТЕ И РАЗРАБОТКЕ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Разработчики:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
-                            <TextBlock Text="Flowseal (tg-ws-proxy)" FontSize="11" Opacity="0.9" />
+                            <TextBlock Text="Оригинальная идея и проект:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                            <TextBlock Text="Flowseal (автор оригинальной концепции и утилиты tg-ws-proxy)" FontSize="11" Opacity="0.9" />
                         </StackPanel>
 
-                        <TextBlock Text="Как это работает сейчас:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
-                        <TextBlock Text="Вся логика транспортного туннеля полностью переписана на чистый сетевой код C# и интегрирована непосредственно в процесс GUI. Мы больше не используем внешний исполняемый файл exe. Это позволило убрать ложные срабатывания Windows Defender и ускорить работу сети." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Архитектура C# реализации:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                            <TextBlock Text="Модуль полностью переписан с нуля на асинхронном C# (.NET 10). Внутри GUI работает нативный TcpListener, обрабатывающий MTProto-трафик Telegram, расшифровывающий заголовки (AES-CTR / Fake TLS) и туннелирующий соединение через WebSocket (Cloudflare Workers) или нативный Fake TLS к дата-центрам Telegram (DC1–DC5)." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
+                        </StackPanel>
 
-                        <TextBlock Text="Статус разработки:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
-                        <TextBlock Text="Успешно реализовано! Прокси работает нативно в процессе основного GUI-приложения. Все настройки подключения теперь сохраняются локально в конфигурационном файле." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
+                        <TextBlock Text="Открытость кода и модули:" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock Text="Работает нативно в процессе C# без Python и внешних скриптов. Исходный код доступен в папке Services/TgWsProxy (TgWsProxyServer, RawWebSocket, FakeTls, AesCtr, Balancer)." FontSize="11" TextWrapping="Wrap" Opacity="0.8" />
                     </StackPanel>
                 </Border>
             </StackPanel>

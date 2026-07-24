@@ -196,7 +196,7 @@
             <Style x:Key="PremiumAccentButtonStyle" TargetType="Button">
                 <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
                 <Setter Property="Padding" Value="16,8" />
-                <Setter Property="Background" Value="#27272A" />
+                <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderBrush" Value="#3F3F46" />
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="Foreground" Value="#FAFAFA" />

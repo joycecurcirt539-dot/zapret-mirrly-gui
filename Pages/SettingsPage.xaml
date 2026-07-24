@@ -73,10 +73,10 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{StaticResource PagePadding}">
+            <ScrollViewer x:Name="SettingsScrollViewer" VerticalScrollBarVisibility="Auto" Padding="{StaticResource PagePadding}">
                 <Grid>
                     <!-- 1. Launch Parameters Panel -->
-                    <StackPanel x:Name="LaunchParamsPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Collapsed">
+                    <StackPanel x:Name="LaunchParamsPanel" Spacing="20" MaxWidth="700" HorizontalAlignment="Left" Visibility="Visible">
                         <!-- Card: Acrylic / Mica Backdrop Settings -->
                         <Border Style="{StaticResource GlassCardStyle}">
                             <StackPanel Spacing="16">
@@ -143,7 +143,7 @@
                                             <TextBlock x:Name="SettingsToggleServiceButtonText" Text="Установить службу" FontWeight="Bold" FontSize="12" />
                                         </Button>
 
-                                        <Button x:Name="SettingsRemoveServiceButton" Click="SettingsRemoveServiceButton_Click" Height="36" Padding="12,0" Background="#27272A" BorderBrush="#3F3F46" CornerRadius="8">
+                                        <Button x:Name="SettingsRemoveServiceButton" Click="SettingsRemoveServiceButton_Click" Height="36" Padding="12,0" Background="Transparent" BorderBrush="#3F3F46" BorderThickness="1" CornerRadius="8">
                                             <TextBlock Text="Удалить службу" FontSize="12" Foreground="#F87171" />
                                         </Button>
                                     </StackPanel>
@@ -360,43 +360,6 @@
                                 <ComboBox x:Name="BindInterfaceComboBox" HorizontalAlignment="Stretch" SelectionChanged="BindInterfaceComboBox_SelectionChanged" />
                             </StackPanel>
                         </Border>
-
-                        <!-- Card 5: IP Version Protocol -->
-                        <Border Style="{StaticResource GlassCardStyle}">
-                            <StackPanel Spacing="16">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="Фильтрация по протоколам IP" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
-                                    <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#8A8A8F" ToolTipService.ToolTip="Ограничивает правила обхода только IPv4 или IPv6 трафиком." VerticalAlignment="Center" />
-                                </StackPanel>
-                                
-                                <StackPanel Spacing="12">
-                                    <RadioButton x:Name="IpProtoBothRadio" Checked="IpProtoRadio_Checked">
-                                        <StackPanel Margin="8,0,0,0" Spacing="2">
-                                            <TextBlock Text="Фильтровать оба протокола (IPv4 и IPv6)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
-                                            <TextBlock Text="Рекомендуется для полной разблокировки всех типов сетевых соединений." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
-                                        </StackPanel>
-                                    </RadioButton>
-                                    
-                                    <Border Height="1" Background="{ThemeResource CardBorderBrush}" />
-                                    
-                                    <RadioButton x:Name="IpProtoV4Radio" Checked="IpProtoRadio_Checked">
-                                        <StackPanel Margin="8,0,0,0" Spacing="2">
-                                            <TextBlock Text="Только протокол IPv4" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
-                                            <TextBlock Text="Обход DPI применяется только к IPv4-трафику. IPv6 будет передаваться напрямую." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
-                                        </StackPanel>
-                                    </RadioButton>
-                                    
-                                    <Border Height="1" Background="{ThemeResource CardBorderBrush}" />
-                                    
-                                    <RadioButton x:Name="IpProtoV6Radio" Checked="IpProtoRadio_Checked">
-                                        <StackPanel Margin="8,0,0,0" Spacing="2">
-                                            <TextBlock Text="Только протокол IPv6" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
-                                            <TextBlock Text="Обход DPI применяется только к IPv6-трафику. IPv4 будет передаваться напрямую." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
-                                        </StackPanel>
-                                    </RadioButton>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
                     </StackPanel>
 
                     <!-- 3. Files & Folders Panel -->
@@ -549,6 +512,22 @@
                                 </StackPanel>
                             </StackPanel>
                         </Border>
+
+                        <!-- Card 4: Clean Reinstall Zapret -->
+                        <Border Style="{StaticResource GlassCardStyle}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,16,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Переустановка файлов zapret (Сброс)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <FontIcon Glyph="&#xE946;" FontSize="11" Foreground="#F87171" ToolTipService.ToolTip="⚠️ Внимание: это действие остановит службу, завершит все процессы winws.exe, удалит файлы zapret из AppData и распакует чистую версию заново. Ваши списки доменов будут автоматически сохранены и восстановлены." VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="Полная очистка и переустановка бинарных файлов winws, драйверов WinDivert и системных скриптов." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Button Grid.Column="1" x:Name="ReinstallZapretBtn" Click="ReinstallZapretBtn_Click" Style="{StaticResource PremiumAccentButtonStyle}" VerticalAlignment="Center">
+                                    <TextBlock Text="Переустановить файлы" />
+                                </Button>
+                            </Grid>
+                        </Border>
                     </StackPanel>
 
                     <!-- 4. Updates Panel -->
@@ -577,10 +556,7 @@
 
                                 <!-- Primary Button -->
                                 <Button x:Name="CheckGuiUpdatesBtn" Grid.Column="3" Click="CheckGuiUpdatesBtn_Click" Width="135" Style="{StaticResource PremiumAccentButtonStyle}" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                                        <FontIcon Glyph="&#xE72C;" FontSize="11" />
-                                        <TextBlock Text="Проверить" />
-                                    </StackPanel>
+                                    <TextBlock Text="Проверить" HorizontalAlignment="Center" />
                                 </Button>
 
                                 <!-- Secondary Button (Placeholder / Collapsed) -->
@@ -609,10 +585,7 @@
 
                                 <!-- Primary Button -->
                                 <Button x:Name="CheckAppUpdatesBtn" Grid.Column="3" Click="CheckAppUpdatesBtn_Click" Width="135" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                                        <FontIcon Glyph="&#xE72C;" FontSize="11" />
-                                        <TextBlock Text="Проверить" />
-                                    </StackPanel>
+                                    <TextBlock Text="Проверить" HorizontalAlignment="Center" />
                                 </Button>
 
                                 <!-- Secondary Button -->
@@ -641,10 +614,7 @@
 
                                 <!-- Primary Button -->
                                 <Button x:Name="UpdateIPSetListBtn" Grid.Column="3" Click="UpdateIPSetListBtn_Click" Width="135" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                                        <FontIcon Glyph="&#xE896;" FontSize="11" />
-                                        <TextBlock Text="Обновить базу" />
-                                    </StackPanel>
+                                    <TextBlock Text="Обновить базу" HorizontalAlignment="Center" />
                                 </Button>
 
                                 <!-- Secondary Button (Placeholder / Collapsed) -->
@@ -673,18 +643,12 @@
 
                                 <!-- Primary Button -->
                                 <Button x:Name="CheckHostsBtn" Grid.Column="3" Click="CheckHostsBtn_Click" Width="135" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                                        <FontIcon Glyph="&#xE72C;" FontSize="11" />
-                                        <TextBlock Text="Проверить" />
-                                    </StackPanel>
+                                    <TextBlock Text="Проверить" HorizontalAlignment="Center" />
                                 </Button>
 
                                 <!-- Secondary Button -->
                                 <Button x:Name="ApplyHostsUpdateBtn" Grid.Column="4" Click="ApplyHostsUpdateBtn_Click" Width="135" Style="{StaticResource PremiumAccentButtonStyle}" Visibility="Collapsed" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                                        <FontIcon Glyph="&#xE73E;" FontSize="11" />
-                                        <TextBlock Text="Применить" />
-                                    </StackPanel>
+                                    <TextBlock Text="Применить" HorizontalAlignment="Center" />
                                 </Button>
                             </Grid>
                         </Border>

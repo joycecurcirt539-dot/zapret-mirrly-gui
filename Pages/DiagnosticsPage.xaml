@@ -33,8 +33,8 @@
                                     <TextBlock Text="Автоматический прогон пресетов для выявления лучшего способа обхода" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
                                 </StackPanel>
 
-                                <!-- 1. Parameters Control Deck (Transparent with thin dark border) -->
-                                <Border Grid.Row="1" Background="Transparent" BorderBrush="#27272A" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,16">
+                                 <!-- 1. Parameters Control Deck (Transparent with thin dark border) -->
+                                <Border Grid.Row="1" x:Name="ControlDeckBorder" Background="Transparent" BorderBrush="#27272A" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,16">
                                     <Grid RowSpacing="14">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
@@ -173,7 +173,7 @@
                             </Grid>
 
                             <!-- Right Column: Tested Strategies & Summary Pane -->
-                            <Grid Grid.Column="1">
+                            <Grid Grid.Column="1" x:Name="DiagnosticsRightColumn">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />

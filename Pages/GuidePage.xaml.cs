@@ -10,6 +10,21 @@ public sealed partial class GuidePage : Page
     public GuidePage()
     {
         InitializeComponent();
+        Loaded += GuidePage_Loaded;
+    }
+
+    private bool _isFirstLoad = true;
+
+    private void GuidePage_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (_isFirstLoad)
+        {
+            _isFirstLoad = false;
+            Services.AnimationHelper.AnimateElementEntrance(GuideHeaderPanel, 0, -30, 1.0, 200, 0);
+            Services.AnimationHelper.AnimateElementEntrance(GuideCol1, -40, 40, 0.95, 260, 40);
+            Services.AnimationHelper.AnimateElementEntrance(GuideCol2, 0, 50, 0.95, 260, 85);
+            Services.AnimationHelper.AnimateElementEntrance(GuideCol3, 40, 40, 0.95, 260, 130);
+        }
     }
 
     private void OpenOriginalZapretGithub_Click(object sender, RoutedEventArgs e)

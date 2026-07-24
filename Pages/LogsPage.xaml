@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Grid Grid.Row="0" Margin="0,0,0,20" ColumnDefinitions="*,Auto">
+        <Grid Grid.Row="0" x:Name="LogsHeaderGrid" Margin="0,0,0,20" ColumnDefinitions="*,Auto">
             <StackPanel Grid.Column="0" Spacing="4">
                 <TextBlock Text="Журнал логов" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" />
                 <TextBlock Text="Просмотр и фильтрация системного вывода процессов обхода DPI" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
@@ -37,13 +37,13 @@
         </Grid>
 
         <!-- 1. Tool deck Card -->
-        <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="16" Margin="0,0,0,16">
-            <Grid ColumnSpacing="12" ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto">
+        <Border Grid.Row="1" x:Name="LogsToolDeckCard" Style="{StaticResource GlassCardStyle}" Padding="16" Margin="0,0,0,16">
+            <Grid ColumnSpacing="12" ColumnDefinitions="*,Auto,Auto,Auto">
                 <!-- Search Box -->
-                <TextBox Grid.Column="0" x:Name="SearchTextBox" PlaceholderText="Поиск по строкам лога..." TextChanged="FilterInputs_Changed" Height="36" />
+                <TextBox Grid.Column="0" x:Name="SearchTextBox" Text="{x:Bind ViewModel.FilterQueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Поиск по строкам лога..." Height="36" />
 
                 <!-- Filter Dropdown -->
-                <ComboBox Grid.Column="1" x:Name="LevelFilterComboBox" Width="200" SelectionChanged="FilterInputs_Changed" Height="36">
+                <ComboBox Grid.Column="1" x:Name="LevelFilterComboBox" SelectedIndex="{x:Bind ViewModel.SelectedFilterIndex, Mode=TwoWay}" Width="200" Height="36">
                     <ComboBoxItem Content="Все уровни логов" Tag="all" IsSelected="True" />
                     <ComboBoxItem Content="Только ошибки" Tag="errors" />
                     <ComboBoxItem Content="Только запуск/службы" Tag="service" />
@@ -51,31 +51,21 @@
                 </ComboBox>
 
                 <!-- Action Button: Copy -->
-                <Button Grid.Column="2" x:Name="CopyLogsButton" Click="CopyLogsButton_Click" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Копировать отфильтрованный лог">
+                <Button Grid.Column="2" x:Name="CopyLogsButton" Command="{x:Bind ViewModel.CopyLogsCommand}" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Копировать отфильтрованный лог">
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="16" />
                 </Button>
 
-                <!-- Action Button: Open in Notepad -->
-                <Button Grid.Column="3" x:Name="OpenInNotepadButton" Click="OpenInNotepadButton_Click" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Открыть весь лог во внешнем Блокноте">
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8E5;" FontSize="16" />
-                </Button>
-
-                <!-- Action Button: Export -->
-                <Button Grid.Column="4" x:Name="ExportButton" Click="ExportButton_Click" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Экспортировать логи в текстовый файл">
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74E;" FontSize="16" />
-                </Button>
-
                 <!-- Action Button: Clear -->
-                <Button Grid.Column="5" x:Name="ClearLogsButton" Click="ClearLogsButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Очистить буфер логов">
+                <Button Grid.Column="3" x:Name="ClearLogsButton" Command="{x:Bind ViewModel.ClearLogsCommand}" Style="{StaticResource PremiumAccentButtonStyle}" Width="36" Height="36" Padding="0" ToolTipService.ToolTip="Очистить буфер логов">
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="16" />
                 </Button>
             </Grid>
         </Border>
 
         <!-- 2. Dark Terminal Viewport -->
-        <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Padding="6" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}">
+        <Border Grid.Row="2" x:Name="LogsViewportCard" Style="{StaticResource GlassCardStyle}" Padding="6" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}">
             <ScrollViewer x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                <RichTextBlock x:Name="LogRichTextBlock" IsTextSelectionEnabled="True" FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="NoWrap" />
+                <TextBlock x:Name="LogTextBlock" Text="{x:Bind ViewModel.LogText, Mode=OneWay}" FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="NoWrap" />
             </ScrollViewer>
         </Border>
     </Grid>

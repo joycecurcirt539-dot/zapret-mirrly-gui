@@ -12,9 +12,9 @@ public class AppSettings
     public string DiagnosticsRunMode { get; set; } = "all";
     public string DiagnosticsTimeout { get; set; } = "5";
     public List<string> DiagnosticsSelectedPresets { get; set; } = new();
-    public bool MinimizeToTrayOnClose { get; set; } = false;
-    public bool MinimizeToTrayOnMinimize { get; set; } = false;
-    public bool AskBeforeClosing { get; set; } = true;
+    public bool MinimizeToTrayOnClose { get; set; } = true;
+    public bool MinimizeToTrayOnMinimize { get; set; } = true;
+    public bool AskBeforeClosing { get; set; } = false;
 
     // TgWsProxy settings
     public bool TgWsProxyEnabled { get; set; } = false;
@@ -38,7 +38,7 @@ public class AppSettings
     // Traffic Filter settings
     public bool AutoHostlist { get; set; } = false;
     public string BindInterface { get; set; } = "default";
-    public string IpProtocolMode { get; set; } = "both";
+    public string IpProtocolMode { get; set; } = "ipv4";
 
     // Folders & Files settings
     public bool UseAutoPaths { get; set; } = true;

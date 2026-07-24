@@ -204,6 +204,7 @@ public static class DiagnosticEngine
                     try
                     {
                         var argsList = new List<string> {
+                            "-k", "--ssl-no-revoke",
                             "-I",
                             "-s", "-S",
                             "-m", timeoutSec.ToString(),
@@ -216,13 +217,7 @@ public static class DiagnosticEngine
 
                         var (outStr, errStr, exit) = await RunCurlAsync(curlPath, argsList.ToArray(), ct);
                         
-                        bool dnsHijack = errStr.Contains("Could not resolve host", StringComparison.OrdinalIgnoreCase) ||
-                                         errStr.Contains("certificate", StringComparison.OrdinalIgnoreCase) ||
-                                         errStr.Contains("SSL certificate problem", StringComparison.OrdinalIgnoreCase) ||
-                                         errStr.Contains("self-signed", StringComparison.OrdinalIgnoreCase) ||
-                                         errStr.Contains("self signed", StringComparison.OrdinalIgnoreCase) ||
-                                         errStr.Contains("certificate verify failed", StringComparison.OrdinalIgnoreCase) ||
-                                         errStr.Contains("unable to get local issuer certificate", StringComparison.OrdinalIgnoreCase);
+                        bool dnsHijack = errStr.Contains("Could not resolve host", StringComparison.OrdinalIgnoreCase);
 
                         bool unsupported = (exit == 35) || 
                                            errStr.Contains("does not support", StringComparison.OrdinalIgnoreCase) ||
@@ -236,17 +231,19 @@ public static class DiagnosticEngine
                                            errStr.Contains("unsupported feature", StringComparison.OrdinalIgnoreCase) ||
                                            errStr.Contains("schannel", StringComparison.OrdinalIgnoreCase);
 
+                        bool isHttpOk = (exit == 0) || (outStr.Length == 3 && int.TryParse(outStr, out int httpStatusCode) && httpStatusCode >= 200 && httpStatusCode < 600);
+
                         if (dnsHijack)
                         {
                             fail++;
-                            httpParts.Add($"{test.Label}:SSL");
+                            httpParts.Add($"{test.Label}:DNS_FAIL");
                         }
                         else if (unsupported)
                         {
                             unsup++;
                             httpParts.Add($"{test.Label}:UNSUP");
                         }
-                        else if (exit == 0)
+                        else if (isHttpOk)
                         {
                             ok++;
                             httpParts.Add($"{test.Label}:OK");

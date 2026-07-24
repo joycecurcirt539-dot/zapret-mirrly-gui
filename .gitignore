@@ -8,6 +8,7 @@ bin/
 obj/
 publish/
 release/
+GITIGNORE
 
 # User-specific files
 *.user

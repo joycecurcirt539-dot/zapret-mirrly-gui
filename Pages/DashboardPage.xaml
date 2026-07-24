@@ -24,7 +24,7 @@
             </Grid.RowDefinitions>
 
             <!-- Header with Top-Bar Metrics -->
-            <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid Grid.Row="0" x:Name="DashboardTopHeaderGrid" Margin="0,0,0,24">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -37,24 +37,24 @@
                 </StackPanel>
 
                 <!-- Right: Top-Bar Network Latency Metrics -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" x:Name="TopMetricsPanel" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <TextBlock Text="YouTube:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
-                        <TextBlock x:Name="YtPingText" Text="-- мс" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock x:Name="YtPingText" Text="{x:Bind ViewModel.YtPingText, Mode=OneWay}" Foreground="{x:Bind ViewModel.YtPingBrush, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" />
                     </StackPanel>
 
                     <TextBlock Text="│" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.3" FontSize="11" VerticalAlignment="Center" />
 
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <TextBlock Text="Discord:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
-                        <TextBlock x:Name="DcPingText" Text="-- мс" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock x:Name="DcPingText" Text="{x:Bind ViewModel.DcPingText, Mode=OneWay}" Foreground="{x:Bind ViewModel.DcPingBrush, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" />
                     </StackPanel>
 
                     <TextBlock Text="│" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.3" FontSize="11" VerticalAlignment="Center" />
 
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <TextBlock Text="Потери:" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" FontSize="11" />
-                        <TextBlock x:Name="LossText" Text="0%" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" Foreground="#A79A83" />
+                        <TextBlock x:Name="LossText" Text="{x:Bind ViewModel.LossText, Mode=OneWay}" Foreground="{x:Bind ViewModel.LossBrush, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" FontSize="11" />
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -76,19 +76,9 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Pulsing status orb -->
-                        <Border Grid.Column="0" x:Name="StatusOrbOuter" Width="52" Height="52" CornerRadius="26" Margin="0,0,20,0" VerticalAlignment="Center">
-                            <Border.Background>
-                                <SolidColorBrush x:Name="StatusOrbBg" Color="#1F2A1F" />
-                            </Border.Background>
-                            <Border x:Name="StatusOrbInner" Width="34" Height="34" CornerRadius="17" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Border.Background>
-                                    <SolidColorBrush x:Name="StatusOrbInnerBg" Color="#2F2F2F" />
-                                </Border.Background>
-                                <FontIcon x:Name="StatusIndicatorIcon" Glyph="&#xE71A;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <FontIcon.Foreground>
-                                        <SolidColorBrush x:Name="StatusIconFg" Color="#8D8577" />
-                                    </FontIcon.Foreground>
-                                </FontIcon>
+                        <Border Grid.Column="0" x:Name="StatusOrbOuter" Width="52" Height="52" CornerRadius="26" Margin="0,0,20,0" VerticalAlignment="Center" Background="{x:Bind ViewModel.StatusOrbBg, Mode=OneWay}">
+                            <Border x:Name="StatusOrbInner" Width="34" Height="34" CornerRadius="17" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Bind ViewModel.StatusOrbInnerBg, Mode=OneWay}">
+                                <FontIcon x:Name="StatusIndicatorIcon" Glyph="{x:Bind ViewModel.StatusIndicatorIconGlyph, Mode=OneWay}" Foreground="{x:Bind ViewModel.StatusIconFg, Mode=OneWay}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </Border>
 
@@ -98,19 +88,18 @@
                                 <TextBlock Text="МОНИТОР ПОДКЛЮЧЕНИЯ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
                                 <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Главный переключатель обхода блокировок DPI. Запущен: Трафик к заблокированным сайтам перехватывается и модифицируется. Остановлен: Программа не влияет на пакеты." VerticalAlignment="Center" />
                             </StackPanel>
-                            <TextBlock x:Name="StatusText" Text="Обход DPI не запущен" Style="{StaticResource MirrlyTextLargeStyle}" FontSize="17" FontWeight="Bold" />
-                            <TextBlock x:Name="ServiceStatusText" Text="Автозапуск через службу: не настроен" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
-                        </StackPanel>
 
-                        <!-- Refresh button removed by user request -->
+                            <TextBlock x:Name="StatusText" Text="{x:Bind ViewModel.StatusTitle, Mode=OneWay}" Style="{StaticResource MirrlyTextLargeStyle}" FontSize="17" FontWeight="Bold" />
+                            <TextBlock x:Name="ServiceStatusText" Text="{x:Bind ViewModel.ServiceNote, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
+                        </StackPanel>
                     </Grid>
 
                     <!-- Bottom band: Launch button -->
                     <Grid Grid.Row="1" x:Name="MonitorActionBar" Padding="24,0,24,20">
-                        <Button x:Name="ActionBypassButton" Click="ActionBypassButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48">
+                        <Button x:Name="ActionBypassButton" Command="{x:Bind ViewModel.ToggleBypassCommand}" IsEnabled="{x:Bind ViewModel.IsActionButtonEnabled, Mode=OneWay}" Style="{StaticResource PremiumAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48">
                             <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" HorizontalAlignment="Center" x:Name="ActionBypassText" Text="Запустить обход" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
-                                <ProgressRing Grid.Column="1" x:Name="ActionBypassProgressRing" IsActive="False" Width="20" Height="20" Foreground="White" Margin="10,0,0,0" Visibility="Collapsed" />
+                                <TextBlock Grid.Column="0" HorizontalAlignment="Center" x:Name="ActionBypassText" Text="{x:Bind ViewModel.ActionButtonText, Mode=OneWay}" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" VerticalAlignment="Center" />
+                                <ProgressRing Grid.Column="1" x:Name="ActionBypassProgressRing" IsActive="{x:Bind ViewModel.IsProgressRingActive, Mode=OneWay}" Visibility="{x:Bind ViewModel.ProgressRingVisibility, Mode=OneWay}" Width="20" Height="20" Foreground="White" Margin="10,0,0,0" />
                             </Grid>
                         </Button>
                     </Grid>
@@ -118,7 +107,7 @@
             </Border>
 
             <!-- ─── LAUNCH LOG ─── -->
-            <Border Grid.Row="2" Style="{StaticResource GlassCardStyle}" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}" Padding="0">
+            <Border Grid.Row="2" x:Name="LaunchLogCard" Style="{StaticResource GlassCardStyle}" Background="{ThemeResource ConsoleBackgroundBrush}" BorderBrush="{ThemeResource ConsoleBorderBrush}" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -137,10 +126,10 @@
                             <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Окно вывода логов утилиты winws.exe. Показывает сообщения о старте, загрузке списков сайтов, перехвате пакетов и ошибках." VerticalAlignment="Center" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                            <Button x:Name="CopyLogButton" Click="CopyLogButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
+                            <Button x:Name="CopyLogButton" Command="{x:Bind ViewModel.CopyLogCommand}" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать журнал запуска">
                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="13" />
                             </Button>
-                            <Button x:Name="ClearLogButton" Click="ClearLogButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Очистить журнал">
+                            <Button x:Name="ClearLogButton" Command="{x:Bind ViewModel.ClearLogCommand}" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Очистить журнал">
                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="13" />
                             </Button>
                         </StackPanel>
@@ -148,7 +137,7 @@
 
                     <!-- Log output -->
                     <ScrollViewer Grid.Row="1" x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
-                        <TextBlock x:Name="LaunchLogTextBlock" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
+                        <TextBlock x:Name="LaunchLogTextBlock" Text="{x:Bind ViewModel.LaunchLogText, Mode=OneWay}" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
                     </ScrollViewer>
                 </Grid>
             </Border>
@@ -163,7 +152,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="20" Margin="0,0,0,16">
+            <Border Grid.Row="0" x:Name="StrategyCard" Style="{StaticResource GlassCardStyle}" Padding="20" Margin="0,0,0,16">
                 <StackPanel Spacing="14">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="КОНФИГУРАЦИЯ СТРАТЕГИИ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
@@ -172,13 +161,13 @@
 
                     <StackPanel Spacing="6">
                         <TextBlock Text="Активная стратегия:" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
-                        <ComboBox x:Name="PresetComboBox" HorizontalAlignment="Stretch" SelectionChanged="PresetComboBox_SelectionChanged" />
+                        <ComboBox x:Name="PresetComboBox" ItemsSource="{x:Bind ViewModel.Presets, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedPreset, Mode=TwoWay}" HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </StackPanel>
             </Border>
 
             <!-- Arguments display card -->
-            <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="0" Background="{ThemeResource ConsoleBackgroundBrush}">
+            <Border Grid.Row="1" x:Name="ArgumentsCard" Style="{StaticResource GlassCardStyle}" Padding="0" Background="{ThemeResource ConsoleBackgroundBrush}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -193,7 +182,7 @@
                                 <TextBlock Text="АРГУМЕНТЫ КОМАНДНОЙ СТРОКИ" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="Bold" Foreground="#A79A83" />
                                 <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#8A8A8F" ToolTipService.ToolTip="Технические параметры ядра winws.exe. Формируются автоматически на основе выбранного пресета (фильтры портов, списки адресов и методы расщепления пакетов)." VerticalAlignment="Center" />
                             </StackPanel>
-                            <Button Grid.Column="1" x:Name="CopyArgsButton" Click="CopyArgsButton_Click" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать аргументы командной строки">
+                            <Button Grid.Column="1" x:Name="CopyArgsButton" Command="{x:Bind ViewModel.CopyArgsCommand}" Padding="0" Height="26" Width="26" ToolTipService.ToolTip="Копировать аргументы командной строки">
                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" FontSize="13" />
                             </Button>
                         </Grid>
@@ -201,7 +190,7 @@
 
                     <!-- Args content -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
-                        <TextBlock x:Name="PresetArgumentsTextBox" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
+                        <TextBlock x:Name="PresetArgumentsTextBox" Text="{x:Bind ViewModel.PresetArgumentsText, Mode=OneWay}" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource ConsoleForegroundBrush}" TextWrapping="Wrap" />
                     </ScrollViewer>
                 </Grid>
             </Border>
@@ -210,7 +199,7 @@
         <!-- ═══════════════════════════════════════════════════════ -->
         <!-- NOTIFICATION OVERLAY: AUTO-APPLIED BEST STRATEGY        -->
         <!-- ═══════════════════════════════════════════════════════ -->
-        <Grid x:Name="DiagnosticRecommendationOverlay" Visibility="Collapsed" Canvas.ZIndex="999" Margin="-32">
+        <Grid x:Name="DiagnosticRecommendationOverlay" Visibility="{x:Bind ViewModel.OverlayVisibility, Mode=OneWay}" Canvas.ZIndex="999" Margin="-32">
             <!-- Light, non-intrusive backdrop -->
             <Grid Background="#35000000">
                 <!-- Acrylic Glass Card Container -->
@@ -237,8 +226,8 @@
                             <Grid ColumnDefinitions="*,Auto">
                                 <StackPanel Grid.Column="0" Spacing="6">
                                     <TextBlock Text="Победитель диагностики:" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" />
-                                    <TextBlock x:Name="OverlayWinnerPresetName" Text="general.bat" FontSize="20" FontWeight="Black" Foreground="White" TextWrapping="Wrap" />
-                                    <TextBlock x:Name="OverlayWinnerStatsText" Text="100% доступности" FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="OverlayWinnerPresetName" Text="{x:Bind ViewModel.WinnerPresetName, Mode=OneWay}" FontSize="20" FontWeight="Black" Foreground="White" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="OverlayWinnerStatsText" Text="{x:Bind ViewModel.WinnerStatsText, Mode=OneWay}" FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap" />
                                 </StackPanel>
 
                                 <Border Grid.Column="1" Background="#102A1D" BorderBrush="#10B981" BorderThickness="1" Padding="10,6" CornerRadius="8" VerticalAlignment="Center">
@@ -248,8 +237,8 @@
                         </Border>
 
                         <!-- Action Button -->
-                        <Button Grid.Row="2" x:Name="ApplyWinnerNowButton" Click="ApplyWinnerNowButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="42" HorizontalAlignment="Stretch" CornerRadius="8">
-                            <TextBlock x:Name="ApplyWinnerNowButtonText" Text="Отлично (15 с)" FontWeight="Bold" HorizontalAlignment="Center" FontSize="14" />
+                        <Button Grid.Row="2" x:Name="ApplyWinnerNowButton" Command="{x:Bind ViewModel.ApplyWinnerNowCommand}" Style="{StaticResource PremiumAccentButtonStyle}" Height="42" HorizontalAlignment="Stretch" CornerRadius="8">
+                            <TextBlock x:Name="ApplyWinnerNowButtonText" Text="{x:Bind ViewModel.ApplyWinnerButtonText, Mode=OneWay}" FontWeight="Bold" HorizontalAlignment="Center" FontSize="14" />
                         </Button>
                     </Grid>
                 </Border>

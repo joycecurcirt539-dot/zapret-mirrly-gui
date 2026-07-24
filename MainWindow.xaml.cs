@@ -97,6 +97,46 @@ public sealed partial class MainWindow : Window
         // Register window closing handler
         AppWindow.Closing += AppWindow_Closing;
 
+        // Initialize Global HotKeys (Ctrl+Alt+Z, Ctrl+Alt+X, Ctrl+Alt+C)
+        HotKeyService.RegisterGlobalHotKeys(hWnd);
+
+        HotKeyService.OnToggleDpiHotKeyPressed += () =>
+        {
+            DispatcherQueue.TryEnqueue(() => ToggleDpiFromHotKey());
+        };
+
+        HotKeyService.OnToggleTgHotKeyPressed += () =>
+        {
+            DispatcherQueue.TryEnqueue(() => ToggleTgFromHotKey());
+        };
+
+        HotKeyService.OnToggleAllHotKeyPressed += () =>
+        {
+            DispatcherQueue.TryEnqueue(() => ToggleAllFromHotKey());
+        };
+
+        // Start Network Monitor Listener
+        NetworkMonitorService.StartMonitoring();
+        NetworkMonitorService.OnNetworkConnecting += (msg) =>
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                OverlayNotificationWindow.ShowConnectingToast(msg);
+            });
+        };
+        NetworkMonitorService.OnNetworkResult += (dpiSuccess, tgSuccess, dpiPingText, tgPingText) =>
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                OverlayNotificationWindow.ShowNetworkToast(
+                    dpiSuccess,
+                    tgSuccess,
+                    dpiPingText,
+                    tgPingText
+                );
+            });
+        };
+
         // Set startup page
         RootNavigationView.SelectedItem = DashboardItem;
         NavigateTo("dashboard");
@@ -129,6 +169,14 @@ public sealed partial class MainWindow : Window
 
     private IntPtr WindowSubclassCallback(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, uint uIdSubclass, IntPtr dwRefData)
     {
+        if (uMsg == HotKeyService.WM_HOTKEY)
+        {
+            if (HotKeyService.ProcessWndProcMessage(uMsg, wParam))
+            {
+                return IntPtr.Zero;
+            }
+        }
+
         if (uMsg == 0x0024) // WM_GETMINMAXINFO
         {
             var mmi = (MINMAXINFO)System.Runtime.InteropServices.Marshal.PtrToStructure(lParam, typeof(MINMAXINFO))!;
@@ -183,6 +231,83 @@ public sealed partial class MainWindow : Window
         return DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
+    private static string GetActiveGameFilterMode()
+    {
+        try
+        {
+            var root = ZapretService.FindZapretRoot();
+            var file = System.IO.Path.Combine(root, "utils", "game_filter.enabled");
+            if (!System.IO.File.Exists(file)) return "disabled";
+            return System.IO.File.ReadAllText(file).Trim().ToLower();
+        }
+        catch
+        {
+            return "disabled";
+        }
+    }
+
+    private void ToggleDpiFromHotKey()
+    {
+        if (ZapretService.IsRunning)
+        {
+            ZapretService.StopBypass();
+        }
+        else
+        {
+            var preset = SettingsManager.Instance.LastSelectedPreset;
+            var mode = GetActiveGameFilterMode();
+            ZapretService.StartBypass(preset, mode);
+        }
+
+        OverlayNotificationWindow.ShowToast(
+            ZapretService.IsRunning,
+            TgWsProxyService.IsRunning,
+            "HotKey: Ctrl+Alt+Z (DPI обход)"
+        );
+    }
+
+    private void ToggleTgFromHotKey()
+    {
+        if (TgWsProxyService.IsRunning)
+        {
+            TgWsProxyService.StopProxy();
+        }
+        else
+        {
+            TgWsProxyService.StartProxy();
+        }
+
+        OverlayNotificationWindow.ShowToast(
+            ZapretService.IsRunning,
+            TgWsProxyService.IsRunning,
+            "HotKey: Ctrl+Alt+X (Telegram Proxy)"
+        );
+    }
+
+    private void ToggleAllFromHotKey()
+    {
+        bool anyRunning = ZapretService.IsRunning || TgWsProxyService.IsRunning;
+
+        if (anyRunning)
+        {
+            ZapretService.StopBypass();
+            TgWsProxyService.StopProxy();
+        }
+        else
+        {
+            var preset = SettingsManager.Instance.LastSelectedPreset;
+            var mode = GetActiveGameFilterMode();
+            ZapretService.StartBypass(preset, mode);
+            TgWsProxyService.StartProxy();
+        }
+
+        OverlayNotificationWindow.ShowToast(
+            ZapretService.IsRunning,
+            TgWsProxyService.IsRunning,
+            "HotKey: Ctrl+Alt+C (Все обходы)"
+        );
+    }
+
     private void RootNavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
         if (args.InvokedItemContainer?.Tag is string tag &&
@@ -201,6 +326,25 @@ public sealed partial class MainWindow : Window
         }
 
         NavigateTo(tag);
+    }
+
+    private string _currentTag = "dashboard";
+
+    private static int GetTagIndex(string tag)
+    {
+        return tag switch
+        {
+            "dashboard" => 0,
+            "tgwsproxy" => 1,
+            "lists" => 2,
+            "logs" => 3,
+            "diagnostics" => 4,
+            "update_status" => 5,
+            "support" => 6,
+            "guide" => 7,
+            "settings" => 8,
+            _ => 0
+        };
     }
 
     private void NavigateTo(string tag, object? parameter = null)
@@ -225,7 +369,8 @@ public sealed partial class MainWindow : Window
 
         if (RootFrame.CurrentSourcePageType != targetPage)
         {
-            RootFrame.Navigate(targetPage, parameter);
+            _currentTag = tag;
+            RootFrame.Navigate(targetPage, parameter, new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo());
         }
         else if (parameter != null && RootFrame.Content is Page page)
         {
@@ -311,7 +456,6 @@ public sealed partial class MainWindow : Window
 
     private NOTIFYICONDATA _nid;
     private bool _forceClose = false;
-    private bool _isShowingCloseDialog = false;
     private TrayWindow? _trayWindow;
 
     private void InitializeTrayIcon(IntPtr hWnd)
@@ -375,11 +519,13 @@ public sealed partial class MainWindow : Window
         DestroyMenu(hMenu);
     }
 
-    private async void AppWindow_Closing(Microsoft.UI.Windowing.AppWindow sender, Microsoft.UI.Windowing.AppWindowClosingEventArgs args)
+    private void AppWindow_Closing(Microsoft.UI.Windowing.AppWindow sender, Microsoft.UI.Windowing.AppWindowClosingEventArgs args)
     {
         if (_forceClose)
         {
             RemoveTrayIcon();
+            HotKeyService.UnregisterGlobalHotKeys();
+            NetworkMonitorService.StopMonitoring();
             if (ZapretService.IsRunning)
             {
                 ZapretService.StopBypass();
@@ -396,94 +542,15 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        args.Cancel = true;
-
-        bool isBypassActive = ZapretService.IsRunning || TgWsProxyService.IsRunning;
-        bool isDiagActive = ZapretService.IsDiagnosticsRunning;
-
-        if (isBypassActive || isDiagActive)
+        if (SettingsManager.Instance.MinimizeToTrayOnClose)
         {
-            if (_isShowingCloseDialog) return;
-            _isShowingCloseDialog = true;
-
-            var dialog = new ContentDialog
-            {
-                Title = "Внимание",
-                XamlRoot = this.Content.XamlRoot
-            };
-
-            var panel = new StackPanel { Spacing = 12 };
-            
-            var descText = new TextBlock
-            {
-                Text = "В данный момент запущен активный обход DPI или тестирование. Закрытие программы остановит работу обхода.",
-                TextWrapping = TextWrapping.Wrap
-            };
-            panel.Children.Add(descText);
-
-            var optTray = new RadioButton
-            {
-                Content = "Свернуть в системный трей (обход продолжит работать)",
-                IsChecked = true
-            };
-            var optClose = new RadioButton
-            {
-                Content = "Полностью закрыть приложение (обход будет остановлен)"
-            };
-            panel.Children.Add(optTray);
-            panel.Children.Add(optClose);
-
-            var rememberCheckBox = new CheckBox
-            {
-                Content = "Запомнить выбор и больше не спрашивать",
-                Margin = new Thickness(0, 8, 0, 0)
-            };
-            panel.Children.Add(rememberCheckBox);
-
-            dialog.Content = panel;
-            dialog.PrimaryButtonText = "ОК";
-            dialog.CloseButtonText = "Отмена";
-
-            var result = await dialog.ShowAsync();
-            _isShowingCloseDialog = false;
-
-            if (result == ContentDialogResult.Primary)
-            {
-                bool saveChoice = rememberCheckBox.IsChecked == true;
-                if (optTray.IsChecked == true)
-                {
-                    if (saveChoice)
-                    {
-                        SettingsManager.Instance.MinimizeToTrayOnClose = true;
-                        SettingsManager.Save();
-                    }
-                    AppWindow.Hide();
-                }
-                else
-                {
-                    if (saveChoice)
-                    {
-                        SettingsManager.Instance.MinimizeToTrayOnClose = false;
-                        SettingsManager.Instance.AskBeforeClosing = false;
-                        SettingsManager.Save();
-                    }
-                    _forceClose = true;
-                    Close();
-                }
-            }
+            args.Cancel = true;
+            AppWindow.Hide();
+            return;
         }
-        else
-        {
-            if (SettingsManager.Instance.MinimizeToTrayOnClose)
-            {
-                AppWindow.Hide();
-            }
-            else
-            {
-                _forceClose = true;
-                Close();
-            }
-        }
+
+        _forceClose = true;
+        Close();
     }
 
     private void ShowTrayWindow(bool isMenuMode)
@@ -625,27 +692,39 @@ public sealed partial class MainWindow : Window
 
     public void ShowCurrentVersionModal()
     {
-        var currentChangelog = @"### Zapret Mirrly GUI v1.1.5 — Что нового в этом обновлении:
+        var changelog = AppUpdateService.LastCheckResult?.Changelog;
+        if (string.IsNullOrWhiteSpace(changelog))
+        {
+            changelog = @"### Zapret Mirrly GUI v1.1.6 — Что нового в этом обновлении:
 
-• **Нативный диагностический движок C#**:
-  - Полный перенос диагностики сетевой подсистемы с PowerShell на асинхронный C# для исключения мигающих окон.
-  - Точное измерение пинга и доступности Discord, YouTube, Telegram (через DC2 и DC4) с отображением задержек.
-  - Автоматическое вычисление лучшей стратегии обхода на основе успешности тестов и рекомендация её к выбору.
-  - Интеграция API Яндекса для автоматического определения вашего интернет-провайдера.
-  - Отображение приблизительного времени до окончания диагностики.
+• **Полное восстановление работы ядра обхода**:
+  - Прямой скрытый запуск `winws.exe` с правами Администратора (`Verb = runas`) и фоновым режимом без окон консоли.
+  - Восстановлена подгрузка `service.bat` и оригинальный 1:1 парсер батников Flowseal.
 
-• **Нативное управление системными службами**:
-  - Прямая интеграция с Win32 API и реестром Windows для запуска и настройки службы `winws` и управления драйвером `WinDivert`.
-  - Отказ от запуска внешних батников (`service.bat`), повышающий стабильность и устраняющий блокировки антивирусов.
+• **Глобальные горячие клавиши (Win32 API)**:
+  - `Ctrl + Alt + Z` — Включить / выключить DPI обход.
+  - `Ctrl + Alt + X` — Включить / выключить Telegram Proxy.
+  - `Ctrl + Alt + C` — Глобальное переключение всех обходов.
+  - Работают из любых игр, браузеров и полноэкранных приложений.
 
-• **Нативный парсер и менеджер пресетов**:
-  - Считывание и валидация параметров стратегий Flowseal напрямую в C# коде.
-  - Нативная запись флагов и параметров реестра (включая TCP Timestamps `Tcp1323Opts`).";
+• **Компактный Акрил-Оверлей (AlwaysOnTop)**:
+  - Всплывающее уведомление поверх всех окон на 3.5 секунды при нажатии горячих клавиш или смене сети.
+  - Отображение статусов подключения и пинга в реальном времени.
+
+• **Авто-мониторинг сети (NetworkMonitorService)**:
+  - Отслеживание переключения адаптеров (Wi-Fi, Ethernet, VPN, телефон) с автоматическим переподключением.
+
+• **Архитектурный рефакторинг на MVVM**:
+  - Полное разделение слоя представления (WinUI 3 XAML Pages) и бизнес-логики (`ViewModels`).
+
+• **Визуальные улучшения и микро-анимации**:
+  - Новые эффекты плавного появления элементов и мелкие фиксы интерфейса.";
+        }
 
         ShowVersionModal(
             versionTag: AppUpdateService.CurrentGuiVersion,
             title: $"Что нового в версии v{AppUpdateService.CurrentGuiVersion}!",
-            changelog: currentChangelog,
+            changelog: changelog,
             isPrerelease: false,
             isNewUpdate: false,
             downloadUrl: null

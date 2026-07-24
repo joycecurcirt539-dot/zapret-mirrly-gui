@@ -84,14 +84,7 @@ public static class ZapretService
             }
         }
 
-        // 2. Check in LocalAppData (for embedded self-extracted version)
-        var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ZapretMirrlyGUI", "zapret");
-        if (Directory.Exists(appDataPath))
-        {
-            return appDataPath;
-        }
-
-        // 3. Fallback to searching parent directories of the running process path
+        // 2. Search parent directories of the running process path (workspace / dev repository)
         var current = exeDir;
         while (!string.IsNullOrEmpty(current))
         {
@@ -101,6 +94,13 @@ public static class ZapretService
             var parent = Directory.GetParent(current)?.FullName;
             if (parent == current) break;
             current = parent;
+        }
+
+        // 3. Check in LocalAppData (for embedded self-extracted version)
+        var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ZapretMirrlyGUI", "zapret");
+        if (Directory.Exists(appDataPath))
+        {
+            return appDataPath;
         }
 
         var fallback = exeDir ?? AppContext.BaseDirectory;
@@ -133,6 +133,8 @@ public static class ZapretService
     public static void StartBypass(string batchFilename, string gameFilterMode)
     {
         if (IsRunning) StopBypass();
+        KillAllWinwsProcesses();
+        System.Threading.Thread.Sleep(200);
 
         // Ensure all required user list files exist and enable TCP Timestamps
         PresetManager.EnsureUserListsExist();
@@ -142,7 +144,7 @@ public static class ZapretService
         var winwsPath = Path.Combine(root, "bin", "winws.exe");
         var args = ParseArgumentsFromBatch(batchFilename, gameFilterMode);
 
-        Log($"[SERVICE] Запуск {batchFilename}...");
+        Log($"[SERVICE] Запуск {batchFilename} (скрытый фоновый режим)...");
         Log($"[CMD] {winwsPath} {args}");
 
         var startInfo = new ProcessStartInfo
@@ -150,12 +152,9 @@ public static class ZapretService
             FileName = winwsPath,
             Arguments = args,
             WorkingDirectory = Path.Combine(root, "bin"),
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            StandardOutputEncoding = Encoding.UTF8,
-            StandardErrorEncoding = Encoding.UTF8
+            UseShellExecute = true,
+            Verb = "runas",
+            WindowStyle = ProcessWindowStyle.Hidden
         };
 
         try
@@ -168,28 +167,10 @@ public static class ZapretService
                 Log("[SERVICE] Процесс winws.exe завершён.");
             };
 
-            _runningProcess.OutputDataReceived += (s, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Log($"[winws] {e.Data}");
-                }
-            };
-
-            _runningProcess.ErrorDataReceived += (s, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Log($"[winws ERROR] {e.Data}");
-                }
-            };
-
             _runningProcess.Start();
-            _runningProcess.BeginOutputReadLine();
-            _runningProcess.BeginErrorReadLine();
 
             OnStatusChanged?.Invoke(true);
-            Log($"[SERVICE] winws.exe успешно запущен (PID: {_runningProcess.Id}).");
+            Log($"[SERVICE] winws.exe успешно запущен в фоновом режиме (PID: {_runningProcess.Id}).");
         }
         catch (Exception ex)
         {
@@ -306,16 +287,7 @@ public static class ZapretService
         var root = FindZapretRoot();
         var winwsPath = Path.Combine(root, "bin", "winws.exe");
         var args = ParseArgumentsFromBatch(batchFilename, gameFilterMode);
-        
         var settings = SettingsManager.Instance;
-        if (settings.IpProtocolMode == "ipv4")
-        {
-            args += " --ipv4";
-        }
-        else if (settings.IpProtocolMode == "ipv6")
-        {
-            args += " --ipv6";
-        }
 
         if (!string.IsNullOrWhiteSpace(settings.BindInterface) && settings.BindInterface != "default")
         {
@@ -619,7 +591,7 @@ public static class ZapretService
 
     public static async Task<(bool UpdateAvailable, string CurrentVersion, string LatestVersion, string DownloadUrl, string StatusText)> CheckForUpdatesAsync()
     {
-        const string currentVersion = "1.9.9a";
+        const string currentVersion = "1.9.9d";
         const string fallbackUrl = "https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/";
         const string versionUrl = "https://raw.githubusercontent.com/joycecurcirt539-dot/zapret-mirrly-gui/main/.service/version.txt";
 

@@ -37,7 +37,7 @@ public class GuiUpdateResult
 
 public static class AppUpdateService
 {
-    public const string CurrentGuiVersion = "1.1.5";
+    public const string CurrentGuiVersion = "1.1.6";
     private const string ReleasesUrl = "https://api.github.com/repos/joycecurcirt539-dot/zapret-mirrly-gui/releases";
 
     public static GuiUpdateResult? LastCheckResult { get; set; }

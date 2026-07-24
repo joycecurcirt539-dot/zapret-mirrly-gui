@@ -4,49 +4,42 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:ZapretMirrlyGUI.Pages"
     mc:Ignorable="d"
     NavigationCacheMode="Required">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="264" />
+            <ColumnDefinition Width="260" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- Left Column: Lists Sidebar (Transparent sidebar with subtle gray separator) -->
-        <Grid Grid.Column="0" Background="Transparent" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,1,0" Padding="16,48,16,16">
+        <!-- Left Column: Master List Metadata Sidebar -->
+        <Grid Grid.Column="0" x:Name="ListsSidebarGrid" Background="Transparent" BorderThickness="0" Padding="12,16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,24">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="Списки обхода" Style="{StaticResource PremiumPageTitleStyle}" FontSize="20" />
-                    <Viewbox Width="14" Height="14" VerticalAlignment="Center" ToolTipService.ToolTip="Список текстовых файлов с доменными именами и IP-адресами, считываемых winws.exe при старте. Вы можете редактировать списки разблокируемых доменов и исключений.">
-                        <Path Data="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" Fill="#8A8A8F" Stretch="Uniform" />
-                    </Viewbox>
-                </StackPanel>
-                <TextBlock Text="Конфигурация доменов и IP" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
+            <!-- Sidebar Title -->
+            <StackPanel Grid.Row="0" Margin="4,24,4,12" Spacing="2">
+                <TextBlock Text="Списки доменов" Style="{StaticResource MirrlyTextLargeStyle}" FontSize="15" FontWeight="Bold" />
+                <TextBlock Text="Настройка файлов правил DPI" Style="{StaticResource MirrlyTextSmallStyle}" FontSize="11" Opacity="0.6" />
             </StackPanel>
 
-            <!-- File Selector ListView — Minimal Studio selection styling -->
-            <ListView Grid.Row="1" x:Name="ListsSidebarListView"
-                      SelectionChanged="ListsSidebarListView_SelectionChanged"
-                      SelectionMode="Single"
-                      Padding="0">
+            <!-- Sidebar Metadata ListView -->
+            <ListView Grid.Row="1" x:Name="ListsSidebarListView" ItemsSource="{x:Bind ViewModel.ListMetadata, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.ActiveItem, Mode=TwoWay}" SelectionMode="Single">
                 <ListView.Resources>
                     <ResourceDictionary>
                         <ResourceDictionary.ThemeDictionaries>
-                            <ResourceDictionary x:Key="Default">
-                                <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#08FFFFFF" />
-                                <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#12FFFFFF" />
-                                <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#18FFFFFF" />
-                                <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#1CFFFFFF" />
-                                <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#A79A83" />
-                                <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#A79A83" />
-                                <SolidColorBrush x:Key="ListsSidebarTextForeground" Color="#E5E5EA" />
+                            <ResourceDictionary x:Key="Dark">
+                                <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#12FFFFFF" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#1CFFFFFF" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#22FFFFFF" />
+                                <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#28FFFFFF" />
+                                <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#00F5D4" />
+                                <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#00F5D4" />
+                                <SolidColorBrush x:Key="ListsSidebarTextForeground" Color="#F4F4F5" />
                             </ResourceDictionary>
                             <ResourceDictionary x:Key="Light">
                                 <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#08000000" />
@@ -60,7 +53,7 @@
                         </ResourceDictionary.ThemeDictionaries>
                         
                         <CornerRadius x:Key="ListViewItemCornerRadius">6</CornerRadius>
-                        <local:StringToGeometryConverter x:Key="StringToGeoConverter" xmlns:local="using:ZapretMirrlyGUI.Pages" />
+                        <local:StringToGeometryConverter x:Key="StringToGeoConverter" />
                     </ResourceDictionary>
                 </ListView.Resources>
                 
@@ -76,11 +69,9 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid ColumnDefinitions="Auto,*">
-                            <!-- Icon (Default slate, inherits gold on selection due to omitted Foreground override) -->
                             <Viewbox Grid.Column="0" Width="16" Height="16" Margin="0,0,12,0" VerticalAlignment="Center">
                                 <Path Data="{Binding IconData, Converter={StaticResource StringToGeoConverter}}" Fill="#8A8A8F" Stretch="Uniform" />
                             </Viewbox>
-                            <!-- Text -->
                             <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DisplayName}"
                                            FontSize="13" FontWeight="SemiBold"
@@ -96,14 +87,14 @@
         </Grid>
 
         <!-- Right Column: Editor Workspace -->
-        <Grid Grid.Column="1" Padding="{StaticResource PagePadding}">
+        <Grid Grid.Column="1" x:Name="ListsEditorGrid" Padding="{StaticResource PagePadding}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- 1. Header & Actions Area — pushed down from titlebar -->
+            <!-- 1. Header & Actions Area -->
             <Grid Grid.Row="0" Margin="0,40,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -113,42 +104,28 @@
                 <!-- Title Details -->
                 <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,16,0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock x:Name="ActiveListTitleTextBlock" Text="Выберите список" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="{ThemeResource BrandElectricBrush}" FontWeight="Bold" />
-                        <Viewbox Width="14" Height="14" VerticalAlignment="Center" ToolTipService.ToolTip="Правила редактирования:&#x0a;1. Каждый адрес или домен вводится с новой строки (например, youtube.com).&#x0a;2. Указывайте домен без http, https, слешей или путей (например, googlevideo.com, а не https://googlevideo.com/).&#x0a;3. Символ # в начале строки отключает домен (комментарий).&#x0a;&#x0a;ВАЖНО: После внесения изменений сохраните список (кнопка внизу) и перезапустите обход в Хабе управления (Остановить и затем Запустить снова), чтобы изменения применились.">
-                            <Path Data="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" Fill="#8A8A8F" Stretch="Uniform" />
-                        </Viewbox>
+                        <TextBlock x:Name="ActiveListTitleTextBlock" Text="{x:Bind ViewModel.ActiveFileName, Mode=OneWay}" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="{ThemeResource BrandElectricBrush}" FontWeight="Bold" />
                     </StackPanel>
-                    <TextBlock x:Name="ActiveListSubtitleTextBlock" Text="Описание назначения и правил списка" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
-                </StackPanel>
-
-                <!-- Sort & Search Tools -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Button x:Name="SortAlphabeticallyButton" Click="SortAlphabeticallyButton_Click" Height="36" ToolTipService.ToolTip="Сортировка по алфавиту. Сдвигает комментарии с решеткой (#) наверх, а все доменные адреса сортирует по возрастанию для удобства чтения.">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="Сортировать" />
-                        </StackPanel>
-                    </Button>
-
-                    <AutoSuggestBox x:Name="SearchBox" QueryIcon="Find" PlaceholderText="Найти в тексте..." QuerySubmitted="SearchBox_QuerySubmitted" Width="180" Height="36" ToolTipService.ToolTip="Поиск по доменам. Введите домен или слово и нажмите Enter. Повторное нажатие Enter перейдет к следующему совпадению в списке." />
+                    <TextBlock x:Name="ActiveListSubtitleTextBlock" Text="{x:Bind ViewModel.ActiveDescription, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
                 </StackPanel>
             </Grid>
 
             <!-- 2. Central Editor Frame -->
             <Border Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="4">
-                <TextBox x:Name="ListEditorTextBox" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas" FontSize="13" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" TextChanged="ListEditorTextBox_TextChanged" />
+                <TextBox x:Name="ListEditorTextBox" Text="{x:Bind ViewModel.EditorText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas" FontSize="13" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" />
             </Border>
 
             <!-- 3. Save & Revert Buttons -->
             <Grid Grid.Row="2" Margin="0,16,0,0" ColumnDefinitions="*,Auto,Auto">
-                <TextBlock Grid.Column="0" x:Name="ListSaveStatusTextBlock" Style="{StaticResource MirrlyTextSmallStyle}" VerticalAlignment="Center" Foreground="{ThemeResource BrandElectricBrush}" />
+                <TextBlock Grid.Column="0" x:Name="ListSaveStatusTextBlock" Text="{x:Bind ViewModel.StatusInfo, Mode=OneWay}" Style="{StaticResource MirrlyTextSmallStyle}" VerticalAlignment="Center" Foreground="{ThemeResource BrandElectricBrush}" />
 
-                <Button Grid.Column="1" x:Name="RevertButton" Click="RevertButton_Click" Margin="0,0,8,0" Height="36" ToolTipService.ToolTip="Сбросить все изменения в редакторе до состояния последней сохраненной версии с диска.">
+                <Button Grid.Column="1" x:Name="RevertButton" Command="{x:Bind ViewModel.ResetCurrentFileCommand}" Margin="0,0,8,0" Height="36">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="Сбросить" />
                     </StackPanel>
                 </Button>
 
-                <Button Grid.Column="2" x:Name="SaveChangesButton" Click="SaveChangesButton_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="36" ToolTipService.ToolTip="Записать изменения на диск. Потребуется остановить и снова запустить обход в Хабе управления, чтобы правила вступили в силу.">
+                <Button Grid.Column="2" x:Name="SaveChangesButton" Command="{x:Bind ViewModel.SaveCurrentFileCommand}" Style="{StaticResource PremiumAccentButtonStyle}" Height="36">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="Сохранить список" />
                     </StackPanel>

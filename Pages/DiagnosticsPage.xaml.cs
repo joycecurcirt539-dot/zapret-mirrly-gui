@@ -164,8 +164,18 @@ public sealed partial class DiagnosticsPage : Page
         });
     }
 
+    private bool _isFirstLoad = true;
+
     private void DiagnosticsPage_Loaded(object sender, RoutedEventArgs e)
     {
+        if (_isFirstLoad)
+        {
+            _isFirstLoad = false;
+            AnimationHelper.AnimateElementEntrance(DiagnosticsTabView, 0, -40, 0.98, 220, 0);
+            AnimationHelper.AnimateElementEntrance(ControlDeckBorder, 0, -20, 1.0, 240, 40);
+            AnimationHelper.AnimateElementEntrance(DiagnosticsRightColumn, 50, 0, 0.96, 270, 120);
+        }
+
         _allPresets.Clear();
         var presets = ZapretService.GetPresets();
         _allPresets.AddRange(presets);
@@ -917,7 +927,7 @@ public sealed partial class DiagnosticsPage : Page
         LogDiag(timestampsActive ? "[PASS] TCP Timestamps включены." : "[WARN] TCP Timestamps отключены.");
 
         // 4. Conflicts Check (Native Service Manager)
-        var conflictingServices = new[] { "GoodbyeDPI", "discordfix_zapret", "winws1", "winws2", "SmartByte", "EPWD", "TracSrvWrapper" };
+        var conflictingServices = new[] { "GoodbyeDPI", "discordfix_zapret", "winws1", "winws2", "SmartByte", "EPWD", "TracSrvWrapper", "KNetworkService", "Killer Network Service", "iclsClient" };
         var foundConflicts = new List<string>();
         await Task.Run(() => {
             foreach (var svc in conflictingServices)
@@ -1037,7 +1047,7 @@ public sealed partial class DiagnosticsPage : Page
         SystemDiagnosticsLogTextBox.Text += "\nУстранение конфликтов служб через Win32 API...\n";
 
         await Task.Run(() => {
-            var conflictingServices = new[] { "GoodbyeDPI", "discordfix_zapret", "winws1", "winws2", "SmartByte", "EPWD", "TracSrvWrapper" };
+            var conflictingServices = new[] { "GoodbyeDPI", "discordfix_zapret", "winws1", "winws2", "SmartByte", "EPWD", "TracSrvWrapper", "KNetworkService", "Killer Network Service", "iclsClient" };
             foreach (var svc in conflictingServices)
             {
                 if (Win32ServiceManager.IsServiceInstalled(svc))

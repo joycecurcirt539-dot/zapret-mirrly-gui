@@ -48,6 +48,17 @@ public static class PresetManager
             {
                 File.WriteAllText(listExcUser, "domain.example.abc\r\n", Encoding.UTF8);
             }
+
+            var root = ZapretService.FindZapretRoot();
+            var serviceBatPath = Path.Combine(root, "service.bat");
+            if (!File.Exists(serviceBatPath))
+            {
+                var flowsealBackup = Path.Combine(root, "..", "GITIGNORE", "zapret-discord-youtube-flowseal", "service.bat");
+                if (File.Exists(flowsealBackup))
+                {
+                    File.Copy(flowsealBackup, serviceBatPath, overwrite: true);
+                }
+            }
         }
         catch { }
     }
@@ -126,64 +137,6 @@ public static class PresetManager
             .ToList();
     }
 
-    /// <summary>
-    /// Filters out arguments referencing non-existent files from winws command line to prevent exit code 1 crashes.
-    /// </summary>
-    public static string FilterMissingFilesFromArguments(string args)
-    {
-        if (string.IsNullOrWhiteSpace(args)) return "";
-
-        // Matches parameters like: --hostlist="path" or --hostlist=path
-        var pattern = @"--([a-zA-Z0-9\-]+)=(""([^""]+)""|([^\s]+))";
-
-        var result = Regex.Replace(args, pattern, match =>
-        {
-            var paramName = match.Groups[1].Value.ToLower();
-            var filePath = match.Groups[3].Value; // Quoted path group
-            if (string.IsNullOrEmpty(filePath))
-            {
-                filePath = match.Groups[4].Value; // Unquoted path group
-            }
-
-            // Strip prefix @ if used in hostlist parameters
-            if (filePath.StartsWith("@"))
-            {
-                filePath = filePath.Substring(1);
-            }
-
-            // We filter arguments that are expected to be paths to files/lists
-            bool isFileParam = paramName.Contains("hostlist") || 
-                               paramName.Contains("ipset") || 
-                               paramName.Contains("fake-") || 
-                               paramName.Contains("pattern");
-
-            if (isFileParam)
-            {
-                try
-                {
-                    if (!File.Exists(filePath))
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[DYNAMIC FILTER] Removing non-existent file argument: {match.Value}");
-                        return ""; // Removes the argument entirely
-                    }
-                }
-                catch
-                {
-                    return "";
-                }
-            }
-
-            return match.Value;
-        });
-
-        // Clean redundant spaces
-        result = Regex.Replace(result, @"\s+", " ").Trim();
-        return result;
-    }
-
-    /// <summary>
-    /// Parsed command line arguments from a Flowseal .bat preset file.
-    /// </summary>
     public static string ParsePresetArguments(string batchFilename)
     {
         EnsureUserListsExist();
@@ -241,7 +194,7 @@ public static class PresetManager
                         sb.Append(" ").Append(line);
                     }
 
-                    if (!hasContinuation && sb.Length > 0 && !line.EndsWith("^"))
+                    if (!hasContinuation && sb.Length > 0)
                     {
                         // End of command line
                         break;
@@ -259,7 +212,10 @@ public static class PresetManager
             result = Regex.Replace(result, @"%LISTS%", listsPath, RegexOptions.IgnoreCase);
             result = Regex.Replace(result, @"%LISTS_DIR%", listsPath, RegexOptions.IgnoreCase);
 
-            return FilterMissingFilesFromArguments(result);
+            // Replace caret symbols used in batch file escaping
+            result = result.Replace("^", "");
+
+            return result.Trim();
         }
         catch (Exception ex)
         {
@@ -269,7 +225,7 @@ public static class PresetManager
     }
 
     /// <summary>
-    /// Dynamically applies user settings (Game Filter, IPv4/v6, Bind Interface) 
+    /// Dynamically applies user settings (Game Filter, Bind Interface) 
     /// on top of the Flowseal preset arguments without touching the original .bat file.
     /// </summary>
     public static string BuildFinalWinwsArguments(string batchFilename, string gameFilterMode)
@@ -303,29 +259,19 @@ public static class PresetManager
         var settings = SettingsManager.Instance;
         var argsBuilder = new StringBuilder(baseArgs);
 
-        // 1. IP Protocol mode
-        if (settings.IpProtocolMode == "ipv4")
-        {
-            argsBuilder.Append(" --ipv4");
-        }
-        else if (settings.IpProtocolMode == "ipv6")
-        {
-            argsBuilder.Append(" --ipv6");
-        }
-
-        // 2. Network Interface binding
+        // Network Interface binding
         if (!string.IsNullOrWhiteSpace(settings.BindInterface) && settings.BindInterface != "default")
         {
             argsBuilder.Append($" --ifname=\"{settings.BindInterface}\"");
         }
 
-        // 3. Custom User Winws Arguments
+        // Custom User Winws Arguments
         var customArgs = settings.CustomWinwsArgs;
         if (!string.IsNullOrWhiteSpace(customArgs))
         {
             argsBuilder.Append(" ").Append(customArgs.Trim());
         }
 
-        return FilterMissingFilesFromArguments(argsBuilder.ToString().Trim());
+        return argsBuilder.ToString().Trim();
     }
 }

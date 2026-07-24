@@ -21,7 +21,7 @@
             </Grid.RowDefinitions>
 
             <!-- ══════════════════════ HEADER ══════════════════════ -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <StackPanel Grid.Row="0" x:Name="GuideHeaderPanel" Spacing="4" Margin="0,0,0,20">
                 <TextBlock Text="Безопасность, Доверие и Справка" Style="{StaticResource PremiumPageTitleStyle}" FontSize="24" Foreground="{ThemeResource TitleTextGradientBrush}" />
                 <TextBlock Text="Важная информация об открытом исходном коде, защите данных и ручном обновлении" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
             </StackPanel>
@@ -35,7 +35,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- ─────────────── COLUMN 1: Warning + Open Source + Links ─────────────── -->
-                <StackPanel Grid.Column="0" Spacing="12">
+                <StackPanel Grid.Column="0" x:Name="GuideCol1" Spacing="12">
                     <StackPanel.ChildrenTransitions>
                         <TransitionCollection>
                             <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="30" />
@@ -149,7 +149,7 @@
                 </StackPanel>
 
                 <!-- ─────────────── COLUMN 2: Trust + Disclaimer ─────────────── -->
-                <StackPanel Grid.Column="1" Spacing="12">
+                <StackPanel Grid.Column="1" x:Name="GuideCol2" Spacing="12">
                     <StackPanel.ChildrenTransitions>
                         <TransitionCollection>
                             <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="45" />
@@ -235,7 +235,7 @@
                 </StackPanel>
 
                 <!-- ─────────────── COLUMN 3: Why Manual + Guide ─────────────── -->
-                <StackPanel Grid.Column="2" Spacing="12">
+                <StackPanel Grid.Column="2" x:Name="GuideCol3" Spacing="12">
                     <StackPanel.ChildrenTransitions>
                         <TransitionCollection>
                             <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="60" />

@@ -50,7 +50,7 @@
             </Grid.RowDefinitions>
 
             <!-- ══════════════════════ HEADER ══════════════════════ -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,22">
+            <StackPanel Grid.Row="0" x:Name="SupportHeaderPanel" Spacing="4" Margin="0,0,0,22">
                 <TextBlock Text="Поддержать автора" Style="{StaticResource PremiumPageTitleStyle}" FontSize="24" Foreground="{ThemeResource TitleTextGradientBrush}" />
                 <TextBlock Text="Zapret Mirrly GUI — часть экосистемы Mirrly" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
             </StackPanel>
@@ -63,7 +63,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- ─────────────── LEFT: QR HERO ─────────────── -->
-                <Border Grid.Column="0" Style="{StaticResource GlassCardStyle}" Padding="0" VerticalAlignment="Top">
+                <Border Grid.Column="0" x:Name="SupportQrHeroCard" Style="{StaticResource GlassCardStyle}" Padding="0" VerticalAlignment="Top">
                     <StackPanel Padding="24,24,24,28" Spacing="18" HorizontalAlignment="Center">
 
                         <!-- Donate badge -->
@@ -139,12 +139,16 @@
                                        TextAlignment="Center" />
                         </StackPanel>
 
-                        <Button Content="Поддержать ♥"
-                                Tag="https://dalink.to/cartneyzix"
+                        <Button Tag="https://dalink.to/cartneyzix"
                                 Click="DonateButton_Click"
                                 Style="{StaticResource PremiumAccentButtonStyle}"
                                 HorizontalAlignment="Center"
-                                MinWidth="200" Padding="22,12" />
+                                MinWidth="200" Padding="22,12">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xEB52;" Foreground="#FF4D6D" FontSize="14" VerticalAlignment="Center" />
+                                <TextBlock Text="Поддержать" VerticalAlignment="Center" FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Button>
 
                         <TextBlock Text="Донат идёт разработчику Zapret Mirrly GUI — графической оболочки для zapret-discord-youtube."
                                    Style="{StaticResource MirrlyTextSmallStyle}"
@@ -156,7 +160,7 @@
                 </Border>
 
                 <!-- ─────────────── RIGHT: Legends + Ecosystem ─────────────── -->
-                <StackPanel Grid.Column="1" Spacing="20">
+                <StackPanel Grid.Column="1" x:Name="SupportRightColumn" Spacing="20">
                     <StackPanel.ChildrenTransitions>
                         <TransitionCollection>
                             <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="25" />

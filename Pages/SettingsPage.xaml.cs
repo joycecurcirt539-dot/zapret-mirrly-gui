@@ -50,6 +50,22 @@ public sealed partial class SettingsPage : Page
 
         // Load settings directly during initialization to prevent layout flickering during render
         LoadAllSettingsFromDisk();
+
+        Loaded += SettingsPage_Loaded;
+    }
+
+    private bool _isFirstLoad = true;
+
+    private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (_isFirstLoad)
+        {
+            _isFirstLoad = false;
+            // Animate left sub-sidebar emerging directly from main sidebar as a kinetic drawer
+            AnimationHelper.AnimateElementEntrance(SettingsNav, -110, 0, 1.0, 270, 0);
+            // Animate right settings cards area with diagonal emergence
+            AnimationHelper.AnimateElementEntrance(SettingsScrollViewer, 50, 20, 0.96, 290, 40);
+        }
     }
 
     private void LoadAllSettingsFromDisk()
@@ -218,15 +234,6 @@ public sealed partial class SettingsPage : Page
             // Load AutoHostlist
             AutoHostlistToggle.IsOn = SettingsManager.Instance.AutoHostlist;
 
-            // Load IpProtocolMode
-            var ipMode = SettingsManager.Instance.IpProtocolMode;
-            if (ipMode == "ipv4")
-                IpProtoV4Radio.IsChecked = true;
-            else if (ipMode == "ipv6")
-                IpProtoV6Radio.IsChecked = true;
-            else
-                IpProtoBothRadio.IsChecked = true;
-
             _originalUseAutoPaths = SettingsManager.Instance.UseAutoPaths;
             AutoPathsToggle.IsOn = _originalUseAutoPaths;
 
@@ -394,16 +401,35 @@ public sealed partial class SettingsPage : Page
         catch { }
     }
 
+    protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        // Synchronize active panel visibility immediately on navigation to prevent 1-frame blank flicker
+        var selectedItem = SettingsNav.SelectedItem as NavigationViewItem;
+        var tag = selectedItem?.Tag as string ?? "launch";
+        UpdatePanelVisibility(tag);
+    }
+
     private void SettingsNav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        if (args.SelectedItemContainer?.Tag is string tag)
+        var tag = (args.SelectedItem as NavigationViewItem)?.Tag as string
+               ?? (sender.SelectedItem as NavigationViewItem)?.Tag as string
+               ?? (args.SelectedItemContainer?.Tag as string);
+
+        if (tag != null)
         {
-            LaunchParamsPanel.Visibility = tag == "launch" ? Visibility.Visible : Visibility.Collapsed;
-            FiltersPanel.Visibility = tag == "filters" ? Visibility.Visible : Visibility.Collapsed;
-            FilesFoldersPanel.Visibility = tag == "folders" ? Visibility.Visible : Visibility.Collapsed;
-            UpdatesPanel.Visibility = tag == "updates" ? Visibility.Visible : Visibility.Collapsed;
-            TgWsProxyPanel.Visibility = tag == "tgwsproxy" ? Visibility.Visible : Visibility.Collapsed;
+            UpdatePanelVisibility(tag);
         }
+    }
+
+    private void UpdatePanelVisibility(string tag)
+    {
+        LaunchParamsPanel.Visibility = string.Equals(tag, "launch", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
+        FiltersPanel.Visibility = string.Equals(tag, "filters", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
+        FilesFoldersPanel.Visibility = string.Equals(tag, "folders", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
+        UpdatesPanel.Visibility = string.Equals(tag, "updates", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
+        TgWsProxyPanel.Visibility = string.Equals(tag, "tgwsproxy", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OpenRootFolderBtn_Click(object sender, RoutedEventArgs e)
@@ -708,6 +734,65 @@ public sealed partial class SettingsPage : Page
         }
     }
 
+    private async void ReinstallZapretBtn_Click(object sender, RoutedEventArgs e)
+    {
+        var confirmDialog = new ContentDialog
+        {
+            Title = "Подтверждение переустановки",
+            Content = "⚠️ Это действие временно отключит обход, завершит все процессы winws.exe, удалит текущие бинарные файлы и драйверы zapret, а затем распакует чистую версию. Ваши списки доменов будут сохранены.\n\nПродолжить?",
+            PrimaryButtonText = "Да",
+            CloseButtonText = "Отмена",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = this.XamlRoot
+        };
+
+        var confirmResult = await confirmDialog.ShowAsync();
+        if (confirmResult != ContentDialogResult.Primary) return;
+
+        // Visual feedback / loading state
+        ReinstallZapretBtn.IsEnabled = false;
+        if (ReinstallZapretBtn.Content is TextBlock tb)
+        {
+            tb.Text = "Переустановка...";
+        }
+
+        try
+        {
+            await Task.Run(() =>
+            {
+                AssetsExtractor.CleanAndReinstall();
+            });
+
+            var successDialog = new ContentDialog
+            {
+                Title = "Успех",
+                Content = "Файлы zapret успешно переустановлены. Старые исполняемые файлы и драйверы были удалены, а чистая копия распакована. Ваши списки доменов были бережно восстановлены.",
+                CloseButtonText = "Отлично",
+                XamlRoot = this.XamlRoot
+            };
+            _ = successDialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            var errDialog = new ContentDialog
+            {
+                Title = "Ошибка переустановки",
+                Content = $"Не удалось переустановить файлы:\n{ex.Message}",
+                CloseButtonText = "ОК",
+                XamlRoot = this.XamlRoot
+            };
+            _ = errDialog.ShowAsync();
+        }
+        finally
+        {
+            ReinstallZapretBtn.IsEnabled = true;
+            if (ReinstallZapretBtn.Content is TextBlock tb2)
+            {
+                tb2.Text = "Переустановить файлы";
+            }
+        }
+    }
+
 
 
     private void SaveSettingsButton_Click(object sender, RoutedEventArgs e)
@@ -852,13 +937,7 @@ public sealed partial class SettingsPage : Page
             // Save Traffic Filter settings
             SettingsManager.Instance.AutoHostlist = AutoHostlistToggle.IsOn;
             SettingsManager.Instance.BindInterface = BindInterfaceComboBox.SelectedItem as string ?? "default";
-            
-            if (IpProtoV4Radio.IsChecked == true)
-                SettingsManager.Instance.IpProtocolMode = "ipv4";
-            else if (IpProtoV6Radio.IsChecked == true)
-                SettingsManager.Instance.IpProtocolMode = "ipv6";
-            else
-                SettingsManager.Instance.IpProtocolMode = "both";
+            SettingsManager.Instance.IpProtocolMode = "both";
 
             // Save custom paths settings
             SettingsManager.Instance.UseAutoPaths = AutoPathsToggle.IsOn;
@@ -938,14 +1017,14 @@ public sealed partial class SettingsPage : Page
         
         if (result.UpdateAvailable)
         {
-            AppUpdateStatusText.Text = $"Установлено: 1.9.9d | Доступно: {result.LatestVersion} (проверено в {DateTime.Now:HH:mm:ss})";
+            AppUpdateStatusText.Text = $"Установлено: {result.CurrentVersion} | Доступно: {result.LatestVersion} (проверено в {DateTime.Now:HH:mm:ss})";
             DownloadLatestReleaseBtn.NavigateUri = new Uri(result.DownloadUrl);
             DownloadLatestReleaseBtn.Visibility = Visibility.Visible;
             SetBadgeUpdateAvailable(CoreVersionBadge, CoreVersionBadgeText, result.LatestVersion);
         }
         else
         {
-            AppUpdateStatusText.Text = $"Установлено: 1.9.9d | Актуально (проверено в {DateTime.Now:HH:mm:ss})";
+            AppUpdateStatusText.Text = $"Установлено: {result.CurrentVersion} | Актуально (проверено в {DateTime.Now:HH:mm:ss})";
             DownloadLatestReleaseBtn.Visibility = Visibility.Collapsed;
             SetBadgeUpToDate(CoreVersionBadge, CoreVersionBadgeText);
         }
@@ -1135,9 +1214,7 @@ public sealed partial class SettingsPage : Page
 
         // 1. Adapter & IP
         var bind = BindInterfaceComboBox.SelectedItem as string ?? "default";
-        var ipMode = IpProtoBothRadio.IsChecked == true ? "Both" :
-                     (IpProtoV4Radio.IsChecked == true ? "IPv4" : "IPv6");
-        VisualFilterInterfaceText.Text = $"{bind} / {ipMode}";
+        VisualFilterInterfaceText.Text = bind;
 
         // 2. Ports
         if (GameDisabledRadio.IsChecked == true)
@@ -1200,12 +1277,6 @@ public sealed partial class SettingsPage : Page
     }
 
     private void IpsetRadio_Checked(object sender, RoutedEventArgs e)
-    {
-        if (_isLoading) return;
-        UpdateVisualFilteringMap();
-    }
-
-    private void IpProtoRadio_Checked(object sender, RoutedEventArgs e)
     {
         if (_isLoading) return;
         UpdateVisualFilteringMap();

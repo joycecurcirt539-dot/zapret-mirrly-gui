@@ -29,7 +29,7 @@
                     <!-- Header -->
                     <Grid IsTabStop="False">
                         <TextBlock Text="Mirrly Zapret" FontWeight="Bold" FontSize="11" Foreground="{ThemeResource TextSecondaryBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock x:Name="TrayVersionText" Text="v1.1.5" FontSize="10" Foreground="{ThemeResource TextSecondaryBrush}" Opacity="0.6" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TrayVersionText" Text="v1.1.6" FontSize="10" Foreground="{ThemeResource TextSecondaryBrush}" Opacity="0.6" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     </Grid>
 
                     <!-- Update badge (hidden until update is available) -->
@@ -208,7 +208,7 @@
 
                     <!-- Version label in menu -->
                     <Border Padding="12,2" IsTabStop="False">
-                        <TextBlock x:Name="MenuVersionText" Text="Zapret Mirrly GUI v1.1.5" FontSize="9" Foreground="{ThemeResource TextSecondaryBrush}" Opacity="0.5" />
+                        <TextBlock x:Name="MenuVersionText" Text="Zapret Mirrly GUI v1.1.6" FontSize="9" Foreground="{ThemeResource TextSecondaryBrush}" Opacity="0.5" />
                     </Border>
                 </StackPanel>
             </Grid>
