@@ -354,7 +354,6 @@ namespace ZapretMirrlyGUI
 
                 ZapretService.StartBypass(activePreset, gameFilterMode);
             }
-            AppWindow.Hide(); // Hide menu or widget immediately after toggle action
         }
 
         private void TgPowerButton_Click(object sender, RoutedEventArgs e)
@@ -367,7 +366,6 @@ namespace ZapretMirrlyGUI
             {
                 TgWsProxyService.StartProxy();
             }
-            AppWindow.Hide(); // Hide menu or widget immediately after toggle action
         }
 
         private void HideWindowButton_Click(object sender, RoutedEventArgs e)
@@ -416,7 +414,10 @@ namespace ZapretMirrlyGUI
                 ZapretService.StartBypass(activePreset, gameFilterMode);
                 TgWsProxyService.StartProxy();
             }
-            AppWindow.Hide();
+            if (MenuPanel.Visibility == Visibility.Visible)
+            {
+                AppWindow.Hide();
+            }
         }
 
         private void OpenSettingsButton_Click(object sender, RoutedEventArgs e)

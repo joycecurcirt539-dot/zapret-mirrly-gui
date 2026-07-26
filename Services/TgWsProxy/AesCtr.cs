@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 namespace ZapretMirrlyGUI.Services.TgWsProxy;
@@ -32,16 +34,46 @@ public class AesCtr : IDisposable
         if (input.Length != output.Length)
             throw new ArgumentException("Input and output spans must have the same length.");
 
-        for (int i = 0; i < input.Length; i++)
-        {
-            if (_keystreamUsed == 16)
-            {
-                _aes.EncryptEcb(_counter, _keystream, PaddingMode.None);
-                IncrementCounter(_counter);
-                _keystreamUsed = 0;
-            }
+        int offset = 0;
+        int length = input.Length;
 
-            output[i] = (byte)(input[i] ^ _keystream[_keystreamUsed++]);
+        // Consume remaining keystream from previous call if any
+        while (_keystreamUsed < 16 && offset < length)
+        {
+            output[offset] = (byte)(input[offset] ^ _keystream[_keystreamUsed++]);
+            offset++;
+        }
+
+        // Fast path: Process 16-byte blocks using 64-bit integer XOR
+        while (offset + 16 <= length)
+        {
+            _aes.EncryptEcb(_counter, _keystream, PaddingMode.None);
+            IncrementCounter(_counter);
+
+            ulong k0 = Unsafe.ReadUnaligned<ulong>(ref _keystream[0]);
+            ulong k1 = Unsafe.ReadUnaligned<ulong>(ref _keystream[8]);
+
+            ulong in0 = Unsafe.ReadUnaligned<ulong>(ref Unsafe.AsRef(in input[offset]));
+            ulong in1 = Unsafe.ReadUnaligned<ulong>(ref Unsafe.AsRef(in input[offset + 8]));
+
+            Unsafe.WriteUnaligned(ref output[offset], in0 ^ k0);
+            Unsafe.WriteUnaligned(ref output[offset + 8], in1 ^ k1);
+
+            offset += 16;
+        }
+
+        // Remaining bytes < 16: generate fresh keystream if needed and process
+        if (offset < length)
+        {
+            _aes.EncryptEcb(_counter, _keystream, PaddingMode.None);
+            IncrementCounter(_counter);
+            _keystreamUsed = 0;
+
+            while (offset < length)
+            {
+                output[offset] = (byte)(input[offset] ^ _keystream[_keystreamUsed++]);
+                offset++;
+            }
         }
     }
 
@@ -66,3 +98,4 @@ public class AesCtr : IDisposable
         _aes.Dispose();
     }
 }
+

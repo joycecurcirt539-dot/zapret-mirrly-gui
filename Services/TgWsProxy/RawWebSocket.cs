@@ -64,15 +64,7 @@ public class RawWebSocket : IDisposable
         await sslStream.WriteAsync(reqBytes.AsMemory(), cancellationToken);
         await sslStream.FlushAsync(cancellationToken);
 
-        var reader = new StreamReader(sslStream, Encoding.UTF8);
-        var responseLines = new System.Collections.Generic.List<string>();
-        while (true)
-        {
-            string? line = await reader.ReadLineAsync(cancellationToken);
-            if (string.IsNullOrEmpty(line))
-                break;
-            responseLines.Add(line.Trim());
-        }
+        var responseLines = await ReadHttpResponseHeadersAsync(sslStream, cancellationToken);
 
         if (responseLines.Count == 0)
         {
@@ -114,9 +106,53 @@ public class RawWebSocket : IDisposable
         throw new WsHandshakeException(statusCode, firstLine, headers, location);
     }
 
+    private static async Task<System.Collections.Generic.List<string>> ReadHttpResponseHeadersAsync(SslStream sslStream, CancellationToken cancellationToken)
+    {
+        var lines = new System.Collections.Generic.List<string>();
+        var lineBuffer = new System.Collections.Generic.List<byte>(128);
+        byte[] oneByte = new byte[1];
+
+        while (true)
+        {
+            int read = await sslStream.ReadAsync(oneByte.AsMemory(0, 1), cancellationToken);
+            if (read == 0) break;
+
+            byte b = oneByte[0];
+            if (b == (byte)'\n')
+            {
+                int count = lineBuffer.Count;
+                if (count > 0 && lineBuffer[count - 1] == (byte)'\r')
+                {
+                    lineBuffer.RemoveAt(count - 1);
+                }
+                string line = Encoding.UTF8.GetString(lineBuffer.ToArray());
+                lineBuffer.Clear();
+
+                if (line.Length == 0)
+                {
+                    break; // End of HTTP headers (\r\n\r\n)
+                }
+                lines.Add(line);
+            }
+            else
+            {
+                lineBuffer.Add(b);
+            }
+        }
+        return lines;
+    }
+
     private static bool ValidateServerCertificate(object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslPolicyErrors)
     {
         return true;
+    }
+
+    public async Task SendPingAsync(CancellationToken cancellationToken = default)
+    {
+        if (IsClosed) throw new Exception("WebSocket is closed.");
+        byte[] frame = BuildFrame(OP_PING, Array.Empty<byte>(), mask: true);
+        await _sslStream.WriteAsync(frame.AsMemory(), cancellationToken);
+        await _sslStream.FlushAsync(cancellationToken);
     }
 
     public async Task SendAsync(byte[] data, CancellationToken cancellationToken = default)

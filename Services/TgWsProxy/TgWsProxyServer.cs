@@ -89,6 +89,7 @@ public class TgWsProxyServer
         {
             Balancer.Instance.StartRefresh(_logCallback);
         }
+        IpBenchmarkPool.Instance.Start(_logCallback);
 
         // Start listener
         try
@@ -164,6 +165,7 @@ public class TgWsProxyServer
         {
             Balancer.Instance.StopRefresh();
         }
+        IpBenchmarkPool.Instance.Stop();
 
         _wsPool.Reset();
         _cfWorkerPool.Reset();
@@ -275,7 +277,8 @@ public class TgWsProxyServer
             cryptoCtx = BuildCryptoContext(clientDecPrekeyIv, _secretBytes, relayInit);
 
             string dcKey = $"{dc}{(isMedia ? "m" : "")}";
-            string targetIp = _dcRedirects.TryGetValue(dc, out string? ip) ? ip : "";
+            string configuredIp = _dcRedirects.TryGetValue(dc, out string? ip) ? ip : "";
+            string targetIp = IpBenchmarkPool.Instance.GetBestTargetIp(dc, configuredIp);
             bool isAnyCfFallback = _cfProxyEnabled || _cfProxyWorkerDomains.Count > 0;
 
             // Check if WS is blacklisted or destination IP is in cooldown
@@ -323,11 +326,12 @@ public class TgWsProxyServer
             }
             else if (frontingActive)
             {
-                _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> fronting / Host {domains[0]}");
+                string frontingSni = DomainFrontingPool.GetNextFrontingSni();
+                _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> fronting (SNI: {frontingSni}) / Host {domains[0]}");
                 try
                 {
                     using var wsCts = new CancellationTokenSource(TimeSpan.FromSeconds(5.0));
-                    ws = await RawWebSocket.ConnectAsync(targetIp, domains[0], "/apiws", "sprinthost.ru", wsCts.Token);
+                    ws = await RawWebSocket.ConnectAsync(targetIp, domains[0], "/apiws", frontingSni, wsCts.Token);
                 }
                 catch (Exception ex)
                 {
@@ -387,11 +391,12 @@ public class TgWsProxyServer
             // Fronting Fallback if timed out
             if (ws == null && wsTimedOut && !frontingActive)
             {
-                _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> fronting fallback (Host {domains[0]})");
+                string frontingSni = DomainFrontingPool.GetNextFrontingSni();
+                _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> fronting fallback (SNI: {frontingSni}, Host {domains[0]})");
                 try
                 {
                     using var wsCts = new CancellationTokenSource(TimeSpan.FromSeconds(5.0));
-                    ws = await RawWebSocket.ConnectAsync(targetIp, domains[0], "/apiws", "sprinthost.ru", wsCts.Token);
+                    ws = await RawWebSocket.ConnectAsync(targetIp, domains[0], "/apiws", frontingSni, wsCts.Token);
                 }
                 catch (Exception ex)
                 {
@@ -829,15 +834,46 @@ public class TgWsProxyServer
     private async Task BridgeWsReencryptAsync(Stream clientStream, RawWebSocket ws, CryptoContext ctx, MsgSplitter? splitter, string clientLabel, string dcTag, CancellationToken token)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
-        
-        var uploadTask = Task.Run(async () =>
+        long lastActivity = Environment.TickCount64;
+
+        var pingTask = Task.Run(async () =>
         {
-            byte[] buffer = new byte[65536];
             try
             {
                 while (!cts.Token.IsCancellationRequested)
                 {
-                    int read = await clientStream.ReadAsync(buffer.AsMemory(), cts.Token);
+                    await Task.Delay(15000, cts.Token);
+                    if (cts.Token.IsCancellationRequested) break;
+
+                    long idleMs = Environment.TickCount64 - Volatile.Read(ref lastActivity);
+                    if (idleMs >= 15000)
+                    {
+                        try
+                        {
+                            await ws.SendPingAsync(cts.Token);
+                        }
+                        catch
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            catch { }
+            finally
+            {
+                cts.Cancel();
+            }
+        });
+
+        var uploadTask = Task.Run(async () =>
+        {
+            byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(65536);
+            try
+            {
+                while (!cts.Token.IsCancellationRequested)
+                {
+                    int read = await clientStream.ReadAsync(buffer.AsMemory(0, 65536), cts.Token);
                     if (read == 0)
                     {
                         if (splitter != null)
@@ -851,15 +887,15 @@ public class TgWsProxyServer
                         break;
                     }
 
-                    byte[] plain = new byte[read];
-                    ctx.ClientDecrypt.Transform(buffer.AsSpan(0, read), plain);
+                    Volatile.Write(ref lastActivity, Environment.TickCount64);
 
-                    byte[] cipher = new byte[read];
-                    ctx.TgEncrypt.Transform(plain, cipher);
+                    Span<byte> chunkSpan = buffer.AsSpan(0, read);
+                    ctx.ClientDecrypt.Transform(chunkSpan, chunkSpan);
+                    ctx.TgEncrypt.Transform(chunkSpan, chunkSpan);
 
                     if (splitter != null)
                     {
-                        var parts = splitter.Split(cipher);
+                        var parts = splitter.Split(chunkSpan.ToArray());
                         if (parts.Count == 0) continue;
                         if (parts.Count > 1)
                         {
@@ -872,7 +908,7 @@ public class TgWsProxyServer
                     }
                     else
                     {
-                        await ws.SendAsync(cipher, cts.Token);
+                        await ws.SendAsync(chunkSpan.ToArray(), cts.Token);
                     }
                 }
             }
@@ -882,6 +918,7 @@ public class TgWsProxyServer
             }
             finally
             {
+                System.Buffers.ArrayPool<byte>.Shared.Return(buffer);
                 cts.Cancel();
             }
         });
@@ -898,13 +935,13 @@ public class TgWsProxyServer
                         break;
                     }
 
-                    byte[] plain = new byte[data.Length];
-                    ctx.TgDecrypt.Transform(data, plain);
+                    Volatile.Write(ref lastActivity, Environment.TickCount64);
 
-                    byte[] cipher = new byte[data.Length];
-                    ctx.ClientEncrypt.Transform(plain, cipher);
+                    Span<byte> dataSpan = data.AsSpan();
+                    ctx.TgDecrypt.Transform(dataSpan, dataSpan);
+                    ctx.ClientEncrypt.Transform(dataSpan, dataSpan);
 
-                    await clientStream.WriteAsync(cipher.AsMemory(), cts.Token);
+                    await clientStream.WriteAsync(data.AsMemory(), cts.Token);
                     await clientStream.FlushAsync(cts.Token);
                 }
             }
@@ -918,9 +955,9 @@ public class TgWsProxyServer
             }
         });
 
-        await Task.WhenAny(uploadTask, downloadTask);
+        await Task.WhenAny(uploadTask, downloadTask, pingTask);
         cts.Cancel();
-        try { await Task.WhenAll(uploadTask, downloadTask); } catch { }
+        try { await Task.WhenAll(uploadTask, downloadTask, pingTask); } catch { }
     }
 
     private async Task BridgeTcpReencryptAsync(Stream clientStream, Stream remoteStream, CryptoContext ctx, string clientLabel, CancellationToken token)
@@ -929,50 +966,54 @@ public class TgWsProxyServer
 
         var uploadTask = Task.Run(async () =>
         {
-            byte[] buffer = new byte[65536];
+            byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(65536);
             try
             {
                 while (!cts.Token.IsCancellationRequested)
                 {
-                    int read = await clientStream.ReadAsync(buffer.AsMemory(), cts.Token);
+                    int read = await clientStream.ReadAsync(buffer.AsMemory(0, 65536), cts.Token);
                     if (read == 0) break;
 
-                    byte[] plain = new byte[read];
-                    ctx.ClientDecrypt.Transform(buffer.AsSpan(0, read), plain);
+                    Span<byte> chunkSpan = buffer.AsSpan(0, read);
+                    ctx.ClientDecrypt.Transform(chunkSpan, chunkSpan);
+                    ctx.TgEncrypt.Transform(chunkSpan, chunkSpan);
 
-                    byte[] cipher = new byte[read];
-                    ctx.TgEncrypt.Transform(plain, cipher);
-
-                    await remoteStream.WriteAsync(cipher.AsMemory(), cts.Token);
+                    await remoteStream.WriteAsync(buffer.AsMemory(0, read), cts.Token);
                     await remoteStream.FlushAsync(cts.Token);
                 }
             }
-            catch {}
-            finally { cts.Cancel(); }
+            catch { }
+            finally
+            {
+                System.Buffers.ArrayPool<byte>.Shared.Return(buffer);
+                cts.Cancel();
+            }
         });
 
         var downloadTask = Task.Run(async () =>
         {
-            byte[] buffer = new byte[65536];
+            byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(65536);
             try
             {
                 while (!cts.Token.IsCancellationRequested)
                 {
-                    int read = await remoteStream.ReadAsync(buffer.AsMemory(), cts.Token);
+                    int read = await remoteStream.ReadAsync(buffer.AsMemory(0, 65536), cts.Token);
                     if (read == 0) break;
 
-                    byte[] plain = new byte[read];
-                    ctx.TgDecrypt.Transform(buffer.AsSpan(0, read), plain);
+                    Span<byte> chunkSpan = buffer.AsSpan(0, read);
+                    ctx.TgDecrypt.Transform(chunkSpan, chunkSpan);
+                    ctx.ClientEncrypt.Transform(chunkSpan, chunkSpan);
 
-                    byte[] cipher = new byte[read];
-                    ctx.ClientEncrypt.Transform(plain, cipher);
-
-                    await clientStream.WriteAsync(cipher.AsMemory(), cts.Token);
+                    await clientStream.WriteAsync(buffer.AsMemory(0, read), cts.Token);
                     await clientStream.FlushAsync(cts.Token);
                 }
             }
-            catch {}
-            finally { cts.Cancel(); }
+            catch { }
+            finally
+            {
+                System.Buffers.ArrayPool<byte>.Shared.Return(buffer);
+                cts.Cancel();
+            }
         });
 
         await Task.WhenAny(uploadTask, downloadTask);
