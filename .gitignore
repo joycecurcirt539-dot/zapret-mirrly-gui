@@ -8,7 +8,6 @@ bin/
 obj/
 publish/
 release/
-GITIGNORE
 
 # User-specific files
 *.user
@@ -35,3 +34,18 @@ Desktop.ini
 # Zip archives (except Assets/zapret.zip)
 *.zip
 !Assets/zapret.zip
+
+# Extracted zapret runtime directory & temp dev folders
+zapret/
+GITIGNORE/
+*.flag
+*.backup
+*-backup.txt
+*-user.txt
+
+
+# Screenshots & temporary images
+screenshot/
+iconmirrlyzapret.png
+publish_v118/
+release_build/

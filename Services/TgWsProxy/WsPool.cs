@@ -58,6 +58,11 @@ public class WsPool
                 finally
                 {
                     _refilling.TryRemove(key, out _);
+                    var bucket = _idle.GetOrAdd(key, _ => new ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>());
+                    if (bucket.Count < PoolSize)
+                    {
+                        ScheduleRefill(key, targetIp, domains);
+                    }
                 }
             });
         }
@@ -101,7 +106,7 @@ public class WsPool
             try
             {
                 string? sni = isFronting ? "sprinthost.ru" : domain;
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
                 return await RawWebSocket.ConnectAsync(targetIp, domain, "/apiws", sni, cts.Token);
             }
             catch

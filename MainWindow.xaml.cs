@@ -716,17 +716,20 @@ public sealed partial class MainWindow : Window
         var changelog = AppUpdateService.LastCheckResult?.Changelog;
         if (string.IsNullOrWhiteSpace(changelog))
         {
-            changelog = @"### Zapret Mirrly GUI v1.1.7 — Проксирование на телефон (Tailscale + TgWsProxy):
+            changelog = @"### Zapret Mirrly GUI v1.1.8 — Оптимизация Telegram WS Proxy & Система пулов:
 
-• **Проксирование Telegram и всего трафика на мобильный телефон (4G/5G)**:
-  - Интеграция пошагового руководства по созданию персонального узла обхода (Tailscale Exit Node + TgWsProxy + PortProxy).
-  - Весь трафик телефона (YouTube 4K, Discord, сайты) проходит через домашний Zapret.
-  - Telegram на телефоне подключается через WebSocket-маскированный туннель Cloudflare.
+• **Высокопроизводительный движок Telegram WS Proxy**:
+  - 64-битное SIMD-ускоренное шифрование AES-CTR — плавная загрузка 4K видео и медиа без нагрузки на процессор.
+  - Устранен баг с потерей байт при WebSocket Handshake.
+  - Внедрен фоновый Ping Keep-Alive таймер (15 секунд) для поддержания соединений открытыми через провайдерские NAT.
 
-• **Улучшенная навигация и векторный интерфейс**:
-  - В разделе «Инструкция» добавлена отдельная вкладка со всеми ссылками, кнопками и математически прорисованными векторными иконками.
-  - Прямой переход по кнопке «Инструкция» со страницы TgWsProxy на подробное руководство.
-  - Кнопка копирования PowerShell в один клик копирует чистые команды без комментариев.";
+• **Новая система пулов**:
+  - **IP-Benchmark Pool**: фоновый замер пинга по 30+ IP-адресам Telegram и Cloudflare с авто-выбором быстрейшего IP.
+  - **Smart Failover Pool**: мгновенный переход на резервный канал при блокировках ТСПУ.
+  - **Domain Fronting Pool**: ротация SNI-заголовков для скрытия Telegram-пакетов.
+
+• **Поддержка автора и экосистема Mirrly**:
+  - Добавлена новая панель Mirrly TG Proxy (Android) во вкладке поддержки автора.";
         }
 
         ShowVersionModal(

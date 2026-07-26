@@ -454,8 +454,33 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Mirrly Builder -->
+                            <!-- Mirrly TG Proxy (Android) -->
                             <Border Grid.Column="2" Grid.Row="0" Style="{StaticResource GlassCardStyle}" Padding="16">
+                                <StackPanel Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <Border Width="36" Height="36" CornerRadius="10" Background="#1C6B9FCC" BorderBrush="#656B9FCC" BorderThickness="1.5">
+                                            <!-- Mirrly TG Proxy: Telegram самолёт + волны -->
+                                            <Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="24">
+                                                    <Path Data="M2 12 L22 4 L15 20 L11 14 Z" Stroke="#6B9FCC" StrokeThickness="1.6" Fill="#1C6B9FCC" StrokeLineJoin="Round" />
+                                                    <Line X1="11" Y1="14" X2="15" Y2="10" Stroke="#6B9FCC" StrokeThickness="1.4" />
+                                                    <Path Data="M16 18 Q17.5 16.5 16 15" Stroke="#6B9FCC" StrokeThickness="1.3" Fill="Transparent" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.8" />
+                                                </Canvas>
+                                            </Viewbox>
+                                        </Border>
+                                        <StackPanel Spacing="1" VerticalAlignment="Center">
+                                            <TextBlock Text="Mirrly TG Proxy" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
+                                            <TextBlock Text="Мобильный прокси · Android (Rust)" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.5" FontSize="10" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <TextBlock Text="Нативный MTProto/WS прокси на Rust для Android. Высокая скорость медиа/видео, подпитка пула сокетов и пинг-таймеры."
+                                               Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.7" TextWrapping="Wrap" />
+                                    <HyperlinkButton Content="GitHub" NavigateUri="https://github.com/joycecurcirt539-dot/Mirrly-TG-Proxy" Padding="0" />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Mirrly Builder -->
+                            <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="16">
                                 <StackPanel Spacing="8">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
                                         <Border Width="36" Height="36" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
@@ -482,7 +507,7 @@
                             </Border>
 
                             <!-- Zapret Mirrly GUI -->
-                            <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="16">
+                            <Border Grid.Column="1" Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="16">
                                 <StackPanel Spacing="8">
                                     <StackPanel Orientation="Horizontal" Spacing="10">
                                         <Border Width="36" Height="36" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
@@ -511,15 +536,15 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Author card (spans 2 columns) -->
-                            <Border Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource GlassCardStyle}" Padding="16">
+                            <!-- Author card (spans 1 column) -->
+                            <Border Grid.Column="2" Grid.Row="1" Style="{StaticResource GlassCardStyle}" Padding="16">
                                 <Grid ColumnSpacing="14">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Border Width="36" Height="36" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
-                                        <!-- Автор: силуэт человека + код-скобки -->
+                                        <!-- Автор: силуэт человека -->
                                         <Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Canvas Width="24" Height="24">
                                                 <Ellipse Canvas.Left="8" Canvas.Top="2" Width="8" Height="8"
@@ -531,9 +556,8 @@
                                         </Viewbox>
                                     </Border>
                                     <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
-                                        <TextBlock Text="Разработчик экосистемы" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
-                                        <TextBlock Text="joycecurcirt539-dot — автор Mirrly, Mirrly Companion, Mirrly Builder, Zapret Mirrly GUI"
-                                                   Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.7" TextWrapping="Wrap" />
+                                        <TextBlock Text="Разработчик" Style="{StaticResource MirrlyTextMediumStyle}" FontWeight="SemiBold" />
+                                        <TextBlock Text="joycecurcirt539-dot" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.7" TextWrapping="Wrap" />
                                         <StackPanel Orientation="Horizontal" Spacing="14">
                                             <HyperlinkButton Content="GitHub" NavigateUri="https://github.com/joycecurcirt539-dot" Padding="0" />
                                             <HyperlinkButton Content="Telegram" NavigateUri="https://t.me/WhyOKyHb" Padding="0" />
