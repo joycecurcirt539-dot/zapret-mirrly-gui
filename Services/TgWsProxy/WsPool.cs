@@ -14,6 +14,7 @@ public class WsPool
     private readonly ConcurrentDictionary<(int Dc, bool IsMedia), bool> _refilling = new();
     private readonly ConcurrentDictionary<(int Dc, bool IsMedia), DateTime> _failCooldown = new();
     private readonly Action<string> _logCallback;
+    private CancellationTokenSource _poolCts = new();
 
     public DateTime FrontingUntil { get; set; } = DateTime.MinValue;
     public int PoolSize { get; set; } = 4;
@@ -23,8 +24,10 @@ public class WsPool
         _logCallback = logCallback;
     }
 
-    public async Task<RawWebSocket?> GetAsync(int dc, bool isMedia, string targetIp, List<string> domains)
+    public async Task<RawWebSocket?> GetAsync(int dc, bool isMedia, string targetIp, List<string> domains, CancellationToken token = default)
     {
+        if (_poolCts.IsCancellationRequested) return null;
+
         var key = (dc, isMedia);
         var bucket = _idle.GetOrAdd(key, _ => new ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>());
         
@@ -37,7 +40,10 @@ public class WsPool
                 continue;
             }
 
-            _logCallback($"[WsPool] Pool hit for DC{dc}{(isMedia ? "m" : "")} (age={age:F1}s, left={bucket.Count})");
+            if (!_poolCts.IsCancellationRequested)
+            {
+                _logCallback($"[WsPool] Pool hit for DC{dc}{(isMedia ? "m" : "")} (age={age:F1}s, left={bucket.Count})");
+            }
             ScheduleRefill(key, targetIp, domains);
             return item.Ws;
         }
@@ -48,6 +54,8 @@ public class WsPool
 
     private void ScheduleRefill((int Dc, bool IsMedia) key, string targetIp, List<string> domains)
     {
+        if (_poolCts.IsCancellationRequested) return;
+
         if (_failCooldown.TryGetValue(key, out var cooldownUntil) && DateTime.UtcNow < cooldownUntil)
         {
             return;
@@ -55,22 +63,30 @@ public class WsPool
 
         if (_refilling.TryAdd(key, true))
         {
+            var token = _poolCts.Token;
             Task.Run(async () =>
             {
                 try
                 {
-                    await RefillAsync(key, targetIp, domains);
+                    if (!token.IsCancellationRequested)
+                    {
+                        await RefillAsync(key, targetIp, domains, token);
+                    }
                 }
+                catch (OperationCanceledException) { }
+                catch { }
                 finally
                 {
                     _refilling.TryRemove(key, out _);
                 }
-            });
+            }, token);
         }
     }
 
-    private async Task RefillAsync((int Dc, bool IsMedia) key, string targetIp, List<string> domains)
+    private async Task RefillAsync((int Dc, bool IsMedia) key, string targetIp, List<string> domains, CancellationToken token)
     {
+        if (token.IsCancellationRequested) return;
+
         var bucket = _idle.GetOrAdd(key, _ => new ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>());
         int targetPool = key.IsMedia ? Math.Max(PoolSize, 6) : PoolSize;
         int needed = targetPool - bucket.Count;
@@ -81,10 +97,19 @@ public class WsPool
         bool isFronting = DateTime.UtcNow < FrontingUntil;
         for (int i = 0; i < needed; i++)
         {
-            tasks.Add(ConnectOneAsync(targetIp, domains, isFronting));
+            tasks.Add(ConnectOneAsync(targetIp, domains, isFronting, token));
         }
 
         var results = await Task.WhenAll(tasks);
+        if (token.IsCancellationRequested)
+        {
+            foreach (var ws in results)
+            {
+                if (ws != null) _ = QuietCloseAsync(ws);
+            }
+            return;
+        }
+
         int added = 0;
         foreach (var ws in results)
         {
@@ -95,26 +120,28 @@ public class WsPool
             }
         }
 
-        if (added > 0)
+        if (added > 0 && !token.IsCancellationRequested)
         {
             _failCooldown.TryRemove(key, out _);
             _logCallback($"[WsPool] Refilled DC{key.Dc}{(key.IsMedia ? "m" : "")}: {bucket.Count} ready.");
         }
-        else if (needed > 0)
+        else if (needed > 0 && !token.IsCancellationRequested)
         {
             _failCooldown[key] = DateTime.UtcNow.AddSeconds(20);
         }
     }
 
-    private async Task<RawWebSocket?> ConnectOneAsync(string targetIp, List<string> domains, bool isFronting)
+    private async Task<RawWebSocket?> ConnectOneAsync(string targetIp, List<string> domains, bool isFronting, CancellationToken token)
     {
         foreach (var domain in domains)
         {
+            if (token.IsCancellationRequested) break;
             try
             {
                 string? sni = isFronting ? "sprinthost.ru" : domain;
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                return await RawWebSocket.ConnectAsync(targetIp, domain, "/apiws", sni, cts.Token);
+                using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, cts.Token);
+                return await RawWebSocket.ConnectAsync(targetIp, domain, "/apiws", sni, linked.Token);
             }
             catch
             {
@@ -132,10 +159,14 @@ public class WsPool
         catch { }
     }
 
-    public void Warmup(Dictionary<int, string> dcRedirects, bool forceTestDc)
+    public void Warmup(Dictionary<int, string> dcRedirects, CancellationToken token = default)
     {
+        if (token.IsCancellationRequested) return;
+
         foreach (var pair in dcRedirects)
         {
+            if (token.IsCancellationRequested) break;
+
             int dc = pair.Key;
             string configuredIp = pair.Value;
             string targetIp = IpBenchmarkPool.Instance.GetBestTargetIp(dc, configuredIp, true);
@@ -143,6 +174,7 @@ public class WsPool
 
             foreach (bool isMedia in new[] { false, true })
             {
+                if (token.IsCancellationRequested) break;
                 var domains = GetWsDomains(dc, isMedia);
                 ScheduleRefill((dc, isMedia), targetIp, domains);
             }
@@ -151,6 +183,14 @@ public class WsPool
 
     public void Reset()
     {
+        try
+        {
+            _poolCts.Cancel();
+            _poolCts.Dispose();
+        }
+        catch { }
+        _poolCts = new CancellationTokenSource();
+
         foreach (var bucket in _idle.Values)
         {
             while (bucket.TryDequeue(out var item))
@@ -182,156 +222,5 @@ public class WsPool
             return new List<string> { $"kws{dc}-1.web.telegram.org", $"kws{dc}.web.telegram.org", dcNamed };
         }
         return new List<string> { $"kws{dc}.web.telegram.org", $"kws{dc}-1.web.telegram.org", dcNamed };
-    }
-}
-
-public class CfWorkerPool
-{
-    private const double WS_POOL_MAX_AGE = 100.0;
-    private readonly ConcurrentDictionary<(int Dc, string WorkerDomain), ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>> _idle = new();
-    private readonly ConcurrentDictionary<(int Dc, string WorkerDomain), bool> _refilling = new();
-    private readonly ConcurrentDictionary<(int Dc, string WorkerDomain), DateTime> _failCooldown = new();
-    private readonly Action<string> _logCallback;
-
-    public int PoolSize { get; set; } = 4;
-
-    public CfWorkerPool(Action<string> logCallback)
-    {
-        _logCallback = logCallback;
-    }
-
-    public async Task<RawWebSocket?> GetAsync(int dc, string workerDomain, string fallbackDst)
-    {
-        var key = (dc, workerDomain);
-        var bucket = _idle.GetOrAdd(key, _ => new ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>());
-
-        while (bucket.TryDequeue(out var item))
-        {
-            double age = (DateTime.UtcNow - item.Created).TotalSeconds;
-            if (age > WS_POOL_MAX_AGE || item.Ws.IsClosed)
-            {
-                _ = QuietCloseAsync(item.Ws);
-                continue;
-            }
-
-            _logCallback($"[CfWorkerPool] Pool hit for DC{dc} via worker {workerDomain} (age={age:F1}s, left={bucket.Count})");
-            ScheduleRefill(key, fallbackDst);
-            return item.Ws;
-        }
-
-        ScheduleRefill(key, fallbackDst);
-        return null;
-    }
-
-    private void ScheduleRefill((int Dc, string WorkerDomain) key, string fallbackDst)
-    {
-        if (_failCooldown.TryGetValue(key, out var cooldownUntil) && DateTime.UtcNow < cooldownUntil)
-        {
-            return;
-        }
-
-        if (_refilling.TryAdd(key, true))
-        {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await RefillAsync(key, fallbackDst);
-                }
-                finally
-                {
-                    _refilling.TryRemove(key, out _);
-                }
-            });
-        }
-    }
-
-    private async Task RefillAsync((int Dc, string WorkerDomain) key, string fallbackDst)
-    {
-        var bucket = _idle.GetOrAdd(key, _ => new ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>());
-        int needed = PoolSize - bucket.Count;
-        if (needed <= 0)
-            return;
-
-        var tasks = new List<Task<RawWebSocket?>>();
-        for (int i = 0; i < needed; i++)
-        {
-            tasks.Add(ConnectOneAsync(key.WorkerDomain, fallbackDst, key.Dc));
-        }
-
-        var results = await Task.WhenAll(tasks);
-        int added = 0;
-        foreach (var ws in results)
-        {
-            if (ws != null)
-            {
-                bucket.Enqueue((ws, DateTime.UtcNow));
-                added++;
-            }
-        }
-
-        if (added > 0)
-        {
-            _failCooldown.TryRemove(key, out _);
-            _logCallback($"[CfWorkerPool] Refilled DC{key.Dc} via {key.WorkerDomain}: {bucket.Count} ready.");
-        }
-        else if (needed > 0)
-        {
-            _failCooldown[key] = DateTime.UtcNow.AddSeconds(20);
-        }
-    }
-
-    private static async Task<RawWebSocket?> ConnectOneAsync(string workerDomain, string fallbackDst, int dc)
-    {
-        string path = $"/apiws?dst={Uri.EscapeDataString(fallbackDst)}&dc={dc}";
-        try
-        {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-            return await RawWebSocket.ConnectAsync(workerDomain, workerDomain, path, null, cts.Token);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    private static async Task QuietCloseAsync(RawWebSocket ws)
-    {
-        try
-        {
-            await ws.CloseAsync();
-        }
-        catch { }
-    }
-
-    public void Warmup(List<string> workerDomains, Dictionary<int, string> dcRedirects)
-    {
-        var cfFallbacks = Constants.DC_DEFAULT_IPS
-            .Where(pair => !dcRedirects.ContainsKey(pair.Key))
-            .ToDictionary(pair => pair.Key, pair => pair.Value);
-
-        if (cfFallbacks.Count == 0 || workerDomains.Count == 0) return;
-
-        foreach (string workerDomain in workerDomains)
-        {
-            foreach (var pair in cfFallbacks)
-            {
-                ScheduleRefill((pair.Key, workerDomain), pair.Value);
-            }
-        }
-    }
-
-    public void Reset()
-    {
-        foreach (var bucket in _idle.Values)
-        {
-            while (bucket.TryDequeue(out var item))
-            {
-                _ = QuietCloseAsync(item.Ws);
-            }
-        }
-        _idle.Clear();
-        _refilling.Clear();
-        _failCooldown.Clear();
     }
 }

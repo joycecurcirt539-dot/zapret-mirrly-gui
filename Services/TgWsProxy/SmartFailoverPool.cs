@@ -6,10 +6,7 @@ namespace ZapretMirrlyGUI.Services.TgWsProxy;
 public enum ProxyStrategy
 {
     DirectWs,
-    Fronting,
-    CfWorker,
-    CfProxy,
-    TcpFallback
+    Fronting
 }
 
 public class SmartFailoverPool

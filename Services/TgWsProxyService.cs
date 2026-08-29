@@ -79,10 +79,14 @@ public static class TgWsProxyService
     {
         if (_server != null)
         {
+            var serverToStop = _server;
+            _server = null;
+            OnStatusChanged?.Invoke(false);
+
             try
             {
                 Log("[TG_SERVICE] Остановка TgWsProxy...");
-                _server.Stop();
+                serverToStop.Stop();
             }
             catch (Exception ex)
             {
@@ -90,8 +94,6 @@ public static class TgWsProxyService
             }
             finally
             {
-                _server = null;
-                OnStatusChanged?.Invoke(false);
                 Log("[TG_SERVICE] Процесс TgWsProxy остановлен.");
             }
         }
@@ -119,6 +121,11 @@ public static class TgWsProxyService
 
     private static void Log(string message)
     {
+        if (!IsRunning && !message.StartsWith("[TG_SERVICE]"))
+        {
+            return;
+        }
+
         var formatted = $"{DateTime.Now:HH:mm:ss} {message}";
         lock (_logHistory)
         {
