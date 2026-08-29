@@ -27,4 +27,4 @@
 
 | Файл | Контрольная сумма SHA-256 |
 | :--- | :--- |
-| `ZapretMirrlyGUI.exe` | `e76ed6bd58ffcf58dddc70ae5cbcdeb28eee3882fa44c5c7778fe899e4fea4b7` |
+| `ZapretMirrlyGUI.exe` | `79c8a982eeb4469dd06b12b065038aa1c19c16d8ca8492f9d575357747b2ecdd` |
