@@ -98,7 +98,7 @@ public static class AssetsExtractor
             Directory.CreateDirectory(assetsDir);
         }
 
-        string[] assets = { "AppIcon.ico", "SidebarLogoNav.png", "dalink-qr-code.png" };
+        string[] assets = { "AppIcon.ico", "SidebarLogoNav.png", "dalink-qr-code.png", "tg-proxy-logo.png" };
         foreach (var asset in assets)
         {
             string destPath = Path.Combine(assetsDir, asset);

@@ -52,7 +52,7 @@
 8. [Быстрый старт и установка](#7-быстрый-старт-и-установка)
 9. [Конфигурация и параметры](#8-конфигурация-и-параметры)
 10. [Создание и настройка личного Cloudflare Worker](#9-создание-и-настройка-личного-cloudflare-worker)
-11. [Проксирование на телефон через Tailscale](#10-проксирование-на-телефон-через-tailscale)
+11. [Мобильное приложение Mirrly TG Proxy для Android](#10-мобильное-приложение-mirrly-tg-proxy-для-android)
 12. [Структура проекта и сборка из исходного кода](#11-структура-проекта-и-сборка-из-исходного-кода)
 13. [Сравнение с альтернативами](#12-сравнение-с-альтернативами)
 14. [График активности разработки](#13-график-активности-разработки)
@@ -325,30 +325,26 @@ flowchart TD
 
 ---
 
-## 10. Проксирование на телефон через Tailscale
+## 10. Мобильное приложение Mirrly TG Proxy для Android
 
-Вы можете превратить ваш домашний ПК в персональный шлюз и раздавать обход на смартфон (iOS / Android) без сторонних VPN:
+Для пользователей мобильных устройств на Android разработано отдельное нативное приложение **[Mirrly TG Proxy](https://github.com/joycecurcirt539-dot/Mirrly-TG-Proxy)**. Больше не нужно настраивать сложные связки с Tailscale и держать домашний ПК включенным!
 
 ```mermaid
 flowchart LR
-    Phone["Смартфон (4G/5G/Wi-Fi)<br/>Tailscale App"] -->|Защищенный туннель| HomePC["Домашний ПК (Zapret Mirrly GUI)<br/>Tailscale Exit Node + TgWsProxy"]
-    HomePC -->|Обычный трафик (YouTube 4K / Discord)| WinDivert["DPI Bypass (winws)"]
-    HomePC -->|Трафик Telegram (MTProto)| CFWorker["Cloudflare Anycast CDN"]
+    TGApp["Telegram (Android)<br/>Официальный / AyuGram / Plus"] -->|Локальный сокет (127.0.0.1:1443 / 10808)| Engine["mirrlyengine (Rust Core)<br/>Tokio / Zero-Copy / FakeTLS"]
+    Engine -->|WSS TLS 1.3 / cloudflare:sockets| CFEdge["Cloudflare Anycast CDN (300+ DC)"]
+    CFEdge -->|Защищенный TCP| TGServers["Серверы Telegram (DC1-DC5)"]
 ```
 
-### Пошаговая инструкция:
+### Ключевые особенности Mirrly TG Proxy:
+* **100% Rust Core (`mirrlyengine`)**: Высочайшая скорость, epoll, Zero-Copy буферизация, отсутствие пауз JVM Garbage Collector.
+* **Без системного VPN**: Работает как локальный шлюз `127.0.0.1`, не расходует батарею глобальным туннелем и не перехватывает трафик других приложений.
+* **2 протокола**: MTProto (1443, FakeTLS `ee`/`dd`, Anycast CDN Flowseal) для чатов и 4K медиа + SOCKS5 (10808) для HD-звонков через Cloudflare Worker.
+* **Интеллектуальный стек**: DoH Race Resolver (1.1.1.1/8.8.8.8/9.9.9.9), ступенчатый балансировщик Happy Eyeballs v2 (RFC 8305), Circuit Breaker и Battery/Thermal QoS.
+* **Безопасность**: Нативная проверка цифровой подписи (C++ NDK `SignatureVerifier`), Fail-Closed архитектура, 100% Open Source (GPLv3), No Logs.
 
-1. **На ПК:** Включите **Zapret Mirrly GUI** и запустите **TgWsProxy** на порту `1080`.
-2. **Tailscale:** Установите [Tailscale](https://tailscale.com) на ПК и телефон, авторизуйтесь под одним аккаунтом.
-3. **Exit Node на ПК:** В трее Tailscale на ПК выберите `Exit Node` ➔ `Run as exit node...`, и подтвердите маршрут в [Tailscale Admin Console](https://login.tailscale.com/admin/machines).
-4. **Проброс портов (PowerShell от имени Администратора):**
-   ```powershell
-   Set-NetIPInterface -Forwarding Enabled
-   reg add HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters /v IPEnableRouter /t REG_DWORD /d 1 /f
-   netsh interface portproxy add v4tov4 listenport=1443 listenaddress=0.0.0.0 connectport=1080 connectaddress=127.0.0.1
-   New-NetFirewallRule -DisplayName "TgWsProxy Tailscale 1443" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 1443
-   ```
-5. **На телефоне:** Включите Tailscale ➔ выберите домашний ПК в качестве `Exit Node`. В настройках прокси Telegram укажите `IP ПК в Tailscale (100.x.y.z)`, порт `1443` и скопированный из GUI секрет.
+📦 **[Скачать APK со страницы релизов](https://github.com/joycecurcirt539-dot/Mirrly-TG-Proxy/releases)**  
+⭐ **[Исходный код репозитория на GitHub](https://github.com/joycecurcirt539-dot/Mirrly-TG-Proxy)**
 
 ---
 

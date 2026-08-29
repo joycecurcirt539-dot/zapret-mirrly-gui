@@ -1,7 +1,10 @@
 using System;
+using System.IO;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
+using ZapretMirrlyGUI.Services;
 
 namespace ZapretMirrlyGUI.Pages;
 
@@ -11,6 +14,18 @@ public sealed partial class GuidePage : Page
     {
         InitializeComponent();
         Loaded += GuidePage_Loaded;
+
+        // Load TG Proxy Android Logo
+        var assetsPath = AssetsExtractor.GetAssetsPath();
+        var logoPath = Path.Combine(assetsPath, "tg-proxy-logo.png");
+        if (!File.Exists(logoPath))
+        {
+            logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "tg-proxy-logo.png");
+        }
+        if (File.Exists(logoPath))
+        {
+            TgProxyLogoImage.Source = new BitmapImage(new Uri(logoPath));
+        }
     }
 
     private bool _isFirstLoad = true;
@@ -20,11 +35,15 @@ public sealed partial class GuidePage : Page
         if (_isFirstLoad)
         {
             _isFirstLoad = false;
-            Services.AnimationHelper.AnimateElementEntrance(GuideHeaderPanel, 0, -30, 1.0, 200, 0);
-            Services.AnimationHelper.AnimateElementEntrance(GuideCol1, -40, 40, 0.95, 260, 40);
-            Services.AnimationHelper.AnimateElementEntrance(GuideCol2, 0, 50, 0.95, 260, 85);
-            Services.AnimationHelper.AnimateElementEntrance(GuideCol3, 40, 40, 0.95, 260, 130);
-            Services.AnimationHelper.AnimateElementEntrance(MobileGuideHeaderPanel, 0, -30, 1.0, 200, 0);
+            AnimationHelper.AnimateElementEntrance(GuideHeaderPanel, 0, -30, 1.0, 200, 0);
+            AnimationHelper.AnimateElementEntrance(GuideCol1, -40, 40, 0.95, 260, 40);
+            AnimationHelper.AnimateElementEntrance(GuideCol2, 0, 50, 0.95, 260, 85);
+            AnimationHelper.AnimateElementEntrance(GuideCol3, 40, 40, 0.95, 260, 130);
+
+            // Tab 2 Elements Animation
+            AnimationHelper.AnimateElementEntrance(TgProxyHeaderPanel, 0, -30, 1.0, 200, 0);
+            AnimationHelper.AnimateElementEntrance(TgProxyCol1, -40, 40, 0.95, 260, 40);
+            AnimationHelper.AnimateElementEntrance(TgProxyCol2, 40, 40, 0.95, 260, 90);
         }
     }
 
@@ -45,6 +64,9 @@ public sealed partial class GuidePage : Page
         }
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // Tab 1: Safety & General Help Handlers
+    // ─────────────────────────────────────────────────────────────
     private void OpenOriginalZapretGithub_Click(object sender, RoutedEventArgs e)
     {
         OpenUrl("https://github.com/bol-van/zapret");
@@ -70,29 +92,32 @@ public sealed partial class GuidePage : Page
         OpenUrl("https://github.com/joycecurcirt539-dot/Zapret-Mirrly-GUI");
     }
 
-    private void OpenTailscaleDownload_Click(object sender, RoutedEventArgs e)
+    // ─────────────────────────────────────────────────────────────
+    // Tab 2: Mirrly TG Proxy (Android) Handlers
+    // ─────────────────────────────────────────────────────────────
+    private void OpenTgProxyReleases_Click(object sender, RoutedEventArgs e)
     {
-        OpenUrl("https://tailscale.com/download/windows");
+        OpenUrl("https://github.com/joycecurcirt539-dot/Mirrly-TG-Proxy/releases");
     }
 
-    private void OpenTailscaleAdmin_Click(object sender, RoutedEventArgs e)
+    private void OpenTgProxyGithub_Click(object sender, RoutedEventArgs e)
     {
-        OpenUrl("https://login.tailscale.com/admin/machines");
+        OpenUrl("https://github.com/joycecurcirt539-dot/Mirrly-TG-Proxy");
     }
 
-    private void Open2Ip_Click(object sender, RoutedEventArgs e)
+    private void OpenTgProxyTelegram_Click(object sender, RoutedEventArgs e)
     {
-        OpenUrl("https://2ip.ru");
+        OpenUrl("https://t.me/WhyOkyHb");
     }
 
-    private void CopyPowerShellScript_Click(object sender, RoutedEventArgs e)
+    private void CopyDeployWorkerScript_Click(object sender, RoutedEventArgs e)
     {
-        var psCommand = PowerShellScriptBox.Text;
+        var psCommand = "irm https://raw.githubusercontent.com/joycecurcirt539-dot/Mirrly-TG-Proxy/main/tools/deploy-worker/deploy.ps1 | iex";
         var package = new Windows.ApplicationModel.DataTransfer.DataPackage();
         package.SetText(psCommand);
         Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(package);
 
-        OverlayNotificationWindow.ShowToast(true, true, "Скрипт PowerShell скопирован в буфер обмена!");
+        OverlayNotificationWindow.ShowToast(true, true, "Команда деплоя воркера скопирована в буфер!");
     }
 
     private void OpenUrl(string url)

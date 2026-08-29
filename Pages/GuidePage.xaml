@@ -364,8 +364,8 @@
                     </TabViewItem.Content>
                 </TabViewItem>
 
-                <!-- ══════════════════════ TAB 2: MOBILE PROXY GUIDE ══════════════════════ -->
-                <TabViewItem Header="Прокси на телефон (Tailscale + TgWsProxy)" IsClosable="False">
+                <!-- ══════════════════════ TAB 2: MIRRLY TG PROXY (ANDROID) ══════════════════════ -->
+                <TabViewItem Header="Mirrly TG Proxy (Android)" IsClosable="False">
                     <TabViewItem.Content>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <Grid Padding="0,16,0,0">
@@ -374,277 +374,288 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <!-- Header -->
-                                <StackPanel Grid.Row="0" x:Name="MobileGuideHeaderPanel" Spacing="4" Margin="0,0,0,20">
-                                    <TextBlock Text="Руководство: Проксирование Telegram и всего трафика на телефон" Style="{StaticResource PremiumPageTitleStyle}" FontSize="22" Foreground="{ThemeResource TitleTextGradientBrush}" />
-                                    <TextBlock Text="Пошаговая инструкция по превращению ПК в узел разблокировок через Tailscale (Exit Node) + TgWsProxy" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
+                                <!-- ══════════════════════ HEADER ══════════════════════ -->
+                                <StackPanel Grid.Row="0" x:Name="TgProxyHeaderPanel" Spacing="4" Margin="0,0,0,20">
+                                    <TextBlock Text="Mirrly TG Proxy для Android" Style="{StaticResource PremiumPageTitleStyle}" FontSize="24" Foreground="{ThemeResource TitleTextGradientBrush}" />
+                                    <TextBlock Text="Автономный локальный MTProto &amp; SOCKS5 прокси-сервер на нативном движке Rust (mirrlyengine) для работы Telegram без системного VPN" Style="{StaticResource PremiumSubtitleStyle}" FontSize="12" />
                                 </StackPanel>
 
-                                <!-- 2-COLUMN LAYOUT -->
-                                <Grid Grid.Row="1" ColumnSpacing="16">
+                                <!-- ══════════════════════ MAIN 2-COLUMN LAYOUT ══════════════════════ -->
+                                <Grid Grid.Row="1" ColumnSpacing="20">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="340" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- ─────────────── COLUMN 1: Architecture + Step 1 + Step 2 + Step 3 ─────────────── -->
-                                    <StackPanel Grid.Column="0" Spacing="12">
+                                    <!-- ─────────────── LEFT COLUMN: App Hero Card + Links + Quick Start ─────────────── -->
+                                    <StackPanel Grid.Column="0" x:Name="TgProxyCol1" Spacing="14">
 
-                                        <!-- Card: Architecture -->
-                                        <Border Style="{StaticResource GlassCardStyle}">
-                                            <StackPanel Spacing="12">
-                                                <StackPanel Orientation="Horizontal" Spacing="12">
-                                                    <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
-                                                        <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                            <Canvas Width="24" Height="24">
-                                                                <!-- Иконка лампочки / идеи -->
-                                                                <Path Data="M12 2 C8.14 2 5 5.14 5 9 C5 11.38 6.19 13.47 8 14.74 V17 C8 17.55 8.45 18 9 18 H15 C15.55 18 16 17.55 16 17 V14.74 C17.81 13.47 19 11.38 19 9 C19 5.14 15.86 2 12 2 Z M9 21 C9 21.55 9.45 22 10 22 H14 C14.55 22 15 21.55 15 21 V20 H9 V21 Z"
-                                                                      Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" Fill="Transparent" StrokeLineJoin="Round"/>
-                                                            </Canvas>
-                                                        </Viewbox>
-                                                    </Border>
-                                                    <TextBlock Text="Как это работает (Архитектура)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
-                                                </StackPanel>
-                                                <StackPanel Spacing="8">
-                                                    <Grid ColumnDefinitions="26,*" ColumnSpacing="8">
-                                                        <Border Grid.Column="0" Width="20" Height="20" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,2,0,0">
-                                                            <TextBlock Text="1" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                        </Border>
-                                                        <TextBlock Grid.Column="1" Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap">
-                                                            <Run FontWeight="SemiBold">Tailscale (Exit Node):</Run> Создает защищенный виртуальный туннель между телефоном и ПК. Весь обычный трафик телефона (YouTube 4K, Discord, сайты) проходит через домашний Запрет.
-                                                        </TextBlock>
-                                                    </Grid>
-                                                    <Grid ColumnDefinitions="26,*" ColumnSpacing="8">
-                                                        <Border Grid.Column="0" Width="20" Height="20" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,2,0,0">
-                                                            <TextBlock Text="2" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                        </Border>
-                                                        <TextBlock Grid.Column="1" Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap">
-                                                            <Run FontWeight="SemiBold">TgWsProxy:</Run> Запущен внутри приложения на <Run FontFamily="Consolas">127.0.0.1:1080</Run> и обходит блокировки ТСПУ (DPI) для Telegram с помощью WebSocket-маскировки Cloudflare.
-                                                        </TextBlock>
-                                                    </Grid>
-                                                    <Grid ColumnDefinitions="26,*" ColumnSpacing="8">
-                                                        <Border Grid.Column="0" Width="20" Height="20" CornerRadius="10" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,2,0,0">
-                                                            <TextBlock Text="3" FontSize="10" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                        </Border>
-                                                        <TextBlock Grid.Column="1" Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap">
-                                                            <Run FontWeight="SemiBold">Windows PortProxy (netsh):</Run> Принимает входящий запрос с телефона на внешнем порту <Run FontFamily="Consolas">1443</Run> и пробрасывает его на <Run FontFamily="Consolas">127.0.0.1:1080</Run>. Предотвращает ошибки сокетов Windows.
-                                                        </TextBlock>
-                                                    </Grid>
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </Border>
+                                        <!-- Card 1: App Showcase Hero -->
+                                        <Border Style="{StaticResource GlassCardStyle}" Padding="20">
+                                            <StackPanel Spacing="14" HorizontalAlignment="Center">
+                                                <!-- App Logo with Glow -->
+                                                <Grid Width="110" Height="110" HorizontalAlignment="Center">
+                                                    <Border Width="110" Height="110" CornerRadius="28" Background="#1800F5D4" BorderBrush="#3500F5D4" BorderThickness="1.5" />
+                                                    <Image x:Name="TgProxyLogoImage" Width="92" Height="92" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Grid>
 
-                                        <!-- Card: Step 1 -->
-                                        <Border Style="{StaticResource GlassCardStyle}">
-                                            <StackPanel Spacing="12">
-                                                <StackPanel Orientation="Horizontal" Spacing="12">
-                                                    <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
-                                                        <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                            <Canvas Width="24" Height="24">
-                                                                <!-- Иконка инструмента / настройки -->
-                                                                <Path Data="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.7 4.7C.6 7.1 1 10.1 3 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.4-.4.4-1.1 0-1.4z"
-                                                                      Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" Fill="Transparent" StrokeLineJoin="Round"/>
-                                                            </Canvas>
-                                                        </Viewbox>
-                                                    </Border>
-                                                    <TextBlock Text="ШАГ 1. Настройка TgWsProxy в ZapretMirrlyGUI" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
+                                                <!-- App Titles & Badges -->
+                                                <StackPanel Spacing="4" HorizontalAlignment="Center">
+                                                    <TextBlock Text="Mirrly TG Proxy" FontSize="19" FontWeight="Bold" Foreground="#F6F2EA" HorizontalAlignment="Center" />
+                                                    <TextBlock Text="Мобильный прокси-шлюз · Android" FontSize="11" Foreground="#A79A83" HorizontalAlignment="Center" Opacity="0.75" />
                                                 </StackPanel>
-                                                <StackPanel Spacing="8">
-                                                    <TextBlock Text="1. Запустите ZapretMirrlyGUI от имени администратора." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                    <TextBlock Text="2. Убедитесь, что основной обход Запрет включен и работает." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                    <TextBlock Text="3. Перейдите на вкладку TgWsProxy:" Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                    <StackPanel Margin="16,0,0,0" Spacing="4">
-                                                        <TextBlock Text="• Хост (IP): 127.0.0.1 (НЕ меняйте на 0.0.0.0, чтобы не было конфликтов)" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
-                                                        <TextBlock Text="• Порт: 1080" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" />
-                                                        <TextBlock Text="• Нажмите «Запустить прокси»" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" />
-                                                        <TextBlock Text="• Скопируйте Секрет (Secret) — он пригодится для Telegram на телефоне." Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" TextWrapping="Wrap" />
+
+                                                <!-- Feature Badges Flow -->
+                                                <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                    <Border Padding="6,2" CornerRadius="6" Background="#1500F5D4" BorderBrush="#3500F5D4" BorderThickness="1">
+                                                        <TextBlock Text="100% Rust" FontSize="9.5" FontWeight="Bold" Foreground="#00F5D4" />
+                                                    </Border>
+                                                    <Border Padding="6,2" CornerRadius="6" Background="#156B9FCC" BorderBrush="#356B9FCC" BorderThickness="1">
+                                                        <TextBlock Text="Без VPN" FontSize="9.5" FontWeight="Bold" Foreground="#6B9FCC" />
+                                                    </Border>
+                                                    <Border Padding="6,2" CornerRadius="6" Background="#15DEA584" BorderBrush="#35DEA584" BorderThickness="1">
+                                                        <TextBlock Text="No Logs" FontSize="9.5" FontWeight="Bold" Foreground="#DEA584" />
+                                                    </Border>
+                                                    <Border Padding="6,2" CornerRadius="6" Background="#153DDC84" BorderBrush="#353DDC84" BorderThickness="1">
+                                                        <TextBlock Text="Android 8+" FontSize="9.5" FontWeight="Bold" Foreground="#3DDC84" />
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <!-- Short Description -->
+                                                <TextBlock Text="Приложение запускает на телефоне автономный локальный шлюз (127.0.0.1:1443 / 10808) на нативном ядре mirrlyengine (Rust/Tokio). Telegram работает на максимальной скорости даже в условиях строгой блокировки DPI со стороны провайдеров."
+                                                           Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" TextAlignment="Center" />
+
+                                                <!-- Primary Action: Download APK -->
+                                                <Button Click="OpenTgProxyReleases_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="40" HorizontalAlignment="Stretch" Margin="0,4,0,0">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                                        <FontIcon Glyph="&#xE896;" FontSize="14" FontWeight="Bold" />
+                                                        <TextBlock Text="Скачать APK (GitHub Releases)" FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
                                                     </StackPanel>
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </Border>
+                                                </Button>
 
-                                        <!-- Card: Step 2 -->
-                                        <Border Style="{StaticResource GlassCardStyle}">
-                                            <StackPanel Spacing="12">
-                                                <StackPanel Orientation="Horizontal" Spacing="12">
-                                                    <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
-                                                        <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                            <Canvas Width="24" Height="24">
-                                                                <!-- Шестеренка -->
-                                                                <Path Data="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41L9.25 5.35c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.73 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.3-.06.63-.06.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.49-.12-.61l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
-                                                                      Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" Fill="Transparent"/>
-                                                            </Canvas>
-                                                        </Viewbox>
-                                                    </Border>
-                                                    <TextBlock Text="ШАГ 2. Настройка Tailscale на ПК (Exit Node)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
-                                                </StackPanel>
-                                                <StackPanel Spacing="8">
-                                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                                        <TextBlock Grid.Column="0" Text="1. Скачайте и установите Tailscale для Windows." Style="{StaticResource MirrlyTextSmallStyle}" VerticalAlignment="Center" TextWrapping="Wrap" />
-                                                        <Button Grid.Column="1" Click="OpenTailscaleDownload_Click" Height="32" Padding="12,0">
-                                                            <TextBlock Text="Скачать Tailscale" FontSize="11" />
-                                                        </Button>
-                                                    </Grid>
-                                                    <TextBlock Text="2. Войдите под своим аккаунтом (Google / Microsoft / GitHub)." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                    <TextBlock Text="3. Включите Выходной Узел на ПК:" Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                    <TextBlock Margin="16,0,0,0" Text="В трее Windows (возле часов) нажмите ПКМ по Tailscale ➔ Exit Node ➔ поставьте галочку 'Run as exit node...'" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
-                                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,4,0,0">
-                                                        <TextBlock Grid.Column="0" Text="4. Подтвердите Exit Node в панели управления:" Style="{StaticResource MirrlyTextSmallStyle}" VerticalAlignment="Center" TextWrapping="Wrap" />
-                                                        <Button Grid.Column="1" Click="OpenTailscaleAdmin_Click" Height="32" Padding="12,0">
-                                                            <TextBlock Text="Админ-панель" FontSize="11" />
-                                                        </Button>
-                                                    </Grid>
-                                                    <TextBlock Margin="16,0,0,0" Text="В панели управления напротив ПК нажмите '...' ➔ Edit route settings... ➔ включите 'Use as exit node' ➔ Save." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </Border>
-
-                                        <!-- Card: Step 3 (PowerShell) -->
-                                        <Border Style="{StaticResource GlassCardStyle}">
-                                            <StackPanel Spacing="12">
-                                                <Grid ColumnDefinitions="*,Auto">
-                                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                                                        <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
-                                                            <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                                <Canvas Width="24" Height="24">
-                                                                    <!-- Молния -->
-                                                                    <Path Data="M7 2v11h3v9l7-12h-4l4-8z"
-                                                                          Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" Fill="Transparent" StrokeLineJoin="Round"/>
-                                                                </Canvas>
-                                                            </Viewbox>
-                                                        </Border>
-                                                        <TextBlock Text="ШАГ 3. Настройка системных служб Windows" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
-                                                    </StackPanel>
-                                                    <Button Grid.Column="1" Click="CopyPowerShellScript_Click" Height="36" Style="{StaticResource PremiumAccentButtonStyle}">
+                                                <!-- Secondary Action Buttons -->
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                                    <Button Grid.Column="0" Click="OpenTgProxyGithub_Click" Height="36" HorizontalAlignment="Stretch">
                                                         <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                                                            <FontIcon Glyph="&#xE8C8;" FontSize="12" />
-                                                            <TextBlock Text="Скопировать скрипт" FontSize="11" FontWeight="Bold" />
+                                                            <FontIcon Glyph="&#xE774;" FontSize="12" />
+                                                            <TextBlock Text="GitHub Репо" FontSize="11" />
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <Button Grid.Column="1" Click="OpenTgProxyTelegram_Click" Height="36" HorizontalAlignment="Stretch">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                            <FontIcon Glyph="&#xE715;" FontSize="12" Foreground="#26A5E4" />
+                                                            <TextBlock Text="Канал @WhyOkyHb" FontSize="11" />
                                                         </StackPanel>
                                                     </Button>
                                                 </Grid>
-                                                <TextBlock Text="Запустите PowerShell от имени администратора и выполните чистые команды (копируются без комментариев):" Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                <Border CornerRadius="8" Background="#14000000" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" Padding="12">
-                                                    <TextBox x:Name="PowerShellScriptBox" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas" FontSize="11.5" Background="Transparent" BorderThickness="0"
-                                                             Text="Set-NetIPInterface -Forwarding Enabled&#10;reg add HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters /v IPEnableRouter /t REG_DWORD /d 1 /f&#10;netsh interface portproxy reset&#10;netsh interface portproxy add v4tov4 listenport=1443 listenaddress=0.0.0.0 connectport=1080 connectaddress=127.0.0.1&#10;New-NetFirewallRule -DisplayName &quot;TgWsProxy Tailscale 1443&quot; -Direction Inbound -Action Allow -Protocol TCP -LocalPort 1443&#10;net stop tailscaled; net start tailscaled" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Card 2: Quick Start 1-2-3 -->
+                                        <Border Style="{StaticResource GlassCardStyle}" Padding="18">
+                                            <StackPanel Spacing="10">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE897;" FontSize="13" Foreground="{ThemeResource BrandElectricBrush}" VerticalAlignment="Center" />
+                                                    <TextBlock Text="Быстрый старт за 30 секунд" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                                </StackPanel>
+
+                                                <StackPanel Spacing="8">
+                                                    <Grid ColumnDefinitions="22,*" ColumnSpacing="8">
+                                                        <Border Grid.Column="0" Width="18" Height="18" CornerRadius="9" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                                            <TextBlock Text="1" FontSize="9.5" FontWeight="Bold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1" Text="Скачайте и установите APK на смартфон (Universal или ARM64)." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
+                                                    </Grid>
+                                                    <Grid ColumnDefinitions="22,*" ColumnSpacing="8">
+                                                        <Border Grid.Column="0" Width="18" Height="18" CornerRadius="9" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                                            <TextBlock Text="2" FontSize="9.5" FontWeight="Bold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1" Text="Запустите приложение и нажмите центральную кнопку включения." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
+                                                    </Grid>
+                                                    <Grid ColumnDefinitions="22,*" ColumnSpacing="8">
+                                                        <Border Grid.Column="0" Width="18" Height="18" CornerRadius="9" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0">
+                                                            <TextBlock Text="3" FontSize="9.5" FontWeight="Bold" Foreground="{ThemeResource BrandElectricBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1" Text="Нажмите «В Telegram» — прокси подключится автоматически!" Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" Foreground="{ThemeResource BrandElectricBrush}" TextWrapping="Wrap" />
+                                                    </Grid>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Card 3: Supported Clients -->
+                                        <Border Style="{StaticResource GlassCardStyle}" Padding="18">
+                                            <StackPanel Spacing="10">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE709;" FontSize="13" Foreground="#26A5E4" VerticalAlignment="Center" />
+                                                    <TextBlock Text="Поддерживаемые клиенты" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                                </StackPanel>
+                                                <TextBlock Text="Официальный Telegram, Telegram X, AyuGram, NekoGram, ExteraGram, Plus Messenger, Cherrygram, Nicegram, iMe Messenger и др." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.8" TextWrapping="Wrap" />
+                                                <Border CornerRadius="6" Padding="8,6" Background="#1026A5E4">
+                                                    <TextBlock Text="Подключение в 1 клик через встроенный скан установленных приложений." FontSize="10.5" Foreground="#6B9FCC" TextWrapping="Wrap" />
                                                 </Border>
                                             </StackPanel>
                                         </Border>
 
                                     </StackPanel>
 
-                                    <!-- ─────────────── COLUMN 2: Step 4 + Step 5 + Troubleshooting ─────────────── -->
-                                    <StackPanel Grid.Column="1" Spacing="12">
+                                    <!-- ─────────────── RIGHT COLUMN: Architecture, Features, Cloudflare, Comparison ─────────────── -->
+                                    <StackPanel Grid.Column="1" x:Name="TgProxyCol2" Spacing="14">
 
-                                        <!-- Card: Step 4 (Phone & Telegram) -->
-                                        <Border Style="{StaticResource GlassCardStyle}">
-                                            <StackPanel Spacing="12">
-                                                <StackPanel Orientation="Horizontal" Spacing="12">
-                                                    <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
-                                                        <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                            <Canvas Width="24" Height="24">
-                                                                <!-- Телефон -->
-                                                                <Path Data="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"
-                                                                      Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" Fill="Transparent"/>
-                                                            </Canvas>
-                                                        </Viewbox>
-                                                    </Border>
-                                                    <TextBlock Text="ШАГ 4. Настройка мобильного телефона" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
+                                        <!-- 2x2 Grid of Core Features -->
+                                        <Grid ColumnSpacing="12" RowSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Feature 1: Rust Core -->
+                                            <Border Grid.Column="0" Grid.Row="0" CornerRadius="{StaticResource CardCornerRadius}" Padding="16" Background="#08DEA584" BorderThickness="1.5">
+                                                <Border.BorderBrush>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="#DEA584" Offset="0.0" />
+                                                        <GradientStop Color="#3A2820" Offset="1.0" />
+                                                    </LinearGradientBrush>
+                                                </Border.BorderBrush>
+                                                <StackPanel Spacing="8">
+                                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                                        <Border Width="34" Height="34" CornerRadius="10" Background="#20DEA584" BorderBrush="#50DEA584" BorderThickness="1">
+                                                            <FontIcon Glyph="&#xE950;" FontSize="15" Foreground="#DEA584" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                                                            <TextBlock Text="100% Rust Core (mirrlyengine)" FontWeight="Bold" FontSize="13" Foreground="#F6F2EA" />
+                                                            <TextBlock Text="Zero-Copy &amp; Tokio Runtime" FontSize="10" Foreground="#DEA584" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <TextBlock Text="Асинхронный движок на Rust с неблокирующим epoll вводом-выводом. Никаких пауз сборщика мусора JVM, микросекундные задержки, минимальный расход батареи смартфона и 120 FPS UI на Jetpack Compose." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.82" TextWrapping="Wrap" />
                                                 </StackPanel>
+                                            </Border>
 
-                                                <!-- Sub 1: Tailscale -->
-                                                <Border CornerRadius="8" Padding="12" Background="#0AFFFFFF" BorderThickness="1" BorderBrush="{ThemeResource IconBorderBrush}">
-                                                    <StackPanel Spacing="6">
-                                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <FontIcon Glyph="&#xE774;" FontSize="12" Foreground="{ThemeResource BrandElectricBrush}" VerticalAlignment="Center" />
-                                                            <TextBlock Text="1. Подключение к сети (Tailscale):" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Foreground="{ThemeResource BrandElectricBrush}" />
+                                            <!-- Feature 2: 2 Protocols -->
+                                            <Border Grid.Column="1" Grid.Row="0" CornerRadius="{StaticResource CardCornerRadius}" Padding="16" Background="#0800F5D4" BorderThickness="1.5">
+                                                <Border.BorderBrush>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="#00F5D4" Offset="0.0" />
+                                                        <GradientStop Color="#1E3835" Offset="1.0" />
+                                                    </LinearGradientBrush>
+                                                </Border.BorderBrush>
+                                                <StackPanel Spacing="8">
+                                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                                        <Border Width="34" Height="34" CornerRadius="10" Background="#2000F5D4" BorderBrush="#5000F5D4" BorderThickness="1">
+                                                            <FontIcon Glyph="&#xE704;" FontSize="15" Foreground="#00F5D4" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                                                            <TextBlock Text="Два режима: MTProto &amp; SOCKS5" FontWeight="Bold" FontSize="13" Foreground="#F6F2EA" />
+                                                            <TextBlock Text="Чаты, 4K видео и HD-звонки" FontSize="10" Foreground="#00F5D4" />
                                                         </StackPanel>
-                                                        <TextBlock Text="1. Скачайте Tailscale из App Store или Google Play." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                        <TextBlock Text="2. Войдите под тем же самым аккаунтом, что и на ПК." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                        <TextBlock Text="3. Отключите Wi-Fi на телефоне (останьтесь на мобильном 4G/5G)." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                        <TextBlock Text="4. Включите главный тумблер в Tailscale ➔ Exit Node ➔ выберите ваш ПК." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                        <TextBlock Text="5. Скопируйте Tailscale IP вашего ПК (вид 100.x.y.z)." Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" TextWrapping="Wrap" />
                                                     </StackPanel>
-                                                </Border>
+                                                    <TextBlock Text="• MTProto (1443, FakeTLS ee/dd): чаты и медиа через 20 Anycast узлов Flowseal без расхода квоты воркеров.&#10;• SOCKS5 (10808, TCP Relay): кристально чистые голосовые и видеозвонки Telegram через Cloudflare." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.82" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Border>
 
-                                                <!-- Sub 2: Telegram -->
-                                                <Border CornerRadius="8" Padding="12" Background="#0AFFFFFF" BorderThickness="1" BorderBrush="{ThemeResource IconBorderBrush}">
-                                                    <StackPanel Spacing="6">
-                                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <FontIcon Glyph="&#xE709;" FontSize="12" Foreground="{ThemeResource BrandElectricBrush}" VerticalAlignment="Center" />
-                                                            <TextBlock Text="2. Настройка Telegram:" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Foreground="{ThemeResource BrandElectricBrush}" />
+                                            <!-- Feature 3: Smart Resilience -->
+                                            <Border Grid.Column="0" Grid.Row="1" CornerRadius="{StaticResource CardCornerRadius}" Padding="16" Background="#086B9FCC" BorderThickness="1.5">
+                                                <Border.BorderBrush>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="#6B9FCC" Offset="0.0" />
+                                                        <GradientStop Color="#203040" Offset="1.0" />
+                                                    </LinearGradientBrush>
+                                                </Border.BorderBrush>
+                                                <StackPanel Spacing="8">
+                                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                                        <Border Width="34" Height="34" CornerRadius="10" Background="#206B9FCC" BorderBrush="#506B9FCC" BorderThickness="1">
+                                                            <FontIcon Glyph="&#xE9D9;" FontSize="15" Foreground="#6B9FCC" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                                                            <TextBlock Text="Умная устойчивость стека" FontWeight="Bold" FontSize="13" Foreground="#F6F2EA" />
+                                                            <TextBlock Text="DoH, Happy Eyeballs &amp; QoS" FontSize="10" Foreground="#6B9FCC" />
                                                         </StackPanel>
-                                                        <TextBlock Text="1. Telegram ➔ Настройки ➔ Данные и память ➔ Прокси ➔ Добавить прокси." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
-                                                        <TextBlock Text="2. Тип: MTProto." Style="{StaticResource MirrlyTextSmallStyle}" FontWeight="SemiBold" />
-                                                        <TextBlock Text="3. Параметры:" Style="{StaticResource MirrlyTextSmallStyle}" />
-                                                        <StackPanel Margin="16,0,0,0" Spacing="2">
-                                                            <TextBlock Text="• Сервер: [Tailscale IP вашего ПК, например 100.115.80.20]" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
-                                                            <TextBlock Text="• Порт: 1443" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" />
-                                                            <TextBlock Text="• Ключ (Секрет): [Секрет, скопированный из TgWsProxy]" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
-                                                        </StackPanel>
-                                                        <TextBlock Text="4. Сохраните и включите прокси." Style="{StaticResource MirrlyTextSmallStyle}" TextWrapping="Wrap" />
                                                     </StackPanel>
-                                                </Border>
-                                            </StackPanel>
-                                        </Border>
+                                                    <TextBlock Text="Параллельный DoH Race Resolver (1.1.1.1/8.8.8.8/9.9.9.9), ступенчатый балансировщик Anycast IP (RFC 8305), Circuit Breaker (изоляция сбойных узлов за 300 мс) и Battery/Thermal QoS для защиты от нагрева." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.82" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Border>
 
-                                        <!-- Card: Step 5 (Verification) -->
-                                        <Border Style="{StaticResource GlassCardStyle}">
+                                            <!-- Feature 4: Security -->
+                                            <Border Grid.Column="1" Grid.Row="1" CornerRadius="{StaticResource CardCornerRadius}" Padding="16" Background="#083DDC84" BorderThickness="1.5">
+                                                <Border.BorderBrush>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="#3DDC84" Offset="0.0" />
+                                                        <GradientStop Color="#1E3825" Offset="1.0" />
+                                                    </LinearGradientBrush>
+                                                </Border.BorderBrush>
+                                                <StackPanel Spacing="8">
+                                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                                        <Border Width="34" Height="34" CornerRadius="10" Background="#203DDC84" BorderBrush="#503DDC84" BorderThickness="1">
+                                                            <FontIcon Glyph="&#xE72E;" FontSize="15" Foreground="#3DDC84" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                                                            <TextBlock Text="Верификация и безопасность" FontWeight="Bold" FontSize="13" Foreground="#F6F2EA" />
+                                                            <TextBlock Text="NDK C++ SignatureVerifier · Fail-Closed" FontSize="10" Foreground="#3DDC84" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <TextBlock Text="Аппаратная проверка цифровой подписи по SHA-256 в C++ NDK перед установкой обновлений. Приложение блокирует модифицированные сборки. Открытый код GPLv3, No Logs, отсутствие рекламы." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.82" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- Cloudflare Worker Auto-deploy Card -->
+                                        <Border Style="{StaticResource GlassCardStyle}" Padding="18">
                                             <StackPanel Spacing="12">
                                                 <Grid ColumnDefinitions="*,Auto">
-                                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                                                        <Border Width="36" Height="36" CornerRadius="18" Background="{ThemeResource IconBorderBackground}" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1.5">
-                                                            <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                                <Canvas Width="24" Height="24">
-                                                                    <!-- Проверка / галочка в круге -->
-                                                                    <Path Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-                                                                          Stroke="{ThemeResource BrandElectricBrush}" StrokeThickness="1.5" Fill="Transparent"/>
-                                                                </Canvas>
-                                                            </Viewbox>
+                                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                                        <Border Width="32" Height="32" CornerRadius="8" Background="#20F38020" BorderBrush="#50F38020" BorderThickness="1">
+                                                            <FontIcon Glyph="&#xE753;" FontSize="14" Foreground="#F38020" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                         </Border>
-                                                        <TextBlock Text="ШАГ 5. Проверка работы" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" VerticalAlignment="Center" />
+                                                        <StackPanel Spacing="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="Персональный Cloudflare Worker за 1 минуту" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                                            <TextBlock Text="100 000 бесплатных запросов/сутки для звонков и видеосвязи" FontSize="11" Foreground="#A79A83" Opacity="0.75" />
+                                                        </StackPanel>
                                                     </StackPanel>
-                                                    <Button Grid.Column="1" Click="Open2Ip_Click" Height="32" Padding="12,0">
-                                                        <TextBlock Text="Открыть 2ip.ru" FontSize="11" />
+                                                    <Button Grid.Column="1" Click="CopyDeployWorkerScript_Click" Style="{StaticResource PremiumAccentButtonStyle}" Height="34">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                            <FontIcon Glyph="&#xE8C8;" FontSize="11" />
+                                                            <TextBlock Text="Скопировать деплой PS" FontSize="11" FontWeight="Bold" />
+                                                        </StackPanel>
                                                     </Button>
                                                 </Grid>
-                                                <StackPanel Spacing="8">
-                                                    <TextBlock Text="1. Проверка общего трафика:" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" />
-                                                    <TextBlock Text="Перейдите на 2ip.ru в браузере телефона. Там должен быть ваш домашний IP ПК. YouTube на телефоне должен проигрывать видео в 4K через Запрет." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
-                                                    <TextBlock Text="2. Проверка Telegram:" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" />
-                                                    <TextBlock Text="В Telegram статус сменится на «Подключено» (зеленая галочка). Медиафайлы и каналы загружаются на максимальной скорости." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
-                                                </StackPanel>
+
+                                                <TextBlock Text="Выполните одну строку в PowerShell на ПК для мгновенного создания личного воркера (с автогенерацией домена и QR-кода для импорта в телефон):" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.85" TextWrapping="Wrap" />
+
+                                                <Border CornerRadius="8" Background="#14000000" BorderBrush="{ThemeResource IconBorderBrush}" BorderThickness="1" Padding="10">
+                                                    <TextBlock Text="irm https://raw.githubusercontent.com/joycecurcirt539-dot/Mirrly-TG-Proxy/main/tools/deploy-worker/deploy.ps1 | iex" FontFamily="Consolas" FontSize="11.5" Foreground="#00F5D4" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                                                </Border>
                                             </StackPanel>
                                         </Border>
 
-                                        <!-- Card: Troubleshooting -->
-                                        <Border CornerRadius="{StaticResource CardCornerRadius}" Padding="18" Background="#0AD19A66" BorderThickness="1.5">
-                                            <Border.BorderBrush>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="#D19A66" Offset="0.0" />
-                                                    <GradientStop Color="#8C663D" Offset="1.0" />
-                                                </LinearGradientBrush>
-                                            </Border.BorderBrush>
+                                        <!-- Comparison Table Card: Mirrly TG Proxy vs Classic VPN -->
+                                        <Border Style="{StaticResource GlassCardStyle}" Padding="18">
                                             <StackPanel Spacing="10">
-                                                <StackPanel Orientation="Horizontal" Spacing="12">
-                                                    <Border Width="36" Height="36" CornerRadius="18" Background="#2B1A0E" BorderBrush="#D19A66" BorderThickness="1.5">
-                                                        <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                            <Canvas Width="24" Height="24">
-                                                                <!-- Иконка помощи / вопроса -->
-                                                                <Path Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"
-                                                                      Stroke="#D19A66" StrokeThickness="1.5" Fill="Transparent"/>
-                                                            </Canvas>
-                                                        </Viewbox>
-                                                    </Border>
-                                                    <TextBlock Text="Решение частых проблем (Troubleshooting)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextLargeStyle}" Foreground="#D19A66" VerticalAlignment="Center" TextWrapping="Wrap" />
-                                                </StackPanel>
+                                                <TextBlock Text="Почему Mirrly TG Proxy лучше обычного VPN на телефоне:" FontWeight="Bold" Style="{StaticResource MirrlyTextMediumStyle}" />
 
-                                                <StackPanel Spacing="8">
-                                                    <TextBlock Text="• Ошибка: 'Failed to start TCP Listener... Сделана попытка доступа к сокету методом, запрещенным правами доступа'" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Foreground="#D19A66" TextWrapping="Wrap" />
-                                                    <TextBlock Text="Причина: TgWsProxy привязан на порт, который занят netsh portproxy или Hyper-V.&#10;Решение: Держите TgWsProxy на порту 1080 и 127.0.0.1, а в netsh portproxy используйте listenport=1443." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" TextWrapping="Wrap" />
+                                                <Grid ColumnDefinitions="140,*,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="10" Margin="0,4,0,0">
+                                                    <!-- Header -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Критерий" FontSize="11" FontWeight="Bold" Foreground="#A79A83" />
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Обычный VPN" FontSize="11" FontWeight="Bold" Foreground="#FF4D6D" />
+                                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Mirrly TG Proxy (Android)" FontSize="11" FontWeight="Bold" Foreground="#00F5D4" />
 
-                                                    <TextBlock Text="• На телефоне сайты работают, но Telegram пишет «Соединение...»" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Foreground="#D19A66" TextWrapping="Wrap" Margin="0,4,0,0" />
-                                                    <TextBlock Text="Причина: Забыли прописать прокси MTProto в Telegram или ввели не тот порт.&#10;Решение: Убедитесь, что в Telegram указан порт 1443 и вставлен верный секрет." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" TextWrapping="Wrap" />
-                                                </StackPanel>
+                                                    <!-- Row 1 -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Батарея и нагрев" FontSize="11" Opacity="0.8" />
+                                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Сажает аккумулятор из-за глобального туннеля" FontSize="11" Opacity="0.75" TextWrapping="Wrap" />
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Zero-Copy Rust — почти нулевой расход энергии" FontSize="11" FontWeight="SemiBold" Foreground="#00F5D4" TextWrapping="Wrap" />
+
+                                                    <!-- Row 2 -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Изоляция трафика" FontSize="11" Opacity="0.8" />
+                                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Заворачивает ВСЕ приложения смартфона" FontSize="11" Opacity="0.75" TextWrapping="Wrap" />
+                                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Только Telegram! Банки и локальные сайты не ломаются" FontSize="11" FontWeight="SemiBold" Foreground="#00F5D4" TextWrapping="Wrap" />
+
+                                                    <!-- Row 3 -->
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Блокировки ТСПУ" FontSize="11" Opacity="0.8" />
+                                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Регулярно блокируются протоколы (WireGuard, OpenVPN)" FontSize="11" Opacity="0.75" TextWrapping="Wrap" />
+                                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="Маскировка FakeTLS и Cloudflare Anycast CDN" FontSize="11" FontWeight="SemiBold" Foreground="#00F5D4" TextWrapping="Wrap" />
+                                                </Grid>
                                             </StackPanel>
                                         </Border>
 
