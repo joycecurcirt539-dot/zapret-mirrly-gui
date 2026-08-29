@@ -75,6 +75,9 @@ public partial class TgWsProxyViewModel : ObservableObject
     [ObservableProperty]
     private SolidColorBrush _dc4PingBrush = new(Windows.UI.Color.FromArgb(255, 161, 161, 170));
 
+    private const int MaxUiLogLines = 200;
+    private readonly Queue<string> _uiLogLines = new(MaxUiLogLines + 10);
+
     public TgWsProxyViewModel()
     {
         _orbTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
@@ -86,10 +89,19 @@ public partial class TgWsProxyViewModel : ObservableObject
         ProxyPortText = SettingsManager.Instance.TgWsProxyPort.ToString();
         ProxySecretText = SettingsManager.Instance.TgWsProxySecret;
 
-        var sb = new StringBuilder();
         foreach (var log in TgWsProxyService.GetLogHistory())
         {
-            sb.AppendLine(log);
+            _uiLogLines.Enqueue(log);
+            while (_uiLogLines.Count > MaxUiLogLines)
+            {
+                _uiLogLines.Dequeue();
+            }
+        }
+
+        var sb = new StringBuilder(_uiLogLines.Count * 80);
+        foreach (var line in _uiLogLines)
+        {
+            sb.AppendLine(line);
         }
         LaunchLogText = sb.ToString();
     }
@@ -131,12 +143,28 @@ public partial class TgWsProxyViewModel : ObservableObject
     {
         if (_dispatcherQueue != null && !_dispatcherQueue.HasThreadAccess)
         {
-            _dispatcherQueue.TryEnqueue(() => LaunchLogText += logLine + "\n");
+            _dispatcherQueue.TryEnqueue(() => AppendLogLine(logLine));
         }
         else
         {
-            LaunchLogText += logLine + "\n";
+            AppendLogLine(logLine);
         }
+    }
+
+    private void AppendLogLine(string logLine)
+    {
+        _uiLogLines.Enqueue(logLine);
+        while (_uiLogLines.Count > MaxUiLogLines)
+        {
+            _uiLogLines.Dequeue();
+        }
+
+        var sb = new StringBuilder(_uiLogLines.Count * 80);
+        foreach (var line in _uiLogLines)
+        {
+            sb.AppendLine(line);
+        }
+        LaunchLogText = sb.ToString();
     }
 
     public void UpdateStatusUI(bool isRunning)
@@ -211,10 +239,18 @@ public partial class TgWsProxyViewModel : ObservableObject
         var port = SettingsManager.Instance.TgWsProxyPort;
         var rawHost = SettingsManager.Instance.TgWsProxyHost;
         var host = (rawHost == "0.0.0.0" || string.IsNullOrWhiteSpace(rawHost)) ? "127.0.0.1" : rawHost;
-        var secret = SettingsManager.Instance.TgWsProxySecret;
+        var secret = SettingsManager.Instance.TgWsProxySecret?.Trim() ?? "";
+        var fakeTlsDomain = SettingsManager.Instance.TgWsProxyFakeTlsDomain?.Trim() ?? "";
 
-        string link = !string.IsNullOrWhiteSpace(secret)
-            ? $"tg://proxy?server={host}&port={port}&secret={secret}"
+        string effectiveSecret = secret;
+        if (!string.IsNullOrEmpty(fakeTlsDomain) && !secret.StartsWith("ee", StringComparison.OrdinalIgnoreCase))
+        {
+            string domainHex = Convert.ToHexString(Encoding.UTF8.GetBytes(fakeTlsDomain)).ToLowerInvariant();
+            effectiveSecret = $"ee{secret}{domainHex}";
+        }
+
+        string link = !string.IsNullOrWhiteSpace(effectiveSecret)
+            ? $"tg://proxy?server={host}&port={port}&secret={effectiveSecret}"
             : $"tg://socks?server={host}&port={port}";
 
         try
@@ -223,7 +259,7 @@ public partial class TgWsProxyViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            LaunchLogText += $"[GUI ERROR] Не удалось открыть ссылку в Telegram: {ex.Message}\n";
+            AppendLogLine($"[GUI ERROR] Не удалось открыть ссылку в Telegram: {ex.Message}");
         }
     }
 
@@ -246,6 +282,7 @@ public partial class TgWsProxyViewModel : ObservableObject
     [RelayCommand]
     private void ClearLog()
     {
+        _uiLogLines.Clear();
         LaunchLogText = string.Empty;
     }
 

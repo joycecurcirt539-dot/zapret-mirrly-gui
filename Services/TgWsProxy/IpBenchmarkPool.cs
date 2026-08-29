@@ -14,10 +14,8 @@ public class IpBenchmarkPool
 
     private static readonly string[] CF_CANDIDATE_IPS = new[]
     {
-        "104.16.51.111", "104.16.52.111", "162.159.135.42", "172.67.74.129",
-        "104.18.2.16", "104.21.32.1", "188.114.96.1", "162.159.128.1",
-        "172.64.144.1", "104.16.132.229", "104.16.133.229", "172.67.182.190",
-        "104.19.141.15", "104.19.142.15", "162.159.134.42", "188.114.97.1"
+        "104.16.51.111", "104.16.52.111", "104.16.132.229", "104.16.133.229",
+        "162.159.134.42", "162.159.135.42", "172.67.74.129", "172.67.182.190"
     };
 
     private static readonly Dictionary<int, string[]> DC_DIRECT_IPS = new()
@@ -85,8 +83,27 @@ public class IpBenchmarkPool
         _cts = null;
     }
 
-    public string GetBestTargetIp(int dc, string configuredIp)
+    public void RecordFailure(string ip)
     {
+        if (!string.IsNullOrEmpty(ip))
+        {
+            _metrics[ip] = new IpMetric(ip, 99999, DateTime.UtcNow, false);
+        }
+    }
+
+    public string GetBestTargetIp(int dc, string configuredIp, bool preferCf = true)
+    {
+        if (preferCf)
+        {
+            var bestCfIp = CF_CANDIDATE_IPS
+                .Where(ip => _metrics.TryGetValue(ip, out var metric) && metric.IsSuccess)
+                .OrderBy(ip => _metrics[ip].PingMs)
+                .FirstOrDefault();
+
+            if (bestCfIp != null)
+                return bestCfIp;
+        }
+
         if (!string.IsNullOrEmpty(configuredIp))
         {
             if (_metrics.TryGetValue(configuredIp, out var m) && m.IsSuccess)
@@ -106,15 +123,15 @@ public class IpBenchmarkPool
                 return bestDcIp;
         }
 
-        var bestCfIp = CF_CANDIDATE_IPS
+        var fallbackCfIp = CF_CANDIDATE_IPS
             .Where(ip => _metrics.TryGetValue(ip, out var metric) && metric.IsSuccess)
             .OrderBy(ip => _metrics[ip].PingMs)
             .FirstOrDefault();
 
-        if (bestCfIp != null)
-            return bestCfIp;
+        if (fallbackCfIp != null)
+            return fallbackCfIp;
 
-        return configuredIp;
+        return !string.IsNullOrEmpty(configuredIp) ? configuredIp : "104.16.51.111";
     }
 
     public async Task RunBenchmarkCycleAsync(CancellationToken token)
@@ -159,10 +176,20 @@ public class IpBenchmarkPool
         try
         {
             using var tcp = new TcpClient();
+            tcp.NoDelay = true;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
             cts.CancelAfter(2500);
 
             await tcp.ConnectAsync(ip, 443, cts.Token);
+
+            using var ssl = new System.Net.Security.SslStream(tcp.GetStream(), false, (s, c, ch, e) => true);
+            var sslOptions = new System.Net.Security.SslClientAuthenticationOptions
+            {
+                TargetHost = "web.telegram.org",
+                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13
+            };
+            await ssl.AuthenticateAsClientAsync(sslOptions, cts.Token);
+
             sw.Stop();
             return new IpMetric(ip, sw.ElapsedMilliseconds, DateTime.UtcNow, true);
         }

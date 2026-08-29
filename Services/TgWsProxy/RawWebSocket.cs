@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -33,8 +35,8 @@ public class RawWebSocket : IDisposable
 
         var tcpClient = new TcpClient();
         tcpClient.NoDelay = true;
-        tcpClient.ReceiveBufferSize = 256 * 1024;
-        tcpClient.SendBufferSize = 256 * 1024;
+        tcpClient.ReceiveBufferSize = 2 * 1024 * 1024;
+        tcpClient.SendBufferSize = 2 * 1024 * 1024;
 
         await tcpClient.ConnectAsync(host, 443, cancellationToken);
 
@@ -147,32 +149,60 @@ public class RawWebSocket : IDisposable
         return true;
     }
 
+    private readonly SemaphoreSlim _writeLock = new(1, 1);
+
     public async Task SendPingAsync(CancellationToken cancellationToken = default)
     {
         if (IsClosed) throw new Exception("WebSocket is closed.");
         byte[] frame = BuildFrame(OP_PING, Array.Empty<byte>(), mask: true);
-        await _sslStream.WriteAsync(frame.AsMemory(), cancellationToken);
-        await _sslStream.FlushAsync(cancellationToken);
+        await _writeLock.WaitAsync(cancellationToken);
+        try
+        {
+            await _sslStream.WriteAsync(frame.AsMemory(), cancellationToken);
+            await _sslStream.FlushAsync(cancellationToken);
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
     }
 
     public async Task SendAsync(byte[] data, CancellationToken cancellationToken = default)
     {
         if (IsClosed) throw new Exception("WebSocket is closed.");
         byte[] frame = BuildFrame(OP_BINARY, data, mask: true);
-        await _sslStream.WriteAsync(frame.AsMemory(), cancellationToken);
-        await _sslStream.FlushAsync(cancellationToken);
+        await _writeLock.WaitAsync(cancellationToken);
+        try
+        {
+            await _sslStream.WriteAsync(frame.AsMemory(), cancellationToken);
+            await _sslStream.FlushAsync(cancellationToken);
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
     }
 
     public async Task SendBatchAsync(System.Collections.Generic.List<byte[]> parts, CancellationToken cancellationToken = default)
     {
         if (IsClosed) throw new Exception("WebSocket is closed.");
-        foreach (var part in parts)
+        await _writeLock.WaitAsync(cancellationToken);
+        try
         {
-            byte[] frame = BuildFrame(OP_BINARY, part, mask: true);
-            await _sslStream.WriteAsync(frame.AsMemory(), cancellationToken);
+            foreach (var part in parts)
+            {
+                byte[] frame = BuildFrame(OP_BINARY, part, mask: true);
+                await _sslStream.WriteAsync(frame.AsMemory(), cancellationToken);
+            }
+            await _sslStream.FlushAsync(cancellationToken);
         }
-        await _sslStream.FlushAsync(cancellationToken);
+        finally
+        {
+            _writeLock.Release();
+        }
     }
+
+    private MemoryStream? _fragmentBuffer;
 
     public async Task<byte[]?> RecvAsync(CancellationToken cancellationToken = default)
     {
@@ -181,6 +211,7 @@ public class RawWebSocket : IDisposable
             var frame = await ReadFrameAsync(cancellationToken);
             if (frame == null) return null;
 
+            bool isFin = frame.Value.IsFin;
             byte opcode = frame.Value.Opcode;
             byte[] payload = frame.Value.Payload;
 
@@ -190,8 +221,16 @@ public class RawWebSocket : IDisposable
                 try
                 {
                     byte[] reply = BuildFrame(OP_CLOSE, payload.Length >= 2 ? new byte[] { payload[0], payload[1] } : Array.Empty<byte>(), mask: true);
-                    await _sslStream.WriteAsync(reply.AsMemory(), cancellationToken);
-                    await _sslStream.FlushAsync(cancellationToken);
+                    await _writeLock.WaitAsync(cancellationToken);
+                    try
+                    {
+                        await _sslStream.WriteAsync(reply.AsMemory(), cancellationToken);
+                        await _sslStream.FlushAsync(cancellationToken);
+                    }
+                    finally
+                    {
+                        _writeLock.Release();
+                    }
                 }
                 catch { }
                 return null;
@@ -202,8 +241,16 @@ public class RawWebSocket : IDisposable
                 try
                 {
                     byte[] reply = BuildFrame(OP_PONG, payload, mask: true);
-                    await _sslStream.WriteAsync(reply.AsMemory(), cancellationToken);
-                    await _sslStream.FlushAsync(cancellationToken);
+                    await _writeLock.WaitAsync(cancellationToken);
+                    try
+                    {
+                        await _sslStream.WriteAsync(reply.AsMemory(), cancellationToken);
+                        await _sslStream.FlushAsync(cancellationToken);
+                    }
+                    finally
+                    {
+                        _writeLock.Release();
+                    }
                 }
                 catch { }
                 continue;
@@ -214,9 +261,33 @@ public class RawWebSocket : IDisposable
                 continue;
             }
 
-            if (opcode == 0x1 || opcode == 0x2)
+            if (opcode == 0x1 || opcode == 0x2) // Initial text or binary frame
             {
-                return payload;
+                if (isFin)
+                {
+                    return payload;
+                }
+
+                _fragmentBuffer?.Dispose();
+                _fragmentBuffer = new MemoryStream();
+                _fragmentBuffer.Write(payload, 0, payload.Length);
+                continue;
+            }
+
+            if (opcode == 0x0) // Continuation frame
+            {
+                if (_fragmentBuffer != null)
+                {
+                    _fragmentBuffer.Write(payload, 0, payload.Length);
+                    if (isFin)
+                    {
+                        byte[] fullMessage = _fragmentBuffer.ToArray();
+                        _fragmentBuffer.Dispose();
+                        _fragmentBuffer = null;
+                        return fullMessage;
+                    }
+                }
+                continue;
             }
         }
 
@@ -230,8 +301,16 @@ public class RawWebSocket : IDisposable
         try
         {
             byte[] frame = BuildFrame(OP_CLOSE, Array.Empty<byte>(), mask: true);
-            await _sslStream.WriteAsync(frame.AsMemory());
-            await _sslStream.FlushAsync();
+            await _writeLock.WaitAsync();
+            try
+            {
+                await _sslStream.WriteAsync(frame.AsMemory());
+                await _sslStream.FlushAsync();
+            }
+            finally
+            {
+                _writeLock.Release();
+            }
         }
         catch { }
         finally
@@ -290,7 +369,7 @@ public class RawWebSocket : IDisposable
         return frame;
     }
 
-    private async Task<(byte Opcode, byte[] Payload)?> ReadFrameAsync(CancellationToken cancellationToken)
+    private async Task<(bool IsFin, byte Opcode, byte[] Payload)?> ReadFrameAsync(CancellationToken cancellationToken)
     {
         byte[] header = new byte[2];
         int read = 0;
@@ -301,6 +380,7 @@ public class RawWebSocket : IDisposable
             read += r;
         }
 
+        bool isFin = (header[0] & 0x80) != 0;
         byte opcode = (byte)(header[0] & 0x0F);
         bool hasMask = (header[1] & 0x80) != 0;
         long length = header[1] & 0x7F;
@@ -361,19 +441,51 @@ public class RawWebSocket : IDisposable
             XorMask(payload, maskKey, payload);
         }
 
-        return (opcode, payload);
+        return (isFin, opcode, payload);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void XorMask(ReadOnlySpan<byte> data, byte[] mask, Span<byte> output)
     {
-        for (int i = 0; i < data.Length; i++)
+        int offset = 0;
+        int length = data.Length;
+
+        if (Vector.IsHardwareAccelerated && length >= Vector<byte>.Count)
         {
-            output[i] = (byte)(data[i] ^ mask[i % 4]);
+            byte[] maskVectorBytes = new byte[Vector<byte>.Count];
+            for (int i = 0; i < maskVectorBytes.Length; i++) maskVectorBytes[i] = mask[i % 4];
+            var maskVector = new Vector<byte>(maskVectorBytes);
+
+            while (offset + Vector<byte>.Count <= length)
+            {
+                var v = new Vector<byte>(data.Slice(offset, Vector<byte>.Count));
+                (v ^ maskVector).CopyTo(output.Slice(offset, Vector<byte>.Count));
+                offset += Vector<byte>.Count;
+            }
+        }
+
+        uint mask4 = (uint)(mask[0] | (mask[1] << 8) | (mask[2] << 16) | (mask[3] << 24));
+        ulong mask8 = (ulong)mask4 | ((ulong)mask4 << 32);
+
+        while (offset + 8 <= length)
+        {
+            ulong in8 = Unsafe.ReadUnaligned<ulong>(ref Unsafe.AsRef(in data[offset]));
+            Unsafe.WriteUnaligned(ref output[offset], in8 ^ mask8);
+            offset += 8;
+        }
+
+        while (offset < length)
+        {
+            output[offset] = (byte)(data[offset] ^ mask[offset % 4]);
+            offset++;
         }
     }
 
     public void Dispose()
     {
+        _fragmentBuffer?.Dispose();
+        _fragmentBuffer = null;
+        _writeLock.Dispose();
         _sslStream.Dispose();
         _tcpClient.Dispose();
     }

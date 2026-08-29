@@ -379,7 +379,7 @@ public sealed partial class MainWindow : Window
             "guide" => GuideItem,
             _ => null
         };
-        if (navItem != null && RootNavigationView.SelectedItem != navItem)
+        if (navItem != null && !ReferenceEquals(RootNavigationView.SelectedItem, navItem))
         {
             RootNavigationView.SelectedItem = navItem;
         }
@@ -744,7 +744,7 @@ public sealed partial class MainWindow : Window
 
     public void ShowVersionModal(string versionTag, string title, string changelog, bool isPrerelease, bool isNewUpdate, string? downloadUrl)
     {
-        _currentDownloadUrl = downloadUrl;
+        _currentDownloadUrl = downloadUrl ?? "";
         _latestVersionTag = versionTag;
 
         if (UpdateModalTitleText != null) UpdateModalTitleText.Text = title;
@@ -1336,11 +1336,11 @@ public sealed partial class MainWindow : Window
         }
 
         // Apply overrides to both theme dictionaries for reliable precedence
-        if (Application.Current.Resources.ThemeDictionaries.TryGetValue("Dark", out object darkObj) && darkObj is ResourceDictionary darkDict)
+        if (Application.Current.Resources.ThemeDictionaries.TryGetValue("Dark", out object? darkObj) && darkObj is ResourceDictionary darkDict)
         {
             ApplyToDictionary(darkDict);
         }
-        if (Application.Current.Resources.ThemeDictionaries.TryGetValue("Default", out object defaultObj) && defaultObj is ResourceDictionary defaultDict)
+        if (Application.Current.Resources.ThemeDictionaries.TryGetValue("Default", out object? defaultObj) && defaultObj is ResourceDictionary defaultDict)
         {
             ApplyToDictionary(defaultDict);
         }

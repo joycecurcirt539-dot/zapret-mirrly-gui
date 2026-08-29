@@ -180,7 +180,7 @@ public static class DiagnosticEngine
         int totalOk = 0, totalFail = 0, totalUnsup = 0;
         long totalPing = 0; int pingCount = 0;
         var lockObj = new object();
-        var sem = new SemaphoreSlim(MaxParallel, MaxParallel);
+        using var sem = new SemaphoreSlim(MaxParallel, MaxParallel);
 
         var tests = new[]
         {
@@ -311,7 +311,7 @@ public static class DiagnosticEngine
 
         int totalOk = 0, totalFail = 0, totalBlocked = 0, totalUnsup = 0;
         var lockObj = new object();
-        var sem = new SemaphoreSlim(MaxParallel, MaxParallel);
+        using var sem = new SemaphoreSlim(MaxParallel, MaxParallel);
 
         var tests = new[]
         {

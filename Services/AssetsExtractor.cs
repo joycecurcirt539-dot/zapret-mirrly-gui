@@ -31,7 +31,7 @@ public static class AssetsExtractor
         }
 
         var versionFile = Path.Combine(appDataRoot, "gui_version.txt");
-        var currentVersion = "1.1.8";
+        var currentVersion = "1.1.9";
         bool versionChanged = true;
 
         if (File.Exists(versionFile))

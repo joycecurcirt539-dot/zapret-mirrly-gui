@@ -10,8 +10,8 @@ namespace ZapretMirrlyGUI.Services;
 public static class TgWsProxyService
 {
     private static TgWsProxyServer? _server;
-    private static readonly List<string> _logHistory = new();
-    private const int MaxLogHistory = 2000;
+    private static readonly Queue<string> _logHistory = new();
+    private const int MaxLogHistory = 400;
 
     public static event Action<string>? OnLogReceived;
     public static event Action<bool>? OnStatusChanged;
@@ -26,10 +26,10 @@ public static class TgWsProxyService
 
         try
         {
-            var dcRedirects = new Dictionary<int, string>
+            var dcRedirects = new Dictionary<int, string>(Constants.DC_DEFAULT_IPS)
             {
-                { 2, "149.154.167.220" },
-                { 4, "149.154.167.220" }
+                [2] = "149.154.167.220",
+                [4] = "149.154.167.220"
             };
 
             int port = SettingsManager.Instance.TgWsProxyPort;
@@ -122,8 +122,11 @@ public static class TgWsProxyService
         var formatted = $"{DateTime.Now:HH:mm:ss} {message}";
         lock (_logHistory)
         {
-            _logHistory.Add(formatted);
-            if (_logHistory.Count > MaxLogHistory) _logHistory.RemoveAt(0);
+            _logHistory.Enqueue(formatted);
+            while (_logHistory.Count > MaxLogHistory)
+            {
+                _logHistory.Dequeue();
+            }
         }
         OnLogReceived?.Invoke(formatted);
     }

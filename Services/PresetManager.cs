@@ -76,37 +76,46 @@ public static class PresetManager
             return 1;
         }
 
-        // Group 2: general (FAKE TLS AUTO).bat
-        if (filename.Equals("general (FAKE TLS AUTO).bat", StringComparison.OrdinalIgnoreCase))
+        // Group 2: general (EXP) or general (EXP<N>)
+        var matchExp = Regex.Match(filename, @"^general\s*\(EXP(\d+)?\)\.bat$", RegexOptions.IgnoreCase);
+        if (matchExp.Success)
         {
+            var numStr = matchExp.Groups[1].Value;
+            numericVal = string.IsNullOrEmpty(numStr) ? 1 : int.Parse(numStr);
             return 2;
         }
 
-        // Group 3: general (FAKE TLS AUTO ALT) or general (FAKE TLS AUTO ALT<N>)
+        // Group 3: general (FAKE TLS AUTO).bat
+        if (filename.Equals("general (FAKE TLS AUTO).bat", StringComparison.OrdinalIgnoreCase))
+        {
+            return 3;
+        }
+
+        // Group 4: general (FAKE TLS AUTO ALT) or general (FAKE TLS AUTO ALT<N>)
         var matchFakeTls = Regex.Match(filename, @"^general\s*\(FAKE\s*TLS\s*AUTO\s*ALT(\d+)?\)\.bat$", RegexOptions.IgnoreCase);
         if (matchFakeTls.Success)
         {
             var numStr = matchFakeTls.Groups[1].Value;
             numericVal = string.IsNullOrEmpty(numStr) ? 1 : int.Parse(numStr);
-            return 3;
-        }
-
-        // Group 4: general (SIMPLE FAKE).bat
-        if (filename.Equals("general (SIMPLE FAKE).bat", StringComparison.OrdinalIgnoreCase))
-        {
             return 4;
         }
 
-        // Group 5: general (SIMPLE FAKE ALT) or general (SIMPLE FAKE ALT<N>)
+        // Group 5: general (SIMPLE FAKE).bat
+        if (filename.Equals("general (SIMPLE FAKE).bat", StringComparison.OrdinalIgnoreCase))
+        {
+            return 5;
+        }
+
+        // Group 6: general (SIMPLE FAKE ALT) or general (SIMPLE FAKE ALT<N>)
         var matchSimpleFake = Regex.Match(filename, @"^general\s*\(SIMPLE\s*FAKE\s*ALT(\d+)?\)\.bat$", RegexOptions.IgnoreCase);
         if (matchSimpleFake.Success)
         {
             var numStr = matchSimpleFake.Groups[1].Value;
             numericVal = string.IsNullOrEmpty(numStr) ? 1 : int.Parse(numStr);
-            return 5;
+            return 6;
         }
 
-        // Group 6: general.bat
+        // Group 7: general.bat
         if (filename.Equals("general.bat", StringComparison.OrdinalIgnoreCase))
         {
             return int.MaxValue - 3;

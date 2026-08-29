@@ -30,7 +30,7 @@ public class TgWsProxyServer
     private readonly WsPool _wsPool;
     private readonly CfWorkerPool _cfWorkerPool;
 
-    private readonly HashSet<string> _wsBlacklist = new();
+    private readonly ConcurrentDictionary<string, byte> _wsBlacklist = new();
     private readonly ConcurrentDictionary<string, DateTime> _dcFailUntil = new();
     private readonly ConcurrentDictionary<string, DateTime> _ipFailUntil = new();
 
@@ -176,11 +176,11 @@ public class TgWsProxyServer
     private async Task HandleClientAsync(TcpClient client, CancellationToken token)
     {
         string clientLabel = client.Client.RemoteEndPoint?.ToString() ?? "?";
-        _logCallback($"[{clientLabel}] Client connected.");
+        bool isRealSession = false;
 
         client.NoDelay = true;
-        client.ReceiveBufferSize = 256 * 1024;
-        client.SendBufferSize = 256 * 1024;
+        client.ReceiveBufferSize = 2 * 1024 * 1024;
+        client.SendBufferSize = 2 * 1024 * 1024;
 
         Stream clientStream = client.GetStream();
         CryptoContext? cryptoCtx = null;
@@ -189,71 +189,75 @@ public class TgWsProxyServer
         try
         {
             byte[] handshake = new byte[Constants.HANDSHAKE_LEN];
-
-            if (!string.IsNullOrEmpty(_fakeTlsDomain))
+            byte[] first5 = new byte[5];
+            int first5Read = 0;
+            while (first5Read < 5)
             {
-                // Peek/read 5 bytes header
-                byte[] header = new byte[5];
-                int headerRead = 0;
-                while (headerRead < 5)
+                int r = await clientStream.ReadAsync(first5.AsMemory(first5Read, 5 - first5Read), token);
+                if (r == 0) return; // Silent health/latency probe
+                first5Read += r;
+            }
+
+            if (first5[0] == 0x16) // TLS Handshake (FakeTLS)
+            {
+                ushort recordLen = (ushort)((first5[3] << 8) | first5[4]);
+                byte[] clientHello = new byte[5 + recordLen];
+                Array.Copy(first5, 0, clientHello, 0, 5);
+
+                int bodyRead = 0;
+                while (bodyRead < recordLen)
                 {
-                    int r = await clientStream.ReadAsync(header.AsMemory(headerRead, 5 - headerRead), token);
+                    int r = await clientStream.ReadAsync(clientHello.AsMemory(5 + bodyRead, recordLen - bodyRead), token);
                     if (r == 0) return;
-                    headerRead += r;
+                    bodyRead += r;
                 }
 
-                if (header[0] == 0x16) // TLS Handshake
+                var tlsResult = FakeTls.VerifyClientHello(clientHello, _secretBytes);
+                if (tlsResult == null)
                 {
-                    ushort recordLen = (ushort)((header[3] << 8) | header[4]);
-                    byte[] clientHello = new byte[5 + recordLen];
-                    Array.Copy(header, 0, clientHello, 0, 5);
-
-                    int bodyRead = 0;
-                    while (bodyRead < recordLen)
-                    {
-                        int r = await clientStream.ReadAsync(clientHello.AsMemory(5 + bodyRead, recordLen - bodyRead), token);
-                        if (r == 0) return;
-                        bodyRead += r;
-                    }
-
-                    var tlsResult = FakeTls.VerifyClientHello(clientHello, _secretBytes);
-                    if (tlsResult == null)
+                    if (!string.IsNullOrEmpty(_fakeTlsDomain))
                     {
                         _logCallback($"[{clientLabel}] Fake TLS verification failed -> masking proxy to {_fakeTlsDomain}:443");
                         await ProxyToMaskingDomainAsync(clientStream, clientHello, _fakeTlsDomain, clientLabel, token);
-                        return;
                     }
-
-                    _logCallback($"[{clientLabel}] Fake TLS verification successful (TS: {tlsResult.Value.Timestamp}).");
-                    
-                    byte[] serverHello = FakeTls.BuildServerHello(_secretBytes, tlsResult.Value.ClientRandom, tlsResult.Value.SessionId);
-                    await clientStream.WriteAsync(serverHello.AsMemory(), token);
-                    await clientStream.FlushAsync(token);
-
-                    clientStream = new FakeTlsStream(clientStream);
-                }
-                else
-                {
-                    // Non-TLS first byte, redirect client to HTTPS redirect page
-                    _logCallback($"[{clientLabel}] Non-TLS first byte (0x{header[0]:X2}) under Fake TLS context -> Redirecting client to {_fakeTlsDomain}");
-                    string redirect = $"HTTP/1.1 301 Moved Permanently\r\n" +
-                                     $"Location: https://{_fakeTlsDomain}/\r\n" +
-                                     $"Content-Length: 0\r\n" +
-                                     $"Connection: close\r\n\r\n";
-                    byte[] redirectBytes = Encoding.ASCII.GetBytes(redirect);
-                    await clientStream.WriteAsync(redirectBytes.AsMemory(), token);
-                    await clientStream.FlushAsync(token);
+                    else
+                    {
+                        _logCallback($"[{clientLabel}] Fake TLS verification failed (invalid secret/sni).");
+                    }
                     return;
                 }
-            }
 
-            // Read the MTProto 64-byte obfuscated handshake
-            int handshakeRead = 0;
-            while (handshakeRead < Constants.HANDSHAKE_LEN)
+                isRealSession = true;
+                _logCallback($"[{clientLabel}] Fake TLS Handshake OK (TS: {tlsResult.Value.Timestamp}).");
+                
+                byte[] serverHello = FakeTls.BuildServerHello(_secretBytes, tlsResult.Value.ClientRandom, tlsResult.Value.SessionId);
+                await clientStream.WriteAsync(serverHello.AsMemory(), token);
+                await clientStream.FlushAsync(token);
+
+                clientStream = new FakeTlsStream(clientStream);
+
+                int hsRead = 0;
+                while (hsRead < Constants.HANDSHAKE_LEN)
+                {
+                    int r = await clientStream.ReadAsync(handshake.AsMemory(hsRead, Constants.HANDSHAKE_LEN - hsRead), token);
+                    if (r == 0) return;
+                    hsRead += r;
+                }
+            }
+            else
             {
-                int r = await clientStream.ReadAsync(handshake.AsMemory(handshakeRead, Constants.HANDSHAKE_LEN - handshakeRead), token);
-                if (r == 0) return;
-                handshakeRead += r;
+                // Raw MTProto Handshake
+                Array.Copy(first5, 0, handshake, 0, 5);
+                int hsRead = 5;
+                while (hsRead < Constants.HANDSHAKE_LEN)
+                {
+                    int r = await clientStream.ReadAsync(handshake.AsMemory(hsRead, Constants.HANDSHAKE_LEN - hsRead), token);
+                    if (r == 0) return;
+                    hsRead += r;
+                }
+
+                isRealSession = true;
+                _logCallback($"[{clientLabel}] Raw MTProto Handshake received.");
             }
 
             var hsResult = TryHandshake(handshake, _secretBytes);
@@ -278,11 +282,11 @@ public class TgWsProxyServer
 
             string dcKey = $"{dc}{(isMedia ? "m" : "")}";
             string configuredIp = _dcRedirects.TryGetValue(dc, out string? ip) ? ip : "";
-            string targetIp = IpBenchmarkPool.Instance.GetBestTargetIp(dc, configuredIp);
+            string targetIp = IpBenchmarkPool.Instance.GetBestTargetIp(dc, configuredIp, _cfProxyEnabled);
             bool isAnyCfFallback = _cfProxyEnabled || _cfProxyWorkerDomains.Count > 0;
 
             // Check if WS is blacklisted or destination IP is in cooldown
-            bool wsBlacklisted = _wsBlacklist.Contains(dcKey);
+            bool wsBlacklisted = _wsBlacklist.ContainsKey(dcKey);
             bool ipInCooldown = _ipFailUntil.TryGetValue(targetIp, out DateTime cooldownTime) && DateTime.UtcNow < cooldownTime;
 
             if (string.IsNullOrEmpty(targetIp) || wsBlacklisted || (ipInCooldown && isAnyCfFallback))
@@ -324,31 +328,9 @@ public class TgWsProxyServer
             {
                 _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> pool hit via {targetIp}");
             }
-            else if (frontingActive)
-            {
-                string frontingSni = DomainFrontingPool.GetNextFrontingSni();
-                _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> fronting (SNI: {frontingSni}) / Host {domains[0]}");
-                try
-                {
-                    using var wsCts = new CancellationTokenSource(TimeSpan.FromSeconds(5.0));
-                    ws = await RawWebSocket.ConnectAsync(targetIp, domains[0], "/apiws", frontingSni, wsCts.Token);
-                }
-                catch (Exception ex)
-                {
-                    _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} fronting failed: {ex.Message}");
-                }
-                if (ws != null)
-                {
-                    _wsPool.FrontingUntil = DateTime.UtcNow.AddSeconds(FRONTING_COOLDOWN);
-                }
-                else
-                {
-                    _wsPool.FrontingUntil = DateTime.MinValue;
-                }
-            }
             else
             {
-                // Connect manually to WebSocket domains
+                // Connect to WebSocket domains via Anycast target IP
                 foreach (string domain in domains)
                 {
                     string url = $"wss://{domain}/apiws";
@@ -374,38 +356,19 @@ public class TgWsProxyServer
                             _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS handshake failed: {ex.Message}");
                         }
                     }
-                    catch (TaskCanceledException)
+                    catch (OperationCanceledException)
                     {
                         wsTimedOut = true;
+                        IpBenchmarkPool.Instance.RecordFailure(targetIp);
                         _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS connect timed out via {domain}");
                         break;
                     }
                     catch (Exception ex)
                     {
                         allRedirects = false;
+                        IpBenchmarkPool.Instance.RecordFailure(targetIp);
                         _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS connect failed: {ex.Message}");
                     }
-                }
-            }
-
-            // Fronting Fallback if timed out
-            if (ws == null && wsTimedOut && !frontingActive)
-            {
-                string frontingSni = DomainFrontingPool.GetNextFrontingSni();
-                _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> fronting fallback (SNI: {frontingSni}, Host {domains[0]})");
-                try
-                {
-                    using var wsCts = new CancellationTokenSource(TimeSpan.FromSeconds(5.0));
-                    ws = await RawWebSocket.ConnectAsync(targetIp, domains[0], "/apiws", frontingSni, wsCts.Token);
-                }
-                catch (Exception ex)
-                {
-                    _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} fronting fallback failed: {ex.Message}");
-                }
-                if (ws != null)
-                {
-                    _wsPool.FrontingUntil = DateTime.UtcNow.AddSeconds(FRONTING_COOLDOWN);
-                    _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} fronting OK for {FRONTING_COOLDOWN}s");
                 }
             }
 
@@ -414,18 +377,18 @@ public class TgWsProxyServer
             {
                 if (wsTimedOut)
                 {
+                    IpBenchmarkPool.Instance.RecordFailure(targetIp);
                     _ipFailUntil[targetIp] = DateTime.UtcNow.AddSeconds(IP_FAIL_COOLDOWN);
                 }
 
                 if (wsFailedRedirect && allRedirects)
                 {
-                    _wsBlacklist.Add(dcKey);
+                    _wsBlacklist.TryAdd(dcKey, 0);
                     _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} blacklisted for WS (all redirects).");
                 }
                 else
                 {
                     _dcFailUntil[dcKey] = DateTime.UtcNow.AddSeconds(DC_FAIL_COOLDOWN);
-                    _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS cooldown for {DC_FAIL_COOLDOWN}s");
                 }
 
                 try { splitter = new MsgSplitter(relayInit, protoInt); } catch {}
@@ -459,7 +422,10 @@ public class TgWsProxyServer
             splitter?.Dispose();
             clientStream.Dispose();
             client.Dispose();
-            _logCallback($"[{clientLabel}] Connection closed.");
+            if (isRealSession)
+            {
+                _logCallback($"[{clientLabel}] Connection closed.");
+            }
         }
     }
 
@@ -467,7 +433,8 @@ public class TgWsProxyServer
         Stream clientStream, byte[] relayInit, string clientLabel,
         int dc, bool isMedia, CryptoContext ctx, MsgSplitter? splitter, CancellationToken token)
     {
-        string fallbackDst = Constants.DC_DEFAULT_IPS.TryGetValue(dc, out string? ip) ? ip : "";
+        int effectiveDc = (dc == 203) ? 2 : dc;
+        string fallbackDst = Constants.DC_DEFAULT_IPS.TryGetValue(effectiveDc, out string? ip) ? ip : "";
         bool useCf = _cfProxyEnabled;
 
         var methods = new List<string>();
@@ -482,12 +449,12 @@ public class TgWsProxyServer
         {
             if (method == "cf_worker")
             {
-                bool ok = await CfProxyWorkerFallbackAsync(clientStream, relayInit, clientLabel, dc, isMedia, fallbackDst, ctx, splitter, token);
+                bool ok = await CfProxyWorkerFallbackAsync(clientStream, relayInit, clientLabel, effectiveDc, isMedia, fallbackDst, ctx, splitter, token);
                 if (ok) return true;
             }
             else if (method == "cf")
             {
-                bool ok = await CfProxyFallbackAsync(clientStream, relayInit, clientLabel, dc, isMedia, ctx, splitter, token);
+                bool ok = await CfProxyFallbackAsync(clientStream, relayInit, clientLabel, effectiveDc, isMedia, ctx, splitter, token);
                 if (ok) return true;
             }
             else if (method == "tcp")
@@ -505,6 +472,7 @@ public class TgWsProxyServer
         Stream clientStream, byte[] relayInit, string clientLabel,
         int dc, bool isMedia, string fallbackDst, CryptoContext ctx, MsgSplitter? splitter, CancellationToken token)
     {
+        int effectiveDc = (dc == 203) ? 2 : dc;
         var shuffledWorkers = _cfProxyWorkerDomains.ToList();
         var rand = Random.Shared;
         for (int i = shuffledWorkers.Count - 1; i > 0; i--)
@@ -517,7 +485,7 @@ public class TgWsProxyServer
 
         foreach (string workerDomain in shuffledWorkers)
         {
-            RawWebSocket? ws = await _cfWorkerPool.GetAsync(dc, workerDomain, fallbackDst);
+            RawWebSocket? ws = await _cfWorkerPool.GetAsync(effectiveDc, workerDomain, fallbackDst);
             if (ws != null)
             {
                 _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> pool hit via CF Worker {workerDomain}");
@@ -525,7 +493,7 @@ public class TgWsProxyServer
             else
             {
                 _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> trying CF Worker {workerDomain} for {fallbackDst}");
-                string path = $"/apiws?dst={Uri.EscapeDataString(fallbackDst)}&dc={dc}";
+                string path = $"/apiws?dst={Uri.EscapeDataString(fallbackDst)}&dc={effectiveDc}";
                 try
                 {
                     using var wsCts = new CancellationTokenSource(TimeSpan.FromSeconds(10.0));
@@ -550,17 +518,18 @@ public class TgWsProxyServer
         Stream clientStream, byte[] relayInit, string clientLabel,
         int dc, bool isMedia, CryptoContext ctx, MsgSplitter? splitter, CancellationToken token)
     {
+        int effectiveDc = (dc == 203) ? 2 : dc;
         _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> trying CF proxy");
 
-        foreach (string baseDomain in Balancer.Instance.GetDomainsForDc(dc))
+        foreach (string baseDomain in Balancer.Instance.GetDomainsForDc(effectiveDc))
         {
-            string domain = $"kws{dc}.{baseDomain}";
+            string domain = $"kws{effectiveDc}.{baseDomain}";
             try
             {
                 using var wsCts = new CancellationTokenSource(TimeSpan.FromSeconds(10.0));
                 var ws = await RawWebSocket.ConnectAsync(domain, domain, "/apiws", null, wsCts.Token);
                 
-                Balancer.Instance.UpdateDomainForDc(dc, baseDomain);
+                Balancer.Instance.UpdateDomainForDc(effectiveDc, baseDomain);
                 
                 await ws.SendAsync(relayInit, token);
                 await BridgeWsReencryptAsync(clientStream, ws, ctx, splitter, clientLabel, $"DC{dc}{(isMedia ? "m" : "")}", token);
@@ -568,6 +537,7 @@ public class TgWsProxyServer
             }
             catch (Exception ex)
             {
+                Balancer.Instance.RecordDomainFailure(baseDomain);
                 _logCallback($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} CF proxy failed on {domain}: {ex.Message}");
             }
         }
@@ -912,9 +882,13 @@ public class TgWsProxyServer
                     }
                 }
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                _logCallback($"[{clientLabel}] client upload failed: {ex.Message}");
+                if (!cts.Token.IsCancellationRequested)
+                {
+                    _logCallback($"[{clientLabel}] client upload ended: {ex.Message}");
+                }
             }
             finally
             {
@@ -941,13 +915,29 @@ public class TgWsProxyServer
                     ctx.TgDecrypt.Transform(dataSpan, dataSpan);
                     ctx.ClientEncrypt.Transform(dataSpan, dataSpan);
 
-                    await clientStream.WriteAsync(data.AsMemory(), cts.Token);
-                    await clientStream.FlushAsync(cts.Token);
+                    try
+                    {
+                        await clientStream.WriteAsync(data.AsMemory(), cts.Token);
+                        await clientStream.FlushAsync(cts.Token);
+                    }
+                    catch (OperationCanceledException) { break; }
+                    catch (Exception ex)
+                    {
+                        if (!cts.Token.IsCancellationRequested)
+                        {
+                            _logCallback($"[{clientLabel}] client disconnected during write: {ex.Message}");
+                        }
+                        break;
+                    }
                 }
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                _logCallback($"[{clientLabel}] upstream download failed: {ex.Message}");
+                if (!cts.Token.IsCancellationRequested)
+                {
+                    _logCallback($"[{clientLabel}] upstream WS download closed: {ex.Message}");
+                }
             }
             finally
             {

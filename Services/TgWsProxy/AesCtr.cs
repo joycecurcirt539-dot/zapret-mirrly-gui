@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -7,10 +8,15 @@ namespace ZapretMirrlyGUI.Services.TgWsProxy;
 
 public class AesCtr : IDisposable
 {
+    private const int BATCH_BLOCKS = 64; // 1024 bytes per batch
+    private const int BATCH_BYTES = BATCH_BLOCKS * 16;
+
     private readonly Aes _aes;
     private readonly byte[] _counter;
-    private readonly byte[] _keystream;
-    private int _keystreamUsed;
+    private readonly byte[] _counterBatch;
+    private readonly byte[] _keystreamBatch;
+    private int _keystreamAvail;
+    private int _keystreamOffset;
 
     public AesCtr(byte[] key, byte[] iv)
     {
@@ -25,8 +31,10 @@ public class AesCtr : IDisposable
         _aes.Padding = PaddingMode.None;
 
         _counter = (byte[])iv.Clone();
-        _keystream = new byte[16];
-        _keystreamUsed = 16; // Force initial keystream generation
+        _counterBatch = new byte[BATCH_BYTES];
+        _keystreamBatch = new byte[BATCH_BYTES];
+        _keystreamAvail = 0;
+        _keystreamOffset = 0;
     }
 
     public void Transform(ReadOnlySpan<byte> input, Span<byte> output)
@@ -37,43 +45,40 @@ public class AesCtr : IDisposable
         int offset = 0;
         int length = input.Length;
 
-        // Consume remaining keystream from previous call if any
-        while (_keystreamUsed < 16 && offset < length)
+        // 1. Consume any leftover keystream from previous call
+        if (_keystreamAvail > 0)
         {
-            output[offset] = (byte)(input[offset] ^ _keystream[_keystreamUsed++]);
-            offset++;
+            int toConsume = Math.Min(_keystreamAvail, length);
+            XorSpan(input.Slice(0, toConsume), _keystreamBatch.AsSpan(_keystreamOffset, toConsume), output.Slice(0, toConsume));
+            _keystreamOffset += toConsume;
+            _keystreamAvail -= toConsume;
+            offset += toConsume;
         }
 
-        // Fast path: Process 16-byte blocks using 64-bit integer XOR
-        while (offset + 16 <= length)
+        // 2. Fast Batch Path: Process full 1024-byte batches in a single hardware AES-NI call
+        while (offset + BATCH_BYTES <= length)
         {
-            _aes.EncryptEcb(_counter, _keystream, PaddingMode.None);
-            IncrementCounter(_counter);
+            FillCounterBatch(_counterBatch, _counter, BATCH_BLOCKS);
+            _aes.EncryptEcb(_counterBatch, _keystreamBatch, PaddingMode.None);
 
-            ulong k0 = Unsafe.ReadUnaligned<ulong>(ref _keystream[0]);
-            ulong k1 = Unsafe.ReadUnaligned<ulong>(ref _keystream[8]);
-
-            ulong in0 = Unsafe.ReadUnaligned<ulong>(ref Unsafe.AsRef(in input[offset]));
-            ulong in1 = Unsafe.ReadUnaligned<ulong>(ref Unsafe.AsRef(in input[offset + 8]));
-
-            Unsafe.WriteUnaligned(ref output[offset], in0 ^ k0);
-            Unsafe.WriteUnaligned(ref output[offset + 8], in1 ^ k1);
-
-            offset += 16;
+            XorSpan(input.Slice(offset, BATCH_BYTES), _keystreamBatch.AsSpan(0, BATCH_BYTES), output.Slice(offset, BATCH_BYTES));
+            offset += BATCH_BYTES;
         }
 
-        // Remaining bytes < 16: generate fresh keystream if needed and process
+        // 3. Process remaining data (< 1024 bytes)
         if (offset < length)
         {
-            _aes.EncryptEcb(_counter, _keystream, PaddingMode.None);
-            IncrementCounter(_counter);
-            _keystreamUsed = 0;
+            int remaining = length - offset;
+            int blocksNeeded = (remaining + 15) / 16;
+            int bytesToGen = blocksNeeded * 16;
 
-            while (offset < length)
-            {
-                output[offset] = (byte)(input[offset] ^ _keystream[_keystreamUsed++]);
-                offset++;
-            }
+            FillCounterBatch(_counterBatch, _counter, blocksNeeded);
+            _aes.EncryptEcb(_counterBatch.AsSpan(0, bytesToGen), _keystreamBatch.AsSpan(0, bytesToGen), PaddingMode.None);
+
+            XorSpan(input.Slice(offset, remaining), _keystreamBatch.AsSpan(0, remaining), output.Slice(offset, remaining));
+
+            _keystreamOffset = remaining;
+            _keystreamAvail = bytesToGen - remaining;
         }
     }
 
@@ -84,6 +89,49 @@ public class AesCtr : IDisposable
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void XorSpan(ReadOnlySpan<byte> a, ReadOnlySpan<byte> b, Span<byte> dst)
+    {
+        int offset = 0;
+        int len = a.Length;
+
+        if (Vector.IsHardwareAccelerated && len >= Vector<byte>.Count)
+        {
+            while (offset + Vector<byte>.Count <= len)
+            {
+                var va = new Vector<byte>(a.Slice(offset, Vector<byte>.Count));
+                var vb = new Vector<byte>(b.Slice(offset, Vector<byte>.Count));
+                (va ^ vb).CopyTo(dst.Slice(offset, Vector<byte>.Count));
+                offset += Vector<byte>.Count;
+            }
+        }
+
+        while (offset + 8 <= len)
+        {
+            ulong ua = Unsafe.ReadUnaligned<ulong>(ref Unsafe.AsRef(in a[offset]));
+            ulong ub = Unsafe.ReadUnaligned<ulong>(ref Unsafe.AsRef(in b[offset]));
+            Unsafe.WriteUnaligned(ref dst[offset], ua ^ ub);
+            offset += 8;
+        }
+
+        while (offset < len)
+        {
+            dst[offset] = (byte)(a[offset] ^ b[offset]);
+            offset++;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void FillCounterBatch(Span<byte> batch, byte[] counter, int blocks)
+    {
+        for (int b = 0; b < blocks; b++)
+        {
+            counter.CopyTo(batch.Slice(b * 16, 16));
+            IncrementCounter(counter);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void IncrementCounter(byte[] counter)
     {
         for (int i = 15; i >= 0; i--)

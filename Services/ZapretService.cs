@@ -12,7 +12,7 @@ namespace ZapretMirrlyGUI.Services;
 public static class ZapretService
 {
     private static Process? _runningProcess;
-    private static readonly List<string> _logHistory = new();
+    private static readonly Queue<string> _logHistory = new();
     private const int MaxLogHistory = 2000;
     
     public static event Action<string>? OnLogReceived;
@@ -392,8 +392,11 @@ public static class ZapretService
         var formatted = $"{DateTime.Now:HH:mm:ss} {message}";
         lock (_logHistory)
         {
-            _logHistory.Add(formatted);
-            if (_logHistory.Count > MaxLogHistory) _logHistory.RemoveAt(0);
+            _logHistory.Enqueue(formatted);
+            while (_logHistory.Count > MaxLogHistory)
+            {
+                _logHistory.Dequeue();
+            }
         }
         OnLogReceived?.Invoke(formatted);
     }

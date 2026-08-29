@@ -1,598 +1,479 @@
-<p align="center">
-  <img src="Assets/SidebarLogoNav.png" width="120" height="120" alt="Zapret Mirrly GUI Logo" />
-</p>
+<div align="center">
 
-<h1 align="center">Zapret Mirrly GUI</h1>
+<img src="Assets/SidebarLogoNav.png" alt="Zapret Mirrly GUI Logo" width="160" />
 
-<p align="center">
-  <b>Современное графическое решение (WinUI 3) для автоматического обхода DPI-блокировок YouTube, Discord и системного проксирования Telegram в один клик.</b>
-</p>
+# Zapret Mirrly GUI для Windows
 
-<p align="center">
-  <a href="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases"><img src="https://img.shields.io/github/v/release/joycecurcirt539-dot/zapret-mirrly-gui?style=for-the-badge&logo=github&color=6e40c9" alt="Release" /></a>
-  <a href="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases"><img src="https://img.shields.io/github/downloads/joycecurcirt539-dot/zapret-mirrly-gui/total?style=for-the-badge&logo=github&color=6e40c9" alt="Downloads" /></a>
-  <img src="https://img.shields.io/badge/.NET-10.0-blue?style=for-the-badge&logo=dotnet" alt=".NET 10" />
-  <img src="https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D6?style=for-the-badge&logo=windows" alt="Platform" />
-  <img src="https://img.shields.io/badge/UI-WinUI%203-005A9E?style=for-the-badge&logo=windows" alt="UI Framework" />
-</p>
+**Современное графическое решение (WinUI 3 / .NET 10) для автоматического обхода DPI-блокировок YouTube, Discord и системного проксирования Telegram (TgWsProxy) в один клик без системного VPN**
 
-<p align="center">
-  <a href="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest">
-    <img src="https://img.shields.io/badge/Скачать_последнюю_версию-ZapretMirrlyGUI.exe-6e40c9?style=for-the-badge&logo=github" alt="Скачать последнюю версию" />
-  </a>
-</p>
+[![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011%20(x64)-1E293B?logo=windows&logoColor=0078D6)](https://www.microsoft.com/windows)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-1E293B?logo=dotnet&logoColor=512BD4)](https://dotnet.microsoft.com)
+[![C# 13](https://img.shields.io/badge/C%23-13.0-1E293B?logo=csharp&logoColor=239120)](https://docs.microsoft.com/dotnet/csharp/)
+[![WinUI 3](https://img.shields.io/badge/UI-WinUI%203%20(Fluent)-1E293B?logo=windows&logoColor=005A9E)](https://learn.microsoft.com/windows/apps/winui/winui3/)
+[![WinDivert](https://img.shields.io/badge/Kernel-WinDivert-1E293B?logo=cplusplus&logoColor=00599C)](https://reqcrypt.org/windivert.html)
+[![Zapret Engine](https://img.shields.io/badge/zapret-Flowseal%20v1.10.2-1E293B?logo=github&logoColor=F5A623)](https://github.com/Flowseal/zapret-discord-youtube)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-Anycast%20CDN-1E293B?logo=cloudflare&logoColor=F38020)](https://cloudflare.com)
+<br/>
+[![Version](https://img.shields.io/badge/Релиз-v1.1.9-1E293B?logo=github&logoColor=00E676)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)
+[![Genesis](https://img.shields.io/badge/Генезис-20.07.2026-1E293B?logo=git&logoColor=00E676)](CHANGELOG.md)
+[![Downloads](https://img.shields.io/github/downloads/joycecurcirt539-dot/zapret-mirrly-gui/total?color=1E293B&logo=github&logoColor=0088CC)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)
+[![Stars](https://img.shields.io/github/stars/joycecurcirt539-dot/zapret-mirrly-gui?color=1E293B&logo=github&logoColor=F5A623)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/stargazers)
+[![Issues](https://img.shields.io/github/issues/joycecurcirt539-dot/zapret-mirrly-gui?color=1E293B&logo=github&logoColor=E53935)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/issues)
+<br/>
+[![Telegram](https://img.shields.io/badge/Telegram-Канал-1E293B?logo=telegram&logoColor=26A5E4)](https://t.me/WhyOkyHb)
+[![Privacy](https://img.shields.io/badge/Приватность-No_Logs-1E293B)](#16-безопасность-и-проверка-целостности)
+[![Single EXE](https://img.shields.io/badge/Формат-Single_File_EXE-1E293B?logo=windows&logoColor=0078D6)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest)
+[![Changelog](https://img.shields.io/badge/CHANGELOG-1E293B)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/MIT-1E293B)](LICENSE)
 
-> [!IMPORTANT]
-> **Требуются права Администратора.** Для корректного монтирования драйвера ядра `WinDivert` и управления службами Windows приложению необходим повышенный уровень привилегий. При запуске программа автоматически запросит стандартное UAC-подтверждение.
+*Интеллектуальная маршрутизация и десинхронизация пакетов DPI (zapret winws), нативный движок TgWsProxy (.NET 10 / AES-NI / WsPool) и интеграция со стратегиями Flowseal 1.10.2. Полная автономность (Self-Contained) без необходимости установки сторонних рантаймов и без перенаправления пользовательского трафика на внешние VPN-серверы.*
 
-> [!WARNING]
-> **О ложных срабатываниях антивирусов (False Positives):** Драйвер `WinDivert` перехватывает сетевой трафик на уровне ядра ОС без наличия коммерческой EV-подписи, из-за чего Windows Defender или сторонние антивирусы могут выдавать предупреждения. Проект на 100% с открытым исходным кодом, а вся обработка трафика происходит строго локально на вашем ПК.
+<br/>
 
----
-
-## Содержание
-1. [О проекте](#о-проекте)
-2. [Ключевые преимущества](#ключевые-преимущества)
-3. [Философия проекта: Доступность и Прозрачность](#философия-проекта-доступность-и-прозрачность)
-4. [Основные возможности](#основные-возможности)
-5. [Архитектура и технические детали](#архитектура-и-технические-детали)
-6. [Галерея интерфейса](#галерея-интерфейса)
-7. [Обзор пресетов и стратегий обхода](#обзор-пресетов-и-стратегий-обхода)
-8. [Управление списками доменов](#управление-списками-доменов)
-9. [Системные требования](#системные-требования)
-10. [Быстрый запуск и настройка браузера](#быстрый-запуск-и-настройка-браузера)
-11. [Сборка из исходного кода](#сборка-из-исходного-кода)
-12. [Структура проекта](#структура-проекта)
-13. [Сравнение с альтернативами](#сравнение-с-альтернативами)
-14. [Дорожная карта (Roadmap)](#дорожная-карта-roadmap)
-15. [Безопасность и проверка целостности](#безопасность-и-проверка-целостности)
-16. [Вклад в разработку (Contributing)](#вклад-в-разработку-contributing)
-17. [Часто задаваемые вопросы (FAQ)](#часто-задаваемые-вопросы-faq)
-18. [Обратная связь и репорты об ошибках](#обратная-связь-и-репорты-об-ошибках)
-19. [Зависимости и благодарности](#зависимости-и-благодарности)
-20. [Лицензия](#лицензия)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/blob/output/github-contribution-grid-snake-dark.svg?raw=true">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/blob/output/github-contribution-grid-snake.svg?raw=true">
+  <img alt="github contribution grid snake animation" src="https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/blob/output/github-contribution-grid-snake.svg?raw=true">
+</picture>
 
 ---
 
-## О проекте
+</div>
 
-**Zapret Mirrly GUI** — это развитая графическая оболочка, объединяющая возможности низкоуровневого DPI-обходчика `zapret` и специально спроектированного высокоскоростного Telegram-прокси. 
+## Оглавление
 
-Проект решает главную проблему консольных утилит — сложность настройки и отсутствие обратной связи. Вместо редактирования конфигурационных файлов вручную и запуска разрозненных `.bat` скриптов, пользователь получает единую среду управления с интерактивной диагностикой, визуальным редактором правил и встроенным системным треем. Приложение работает полностью локально, сохраняя вашу конфиденциальность: весь трафик обрабатывается непосредственно на вашем ПК без отправки на внешние VPN-серверы.
-
----
-
-## Ключевые преимущества
-
-**Zapret Mirrly GUI** сочетает передовой дизайн WinUI 3 с глубокой интеграцией в системные API Windows для максимальной производительности и комфорта.
-
-### 1. Трёхкомпонентная система тем и нативное размытие (DWM)
-Приложение поддерживает гибкую кастомизацию внешнего вида:
-* **Чёрный графит:** Глубокий тёмный стиль с выверенной контрастностью и прозрачными плашками элементов управления.
-* **Светлая тема:** Контрастный, яркий дизайн с подложкой в стиле матового стекла (Apple Light Glass).
-* **Тёмная тема:** Классический графитовый стиль для работы в условиях низкой освещенности.
-* **Composition API & DWM:** Прямое управление параметрами `DWMWA_USE_IMMERSIVE_DARK_MODE` гарантирует нативную отрисовку оптических эффектов Acrylic и Mica без задержек и мерцания.
-
-### 2. Автоматизация и умная самодиагностика
-* **Динамическое обучение (Auto Hostlist):** Автоматический анализ сетевых сбоев во время серфинга с добавлением заблокированных ресурсов в список обхода без участия пользователя.
-* **Встроенный диагностический модуль:** Пошаговое тестирование сетевой подсистемы с проверкой целостности драйвера WinDivert, работы BFE и доступности целевых сайтов.
-* **Гибкая фильтрация протоколов:** Выборочное включение обработки IPv4 и IPv6 для устранения сетевых задержек у провайдеров с некорректной поддержкой IPv6.
-
-### 3. Интерактивный системный трей и фоновая работа
-* Виджет быстрого управления по левому клику и полноценное контекстное меню по правому клику.
-* Полная синхронизация визуального стиля, шрифтов и прозрачности подложки с выбранной темой приложения.
-* Запуск обхода, выбор пресетов и управление Telegram-прокси в один клик без разворачивания основного окна.
+1. [Планы развития и позиция автора](#планы-развития-и-позиция-автора)
+2. [Что такое Zapret Mirrly GUI](#1-что-такое-zapret-mirrly-gui)
+3. [Технический принцип работы](#2-технический-принцип-работы)
+4. [Архитектура системы](#3-архитектура-системы)
+5. [Ключевые возможности и модули](#4-ключевые-возможности-и-модули)
+6. [Обзор пресетов и стратегий обхода (v1.10.2)](#5-обзор-пресетов-и-стратегий-обхода-v1102)
+7. [Галерея интерфейса](#6-галерея-интерфейса)
+8. [Быстрый старт и установка](#7-быстрый-старт-и-установка)
+9. [Конфигурация и параметры](#8-конфигурация-и-параметры)
+10. [Создание и настройка личного Cloudflare Worker](#9-создание-и-настройка-личного-cloudflare-worker)
+11. [Проксирование на телефон через Tailscale](#10-проксирование-на-телефон-через-tailscale)
+12. [Структура проекта и сборка из исходного кода](#11-структура-проекта-и-сборка-из-исходного-кода)
+13. [Сравнение с альтернативами](#12-сравнение-с-альтернативами)
+14. [График активности разработки](#13-график-активности-разработки)
+15. [Динамика звезд репозитория](#14-динамика-звезд-репозитория)
+16. [Хронология развития](#15-хронология-развития)
+17. [Безопасность и проверка целостности](#16-безопасность-и-проверка-целостности)
+18. [Благодарности и экосистема Mirrly](#17-благодарности-и-экосистема-mirrly)
 
 ---
 
-## Философия проекта: Доступность и Прозрачность
+## Планы развития и позиция автора
 
-При проектировании **Zapret Mirrly GUI** мы руководствовались двумя ключевыми принципами: **максимальная простота для конечного пользователя** и **абсолютная наблюдаемость процессов «под капотом»**.
-
-### 1. Доступность для каждого (Zero-Threshold UX)
-Интерфейс приложения спроектирован так, чтобы им мог успешно пользоваться человек с любым уровнем компьютерной грамотности:
-* **Запуск в один клик:** Основной сценарий обхода не требует ввода консольных параметров или знания сетевых протоколов. Достаточно открыть программу и нажать кнопку «Запустить» или «Установить службу».
-* **Умные настройки по умолчанию:** Все необходимые для работы драйверы, системные пути и стартовые конфигурации уже оптимизированы и настроены.
-* **Лаконичность:** В приложении нет перегруженных меню или избыточных интерфейсных блоков. Каждый элемент управления выполняет строго отведенную ему задачу.
-
-### 2. Бескомпромиссная информативность и отладка
-Простота интерфейса сочетается со сквозным мониторингом:
-* **Журналирование каждого шага:** Любое действие программы записывается в структурированный журнал.
-* **Информативность вместо сухих ошибок:** Подробные текстовые отчеты о возникших проблемах помогают быстро понять причину сетевого сбоя.
-* **Инструменты для анализа:** Встроенная вкладка диагностики и цветной живой лог консольного вывода позволяют локализовать проблему и подобрать рабочую стратегию обхода.
-
----
-
-## Основные возможности
-
-* **Элегантный Fluent интерфейс:** Дизайн на базе WinUI 3 с поддержкой эффектов Mica и Acrylic, плавной анимацией и высочайшей плотностью компоновки.
-* **Управление Windows-службой:** Установка и удаление системной службы `winws` в один клик для автоматического обхода сразу после загрузки ОС.
-* **Автоматический запуск и работа в трее:** Сворачивание в область уведомлений с удобным контекстным меню.
-* **Интегрированный C# Telegram-прокси (TgWsProxy):** Высокопроизводительный локальный прокси-сервер на чистом C# (.NET 10) с пулом пре-прогретых соединений (`WsPool`) и аппаратным шифрованием AES-NI.
-* **Интерактивная диагностика:** Автоматический инструмент проверки доступности ресурсов и выявления причин блокировок.
-* **Информативный журнал логов:** Вывод работы `winws.exe` в реальном времени с интеллектуальным цветовым кодированием.
-* **Встроенный редактор списков:** Управление черными и белыми списками доменов прямо внутри приложения.
-* **Полная автономность (Self-Contained):** Один портативный файл `ZapretMirrlyGUI.exe` содержит в себе все необходимые зависимости, включая .NET 10 Runtime и драйвер `WinDivert`.
-
----
-
-## Архитектура и технические детали
-
-```mermaid
-graph TD
-    A[Пользовательский интерфейс WinUI 3] -->|Управление / API| B(ZapretService)
-    A -->|Управление / Настройки| C(TgWsProxyService)
-    
-    subgraph DPI Bypass Layer
-        B -->|Автоподготовка| D[Включение TCP Timestamps]
-        B -->|Управление| E[Служба WinWS / winws.exe]
-        E -->|Драйвер ядра| F[WinDivert]
-        F <-->|Фильтрация пакетов| G[Сетевой стек Windows]
-    end
-
-    subgraph Telegram Proxy Layer
-        C -->|Запуск в процессе| H[TgWsProxyServer]
-        H -->|Предпрогрев соединений| I[WsPool]
-        H -->|Аппаратное шифрование| J[AES-NI Cryptography]
-        I <-->|WebSocket / TLS Fronted| K[Telegram DCs]
-    end
-```
-
-### 1. Движок обхода DPI
-В качестве низкоуровневой основы используется утилита `winws.exe` (проект `zapret` разработчика bol-van):
-* **Принцип перехвата:** Драйвер ядра `WinDivert` перехватывает сетевые пакеты на уровне сетевого интерфейса Windows.
-* **Методы обхода:** Модификация TLS/TCP пакетов: фрагментация TLS ClientHello, изменение регистра полей HTTP-заголовков, манипуляции с размером окна TCP (TCP Window Size) и внедрение фейковых TLS SNI запросов (Fake TLS).
-* **TCP Timestamps:** Приложение автоматически активирует временные метки TCP (`Tcp1323Opts`), устраняя проблемы несовместимости при сборке фрагментированных пакетов.
-
-### 2. Локальный WebSocket-прокси для Telegram
-Интегрированный C# прокси-сервер обеспечивает обход блокировок мессенджера:
-* **Pre-warmed WebSocket Pool (`WsPool`):** Заранее создает и поддерживает пул открытых WebSocket-соединений к дата-центрам Telegram. Обмен данными начинается мгновенно без задержек на рукопожатия.
-* **Аппаратное ускорение шифрования:** Потоковое шифрование пакетов использует векторные инструкции процессора AES-NI (`Aes.EncryptEcb`), минимизируя загрузку CPU.
-* **SNI Fronting:** Трафик маскируется под доверенные веб-ресурсы и направляется через Cloudflare Workers, обходя блокировки протокола MTProto.
-
----
-
-## Галерея интерфейса
-
-<p align="center">
-  <b>Главная панель управления (DPI Bypass Dashboard)</b><br/>
-  <img src="docs/screenshots/dashboard.png" alt="Панель управления DPI" width="900" />
-</p>
-
-<p align="center">
-  <b>Интегрированный Telegram-прокси (TgWsProxy)</b><br/>
-  <img src="docs/screenshots/tg_ws_proxy.png" alt="Telegram WS Proxy" width="900" />
-</p>
-
-### Темы оформления и стеклянные подложки (WinUI 3)
-
-<table align="center">
-  <tr>
-    <td align="center"><b>Светлая тема (Apple Light Glass)</b></td>
-    <td align="center"><b>Тёмная тема (Acrylic Glass)</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/light_theme.png" width="440" /></td>
-    <td><img src="docs/screenshots/lists_acrylic.png" width="440" /></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Тёмная тема (Mica Backdrop)</b></td>
-    <td align="center"><b>Тёмная тема (Стандартный стиль)</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/dark_mica.png" width="440" /></td>
-    <td><img src="docs/screenshots/dark_theme.png" width="440" /></td>
-  </tr>
-</table>
-
-### Диагностика, Настройки и Системный трей
-
-<p align="center">
-  <b>Модуль универсальной автодиагностики сети</b><br/>
-  <img src="docs/screenshots/diagnostics.png" alt="Модуль диагностики" width="900" />
-</p>
-
-<table align="center">
-  <tr>
-    <td align="center"><b>Страница настроек</b></td>
-    <td align="center"><b>Справка и обновления</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/settings.png" width="440" /></td>
-    <td><img src="docs/screenshots/guide_updates.png" width="440" /></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Мониторинг логов winws</b></td>
-    <td align="center"><b>Виджет и меню Трей (ЛКМ / ПКМ)</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/logs.png" width="440" /></td>
-    <td><img src="docs/screenshots/tray_lmb.png" width="200" /> <img src="docs/screenshots/tray_rmb.png" width="200" /></td>
-  </tr>
-</table>
-
----
-
-## Обзор пресетов и стратегий обхода
-
-В приложение встроена подборка проверенных стратегий обхода DPI, адаптированная под особенности различных операторов связи:
-
-| Название пресета | Основной метод обхода | Рекомендуемое назначение |
-|:---|:---|:---|
-| **FAKE TLS (Стандартный)** | Внедрение фейкового TLS SNI пакета и разбиение ClientHello | Рекомендуемый универсальный пресет для большинства магистральных провайдеров. |
-| **SIMPLE FAKE** | Базовая отправка модифицированного фейкового пакета без фрагментации | Для провайдеров с легкой модификацией пакетов (Ростелеком, МТС). |
-| **ALT / ALT 2** | Альтернативная смена порядка следования заголовков и TCP Window Size | Для региональных операторов со строгой проверкой TLS рукопожатий. |
-| **AUTO HOSTLIST** | Динамический перехват только заблокированных ресурсов (`autohostlist.txt`) | Для экономии ресурсов ПК при серфинге по легальным сайтам. |
-| **GAME FILTER** | Фильтрация UDP-портов и исключение игрового трафика | Предотвращает повышение пинга в онлайн-играх (CS2, Dota 2, Valorant). |
-
----
-
-## Управление списками доменов
-
-Приложение поддерживает работу со следующими файлами правил (расположены в каталоге `zapret/lists/`):
-
-* **`list-general.txt`** — пользовательский черный список доменов (YouTube, Discord и др.). Каждый домен указывается с новой строки без `http://` и `www.` (например, `discord.com`).
-* **`autohostlist.txt`** — динамический список доменов, формируемый автоматически в режиме автообучения.
-* **`ipset-all.txt`** — список IP-диапазонов и подсетей целевых сервисов.
-* **`list-google.txt`** — домены инфраструктуры Google и видеосерверов GVT (Googlevideo).
-
----
-
-## Системные требования
-
-* **Операционная система:** Windows 10 (версия 1809 и новее) или Windows 11 (x64).
-* **Права:** Администратор (необходимы для инсталляции службы автозапуска и драйвера `WinDivert`).
-* **Совместимость:** Перед активацией обхода убедитесь, что другие утилиты на базе `WinDivert` (GoodbyeDPI, сторонние сборки zapret) остановлены.
-
----
-
-## Быстрый запуск и настройка браузера
-
-### 1. Запуск приложения
-1. Скачайте последнюю версию `ZapretMirrlyGUI.exe` из раздела **[Releases](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)**.
-2. Запустите файл от имени Администратора.
-3. На **Панели управления** выберите желаемый пресет.
-4. Нажмите **«Запустить»** для разовой сессии или **«Установить службу»** для регистрации автозапуска в Windows.
-5. Для Telegram: перейдите во вкладку **Telegram прокси**, запустите сервер и нажмите кнопку быстрого подключения.
-
-### 2. Обязательные настройки браузера (для стабильного обхода YouTube)
+> [!NOTE]
+> ### Экосистема Mirrly: Десктоп и Мобильные устройства
+> Проект **Zapret Mirrly GUI** развивается в синергии с мобильным клиентом **[Mirrly TG Proxy для Android](https://github.com/joycecurcirt539-dot/Mirrly-TG-Proxy)**. Обе утилиты используют единый протокольный фундамент маскировки WebSocket/Anycast и позволяют настроить сквозной доступ к контенту без VPN на любых ваших устройствах.
 
 > [!TIP]
-> **1. Отключение протокола QUIC (HTTP/3):**
-> Протокол QUIC работает поверх UDP и может передавать данные в обход TCP-модификаций `winws`. В браузерах на базе Chromium (Chrome, Yandex, Edge, Brave) откройте адрес `chrome://flags/#enable-quic` и переведите значение в **Disabled**.
->
-> **2. Отключение Безопасного DNS (DNS over HTTPS / DoH):**
-> Зашифрованный DNS в браузере может перенаправлять запросы в обход локальных DNS-фильтров. В настройках браузера (*Раздел «Конфиденциальность и безопасность» -> «Безопасный DNS»*) выберите использование системного DNS.
+> ### Автоматический подбор стратегий (Auto Preset Benchmark)
+> В активной разработке находится интеллектуальный модуль автодиагностики: приложение отправляет тестовые пакеты через все доступные пресеты (`ALT1`–`ALT13`, `EXP`, `FAKE TLS`, `SIMPLE FAKE`) к пулу узлов YouTube/Discord и автоматически выбирает наилучшую конфигурацию для вашего интернет-провайдера.
+
+> [!IMPORTANT]
+> ### Принципы открытости и бесплатности
+> * Приложение навсегда остается бесплатным: без рекламы, платных подписок и ограничений функционала.
+> * Никакой скрытой телеметрии: обработка трафика происходит строго локально на вашем ПК.
 
 ---
 
-## Сборка из исходного кода
+## 1. Что такое Zapret Mirrly GUI
 
-Для самостоятельной компиляции приложения необходимы следующие инструменты:
-* **.NET 10.0 SDK** (или новее)
-* **Windows 10 / 11 SDK** (сборка 10.0.26100.0 или новее)
-* **Visual Studio 2022** (с компонентами *Разработка настраиваемых приложений для Windows / WinUI 3*) или **JetBrains Rider**
+**Zapret Mirrly GUI** — мощное и удобное Windows-приложение на базе WinUI 3, объединяющее передовые возможности низкоуровневого DPI-обходчика `zapret` (актуальные стратегии Flowseal v1.10.2) и высокопроизводительного C# WebSocket-прокси для Telegram.
+
+Вместо запуска разрозненных `.bat` файлов и ручной правки списков, пользователь получает готовую экосистему с управлением службой автозапуска Windows, интеллектуальной диагностикой, редактором доменов и информативным треем.
+
+### Что умеет приложение:
+
+* **Полный обход DPI для YouTube и Discord**: десинхронизация пакетов, FakeTLS, multisplit и обход блокировок видеопотоков (GVT/Googlevideo) и голосовых серверов Discord (UDP/STUN).
+* **Встроенный Telegram WS Proxy (TgWsProxy)**: локальный MTProto/SOCKS5 прокси-сервер на чистом C# (.NET 10) с поддержкой Anycast пулов (20 узлов), ротацией Cloudflare Workers и аппаратным шифрованием AES-NI.
+* **Управление службой Windows в 1 клик**: установка, запуск, остановка и чистое удаление системной службы `winws` через нативные Win32 Service API без `sc.exe`.
+* **Актуальная база пресетов Flowseal 1.10.2**: полная поддержка новых стратегий `ALT13`, `general (EXP)`, `ALT1`–`ALT12`, `FAKE TLS AUTO`, `SIMPLE FAKE`, `GameFilter`.
+* **Интерактивная диагностика**: автоматическая проверка драйвера WinDivert, сетевых служб (BFE, DNS), доступности ключевых веб-ресурсов и выявление типа DPI-блокировки.
+* **Трей-менеджер нового поколения**: быстрое меню по левому клику (виджет статуса) и расширенное контекстное меню по правому клику.
+* **Полная портативность (Single-File EXE)**: все компоненты (среда .NET 10, драйвер `WinDivert`, бинарники `winws.exe`, списки) упакованы в один файл.
+
+---
+
+## 2. Технический принцип работы
+
+Приложение объединяет два независимых контура маршрутизации трафика:
+
+```
++-----------------------------------------------------------------------------------------------+
+| Компьютер пользователя (Windows 10 / 11)                                                     |
+|                                                                                               |
+|  [Браузер / Discord] ----(Прямой трафик TCP/UDP 80, 443, 19294+)----------------+             |
+|                                                                                 |             |
+|                                                                                 v             |
+|  [Сетевой стек Windows] <====(Перехват и модификация)===> [WinDivert.sys]                     |
+|                                                                  ^                            |
+|                                                                  |                            |
+|                                                         [winws.exe (zapret)]                  |
+|                                                          Десинхронизация:                     |
+|                                                          - FakeTLS / TLS Split / MultiSplit   |
+|                                                          - HTTP Fake / QUIC Desync            |
+|                                                          - Fake STUN / UDP Payloads           |
+|                                                                                               |
+|  [Клиент Telegram] ----(127.0.0.1:1080 / MTProto)---->[TgWsProxy (.NET 10)]                   |
+|                                                              | WSS TLS (Port 443)             |
+|                                                              v                                |
++--------------------------------------------------------------|--------------------------------+
+                                                               |
+                                                               v
++-----------------------------------------------------------------------------------------------+
+| Сеть Cloudflare Anycast CDN (300+ дата-центров) / Личный Cloudflare Worker                   |
+|                                                                                               |
+|  [Cloudflare Edge Node] <------------------------------------+                                |
++------------------------------|----------------------------------------------------------------+
+                               | TCP (443 / 80)
+                               v
++-----------------------------------------------------------------------------------------------+
+| Серверы Telegram (DC1 - DC5)                                                                  |
++-----------------------------------------------------------------------------------------------+
+```
+
+### Ключевые архитектурные принципы:
+
+1. **Kernel-level перехват (WinDivert)**: сетевые пакеты перехватываются на уровне NDIS-драйвера до их отправки в канал провайдера.
+2. **Нулевой оверхед по скорости**: в отличие от VPN, где весь объем данных шифруется и передается через сторонний сервер, `winws` модифицирует лишь стартовые пакеты сетевого рукопожатия (ClientHello / SYN). Весь полезный поток данных идет напрямую от провайдера на полной скорости тарифа.
+3. **Аппаратная оптимизация TgWsProxy**: использование встроенных инструкций процессора AES-NI для потокового шифрования MTProto-трафика без задержек.
+
+---
+
+## 3. Архитектура системы
+
+```mermaid
+flowchart TD
+    subgraph UILayer ["1. Пользовательский интерфейс (WinUI 3 / XAML)"]
+        Dashboard["Панель управления (Пресеты, Службы, Запуск)"]
+        TgWsProxyUI["Telegram Прокси (Статус, Пул, Воркеры, Пинг)"]
+        DiagnosticsUI["Интерактивная диагностика сети"]
+        ListsUI["Редактор доменов (list-general, exclude, ipset)"]
+        TrayUI["Системный трей (ЛКМ Виджет / ПКМ Меню)"]
+    end
+
+    subgraph ServiceLayer ["2. Сервисный слой (.NET 10 MVVM)"]
+        ZapretSvc["ZapretService<br/>Управление процессами и мониторинг winws"]
+        PresetMgr["PresetManager<br/>Парсер аргументов .bat Flowseal 1.10.2"]
+        Win32Svc["Win32ServiceManager<br/>Нативный контроль служб Windows"]
+        DiagEngine["DiagnosticEngine<br/>Асинхронная проверка TCP/TLS/DNS"]
+        TgWsSvc["TgWsProxyService<br/>Оркестратор Telegram WebSocket сервера"]
+    end
+
+    subgraph TgWsEngine ["3. Высокопроизводительное ядро TgWsProxy"]
+        TgServer["TgWsProxyServer (TCP Listener 127.0.0.1:1080)"]
+        WsPoolEngine["WsPool & SmartFailoverPool<br/>Пул предпрогретых WSS-сессий"]
+        FrontingPool["DomainFrontingPool & IpBenchmarkPool"]
+        CryptoEngine["AES-CTR / AES-NI Cryptography"]
+    end
+
+    subgraph KernelLayer ["4. Низкоуровневый контур обхода DPI"]
+        WinwsProc["winws.exe (Flowseal Release v1.10.2)"]
+        WinDivertDrv["WinDivert.dll / WinDivert64.sys"]
+        WindowsBFE["Base Filtering Engine (BFE) & TCP Timestamps"]
+    end
+
+    subgraph RemoteInfra ["5. Внешняя инфраструктура"]
+        CloudflareEdge["Cloudflare Anycast CDN & Workers"]
+        TelegramDCs["Telegram Data Centers (DC1 - DC5)"]
+        TargetWeb["YouTube, Discord, Заблокированные ресурсы"]
+    end
+
+    Dashboard --> ZapretSvc
+    Dashboard --> PresetMgr
+    TgWsProxyUI --> TgWsSvc
+    DiagnosticsUI --> DiagEngine
+    TrayUI --> ZapretSvc
+    TrayUI --> TgWsSvc
+
+    ZapretSvc --> WinwsProc
+    ZapretSvc --> Win32Svc
+    PresetMgr --> WinwsProc
+    WinwsProc --> WinDivertDrv
+    WinDivertDrv --> WindowsBFE
+    WindowsBFE --> TargetWeb
+
+    TgWsSvc --> TgServer
+    TgServer --> CryptoEngine
+    TgServer --> WsPoolEngine
+    WsPoolEngine --> FrontingPool
+    FrontingPool --> CloudflareEdge
+    CloudflareEdge --> TelegramDCs
+```
+
+---
+
+## 4. Ключевые возможности и модули
+
+### 🎨 Современный Fluent-интерфейс (WinUI 3)
+* **Нативные эффекты DWM**: поддержка подложек Mica, Acrylic и Apple Light Glass с авто-синхронизацией темной и светлой тем Windows.
+* **Высокая плотность компоновки**: продуманное расположение элементов управления без лишних пустых пространств.
+* **Zero-Lag анимации**: аппаратное ускорение рендеринга XAML через Direct3D 12.
+
+### 🛡️ Интегрированный C# Telegram-прокси (TgWsProxy)
+* **Асинхронная архитектура на Task/ValueTask**: нулевые блокировки UI-потока при обслуживании сотен одновременных медиа-потоков.
+* **Система интеллектуальных пулов (`WsPool`)**: поддержание предпрогретых соединений к серверам Telegram для мгновенного старта воспроизведения видео и голосовых сообщений.
+* **Балансировка и Failover (`SmartFailoverPool`)**: автоматический мониторинг задержек (RTT ping) к DC2 и DC4, детектирование ошибок HTTP 429 и прозрачное переключение узлов.
+* **Поддержка личных Cloudflare Workers**: возможность использования персонального домена для 100% изоляции квоты и максимальной конфиденциальности.
+
+### ⚡ Полная интеграция с Flowseal Zapret v1.10.2
+* **Новейшая стратегия `ALT13`**: стандартный `ip_id` режим для сервисов Google и оптимизированные фейки для Discord и стриминга.
+* **Экспериментальный профиль `general (EXP)`**: расширенный multisplit с сегментацией ClientHello.
+* **Game Filter (Игровой фильтр)**: исключение портов популярных онлайн-игр (CS2, Dota 2, Valorant, Apex Legends) для исключения скачков пинга.
+* **Режим автообучения (`autohostlist`)**: динамический перехват заблокированных сайтов «на лету» без модификации остального трафика.
+
+### 🔍 Комплексная диагностика сети
+* **Анализ системного окружения**: проверка состояния службы BFE (Base Filtering Engine), статуса TCP Timestamps, блокировок драйвера `WinDivert`.
+* **Тестирование доступности сервисов**: пошаговый опрос DNS, TCP Handshake, TLS 1.2/1.3 к серверам YouTube, Discord Gateway, Telegram Web.
+
+---
+
+## 5. Обзор пресетов и стратегий обхода (v1.10.2)
+
+| Пресет | Метод десинхронизации | Основное назначение |
+| :--- | :--- | :--- |
+| **`general (ALT13).bat`** | `ip_id=zero` для Google + `fake/hostfakesplit` | **Рекомендуемый.** Новейшая стратегия для стабильного YouTube 4K и голосовых каналов Discord. |
+| **`general (ALT1) ... (ALT12).bat`** | Различные комбинации `fake`, `split2`, `disorder2`, `multisplit` | Альтернативные стратегии под особенности оборудования разных провайдеров (Ростелеком, Дом.ru, МТС, Билайн, Т2). |
+| **`general (EXP).bat`** | Экспериментальный `multisplit` с новыми бинарными фейками | Профиль для провайдеров со сложными комбинированными алгоритмами ТСПУ/DPI. |
+| **`general (FAKE TLS AUTO).bat`** | Автоматическая генерация фейкового TLS ClientHello | Универсальный профиль для магистральных провайдеров. |
+| **`general (SIMPLE FAKE).bat`** | Базовая отправка фейкового пакета без фрагментации | Минимальная нагрузка на процессор для провайдеров с простыми DPI-фильтрами. |
+| **`GameFilter (TCP / UDP)`** | Выборочная фильтрация портов > 1024 | Защита от перехвата пакетов онлайн-игр и голосовых протоколов (Discord WebRTC). |
+
+---
+
+## 6. Галерея интерфейса
+
+<div align="center">
+
+| Главная панель (Панель управления DPI) | Telegram WS Proxy |
+| :-: | :-: |
+| <img src="docs/screenshots/dashboard.png" alt="Панель управления DPI" width="460" /> | <img src="docs/screenshots/tg_ws_proxy.png" alt="Telegram WS Proxy" width="460" /> |
+
+<br/>
+
+| Модуль автодиагностики | Журнал логов winws в реальном времени |
+| :-: | :-: |
+| <img src="docs/screenshots/diagnostics.png" alt="Модуль диагностики" width="460" /> | <img src="docs/screenshots/logs.png" alt="Логи" width="460" /> |
+
+<br/>
+
+| Настройки приложения | Справка и центр обновлений |
+| :-: | :-: |
+| <img src="docs/screenshots/settings.png" alt="Настройки" width="460" /> | <img src="docs/screenshots/guide_updates.png" alt="Справка" width="460" /> |
+
+<br/>
+
+| Темы оформления: Светлая (Light Glass) | Темы оформления: Тёмная (Mica Backdrop) |
+| :-: | :-: |
+| <img src="docs/screenshots/light_theme.png" alt="Светлая тема" width="460" /> | <img src="docs/screenshots/dark_mica.png" alt="Mica Backdrop" width="460" /> |
+
+<br/>
+
+| Виджет трея (ЛКМ) | Меню трея (ПКМ) |
+| :-: | :-: |
+| <img src="docs/screenshots/tray_lmb.png" alt="Трей ЛКМ" width="220" /> | <img src="docs/screenshots/tray_rmb.png" alt="Трей ПКМ" width="220" /> |
+
+</div>
+
+---
+
+## 7. Быстрый старт и установка
+
+1. Скачайте последнюю версию **`ZapretMirrlyGUI.exe`** из раздела **[Релизы GitHub](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases/latest)**.
+2. Запустите файл (приложение автоматически запросит права Администратора для загрузки драйвера `WinDivert`).
+3. Выберите желаемый пресет (по умолчанию рекомендуется **`general (ALT13).bat`** или **`general (ALT11).bat`**).
+4. Нажмите **«Запустить»** для тестового запуска или **«Установить службу»**, чтобы обход работал автоматически при старте Windows.
+5. Для работы Telegram: откройте вкладку **TgWsProxy**, запустите сервер и нажмите **«Подключить в Telegram»**.
+
+> [!TIP]
+> ### Настройки браузера для YouTube:
+> 1. **Отключите протокол QUIC (HTTP/3)**: в Chromium-браузерах перейдите по адресу `chrome://flags/#enable-quic` и установите **Disabled**.
+> 2. **Используйте безопасный DNS (DoH)**: в настройках браузера включите DNS over HTTPS (например, `https://dns.google/dns-query` или `https://1.1.1.1/dns-query`), так как стандартные DNS-запросы могут блокироваться провайдером.
+
+---
+
+## 8. Конфигурация и параметры
+
+| Параметр | По умолчанию | Описание |
+| :--- | :--- | :--- |
+| `ActivePreset` | `general (ALT13).bat` | Активный файл конфигурации стратегии zapret |
+| `GameFilterMode` | `disabled` | Режим фильтрации игровых портов (`disabled`, `all`, `tcp`, `udp`) |
+| `ThemeMode` | `Dark` | Тема интерфейса (`Dark`, `Light`, `Black Graphite`) |
+| `BackdropType` | `Mica` | Эффект прозрачности подложки (`Mica`, `Acrylic`, `None`) |
+| `BindInterface` | `default` | Сетевой интерфейс для привязки перехвата WinDivert |
+| `TgProxyPort` | `1080` | Локальный порт встроенного Telegram WebSocket прокси |
+| `TgProxySecret` | генерируется | 34-символьный MTProto-секрет с маскировкой FakeTLS (`dd`) |
+| `TgCustomWorker` | `""` | Домен персонального Cloudflare Worker для Telegram |
+| `AutostartWithWindows` | `false` | Автозапуск GUI-оболочки при входе пользователя в систему |
+
+---
+
+## 9. Создание и настройка личного Cloudflare Worker
+
+Создание персонального воркера для TgWsProxy занимает 1 минуту и дает персональный лимит в **100 000 запросов в сутки**:
+
+1. Зарегистрируйтесь на [dash.cloudflare.com](https://dash.cloudflare.com/).
+2. Перейдите в **Workers & Pages** ➔ **Create application** ➔ **Create Worker**.
+3. Задайте имя воркера и нажмите **Deploy**.
+4. Нажмите **Edit code**, вставьте скрипт воркера с поддержкой `cloudflare:sockets` и нажмите **Deploy**.
+5. Скопируйте полученный домен (например: `my-proxy.user.workers.dev`).
+6. В **Zapret Mirrly GUI** перейдите на вкладку **TgWsProxy**, вставьте домен в поле *«Личный Cloudflare Worker»* и перезапустите прокси.
+
+---
+
+## 10. Проксирование на телефон через Tailscale
+
+Вы можете превратить ваш домашний ПК в персональный шлюз и раздавать обход на смартфон (iOS / Android) без сторонних VPN:
+
+```mermaid
+flowchart LR
+    Phone["Смартфон (4G/5G/Wi-Fi)<br/>Tailscale App"] -->|Защищенный туннель| HomePC["Домашний ПК (Zapret Mirrly GUI)<br/>Tailscale Exit Node + TgWsProxy"]
+    HomePC -->|Обычный трафик (YouTube 4K / Discord)| WinDivert["DPI Bypass (winws)"]
+    HomePC -->|Трафик Telegram (MTProto)| CFWorker["Cloudflare Anycast CDN"]
+```
+
+### Пошаговая инструкция:
+
+1. **На ПК:** Включите **Zapret Mirrly GUI** и запустите **TgWsProxy** на порту `1080`.
+2. **Tailscale:** Установите [Tailscale](https://tailscale.com) на ПК и телефон, авторизуйтесь под одним аккаунтом.
+3. **Exit Node на ПК:** В трее Tailscale на ПК выберите `Exit Node` ➔ `Run as exit node...`, и подтвердите маршрут в [Tailscale Admin Console](https://login.tailscale.com/admin/machines).
+4. **Проброс портов (PowerShell от имени Администратора):**
+   ```powershell
+   Set-NetIPInterface -Forwarding Enabled
+   reg add HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters /v IPEnableRouter /t REG_DWORD /d 1 /f
+   netsh interface portproxy add v4tov4 listenport=1443 listenaddress=0.0.0.0 connectport=1080 connectaddress=127.0.0.1
+   New-NetFirewallRule -DisplayName "TgWsProxy Tailscale 1443" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 1443
+   ```
+5. **На телефоне:** Включите Tailscale ➔ выберите домашний ПК в качестве `Exit Node`. В настройках прокси Telegram укажите `IP ПК в Tailscale (100.x.y.z)`, порт `1443` и скопированный из GUI секрет.
+
+---
+
+## 11. Структура проекта и сборка из исходного кода
+
+### Структура каталогов
+
+```text
+ZapretMirrlyGUI/
+├── Assets/                 # Графические ресурсы, иконки и встроенный zapret.zip
+├── Pages/                  # Страницы WinUI 3 (Dashboard, TgWsProxy, Diagnostics, Lists, Logs, Settings)
+├── Services/               # Сервисный слой MVVM
+│   ├── TgWsProxy/          # Ядро прокси: WsPool, Balancer, AesCtr, FakeTls, RawWebSocket
+│   ├── AppUpdateService.cs # Проверка обновлений через GitHub API
+│   ├── AssetsExtractor.cs  # Распаковка и обновление встроенного бандла zapret
+│   ├── DiagnosticEngine.cs # Асинхронное тестирование сетевых протоколов
+│   ├── PresetManager.cs    # Парсинг и приоритизация пресетов Flowseal
+│   ├── SettingsManager.cs  # Сериализация настроек в JSON
+│   ├── Win32ServiceManager # Нативное управление службами Windows API
+│   └── ZapretService.cs    # Запуск и мониторинг winws.exe
+├── ViewModels/             # Модели представлений CommunityToolkit.Mvvm
+├── zapret/                 # Бандл Flowseal v1.10.2 (bin, lists, utils, .bat пресеты)
+├── MainWindow.xaml         # Корневое окно приложения с нативным DWM-обрамлением
+├── TrayWindow.xaml         # Всплывающее окно быстрого управления в системном трее
+└── ZapretMirrlyGUI.csproj  # Конфигурация проекта .NET 10 / WindowsAppSDK
+```
+
+### Сборка из исходного кода
+
+**Требования:**
+* .NET 10.0 SDK (или новее)
+* Windows SDK (10.0.26100.0 или новее)
+* Visual Studio 2022 (с компонентами WinUI 3) или JetBrains Rider / VS Code
 
 ```bash
 # 1. Клонирование репозитория
 git clone https://github.com/joycecurcirt539-dot/zapret-mirrly-gui.git
 cd zapret-mirrly-gui
 
-# 2. Сборка проекта в конфигурации Release
+# 2. Сборка проекта
 dotnet build -c Release
 
-# 3. Публикация портативного файла
-dotnet publish -c Release -r win-x64 -o release
+# 3. Публикация Single-File исполняемого файла
+dotnet publish ZapretMirrlyGUI.csproj -c Release -r win-x64 --self-contained true -o publish
 ```
 
 ---
 
-## Структура проекта
+## 12. Сравнение с альтернативами
 
-```
-ZapretMirrlyGUI/
-├── Assets/           # Графические ресурсы, иконка приложения и встроенный zip утилиты
-├── Pages/            # Разделы WinUI 3 (Dashboard, Diagnostics, Lists, Logs, Settings, TgWsProxy, Support, Guide)
-├── Services/         # Логика работы (ZapretService, SettingsManager, AppUpdateService, TgWsProxyService)
-├── docs/             # Документация и галерея скриншотов
-├── zapret/           # Исполняемые файлы winws.exe, драйвер WinDivert и списки правил
-├── App.xaml          # Глобальные темы оформления (AMOLED, Light, Dark) и словарь ресурсов
-└── MainWindow.xaml   # Главный каркас окна приложения и треевой менеджер
-```
-
----
-
-## Сравнение с альтернативами
-
-| Функция / Возможность | Zapret Mirrly GUI | GoodbyeDPI | GoodbyeDPI GUI | Ручные `.bat` скрипты |
-|:---|:---:|:---:|:---:|:---:|
-| **Интерфейс WinUI 3 (Fluent/Mica)** | Да | Нет | Устаревший WinForms | Нет |
-| **Системная служба (автозапуск)** | Да (1 клик) | Настройка вручную | Нет | Требует sc.exe |
-| **Встроенный обход Telegram (C#)** | Да (AES-NI / WsPool) | Нет | Нет | Нет |
-| **Интерактивная диагностика** | Да | Нет | Нет | Нет |
-| **Цветовой журнал логов** | Да | Нет | Нет | Нет |
-| **Редактор списков в приложении** | Да | Нет | Ограниченный | Нет |
-| **Портативный формат (Single EXE)** | Да | Да | Да | Нет |
+| Возможность | Zapret Mirrly GUI | GoodbyeDPI | GoodbyeDPI GUI | Консольный zapret |
+| :--- | :---: | :---: | :---: | :---: |
+| **Графический интерфейс** | **WinUI 3 (Fluent / Mica)** | ❌ Нет | ⚠️ Устаревший WinForms | ❌ Нет |
+| **Встроенный прокси Telegram** | **✅ C# .NET 10 (AES-NI)** | ❌ Нет | ❌ Нет | ❌ Нет |
+| **Управление службой в 1 клик** | **✅ Нативное Win32 API** | ⚠️ Через `.cmd` | ❌ Нет | ⚠️ Через `service.bat` |
+| **Интерактивная диагностика** | **✅ Встроена (TCP/TLS/DNS)** | ❌ Нет | ❌ Нет | ⚠️ Консольный скрипт |
+| **Цветной мониторинг логов** | **✅ В реальном времени** | ❌ Нет | ❌ Нет | ⚠️ Консоль CMD |
+| **Формат поставки** | **✅ Портативный Single EXE** | ⚠️ Архив с файлами | ⚠️ Архив с файлами | ⚠️ Архив с `.bat` |
+| **Экосистема с Android** | **✅ Единый стек (Mirrly)** | ❌ Нет | ❌ Нет | ❌ Нет |
 
 ---
 
-## Дорожная карта (Roadmap)
+## 13. График активности разработки
 
-### Реализовано в текущих версиях (v1.1.5):
-- [x] Полный перенос интерфейса на WinUI 3 с нативной поддержкой эффектов Mica и Acrylic (DWM).
-- [x] Встроенный высокопроизводительный Telegram WebSocket-прокси на C# (.NET 10) с пулом соединений (`WsPool`) и аппаратным шифрованием AES-NI.
-- [x] Режим динамического обучения и автопополнения заблокированных ресурсов (`autohostlist.txt`).
-- [x] **Нативный диагностический модуль C#:** Асинхронное тестирование сетевой подсистемы с детальной проверкой HTTP/TLS 1.2/TLS 1.3.
-- [x] **Интеллектуальный бенчмарк пресетов (Auto Preset Matcher):** Автоматическое тестирование всех стратегий обхода и автовыбор лучшей конфигурации для вашего провайдера.
-- [x] **Нативный C# менеджер пресетов и служб:** Полное избавление от вызовов скрипта `service.bat` и прямое управление системными службами (`winws`, `WinDivert`) через C# и Win32 API.
-- [x] **Проверка конфликтующих служб и окружения:** Нативный C# опрос службы базовой фильтрации (BFE) и включение TCP Timestamps в реестре Windows.
-- [x] Однократный показ чейнджлога при первом запуске новой версии и инспектирование текущей версии из сайдбара.
-- [x] Селективная фильтрация по сетевым протоколам (IPv4 / IPv6).
+<div align="center">
 
-### В разработке и планах на будущие релизы:
-- [ ] **Графический анализатор пакетов (Live Packet Inspector):** Визуализация структуры перехваченных TLS ClientHello и TCP-пакетов во вкладке «Логи».
-- [ ] **Умный игровой фильтр (Smart Game Bypasser):** Автообнаружение IP-адресов игровых серверов (CS2, Dota 2, Valorant, Apex) для гарантии нулевого пинга в играх.
-- [ ] **Тихое фоновое автообновление баз:** Обновление списков правил по расписанию Windows Task Scheduler без всплывающих окон.
-- [ ] **Редактор пользовательских тем оформления:** Возможность создания и экспорта собственных акцентных палитр WinUI 3 и степени прозрачности стекла.
-- [ ] **Расширенная ротация Telegram-прокси:** Автоматический бенчмарк и ротация FakeTLS-доменов и Cloudflare endpoints.
-- [ ] **Дистанционное управление (Web Companion API):** Минималистичный веб-интерфейс для контроля статуса и переключения пресетов со смартфона.
+[![Activity Graph](https://github-readme-activity-graph.vercel.app/graph?username=joycecurcirt539-dot&repo=zapret-mirrly-gui&theme=tokyo-night&hide_border=true)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui)
+
+</div>
 
 ---
 
-## Безопасность и проверка целостности
+## 14. Динамика звезд репозитория
 
-Приложение не собирает персональные данные, не содержит рекламы, трекеров или систем скрытой телеметрии. Весь сетевой обмен происходит строго локально.
+<div align="center">
 
-Для проверки подлинности скачанного исполняемого файла вы можете сверить хэш-сумму SHA-256 через командную строку Windows PowerShell:
+<a href="https://www.star-history.com/?repos=joycecurcirt539-dot%2Fzapret-mirrly-gui&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=joycecurcirt539-dot/zapret-mirrly-gui&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=joycecurcirt539-dot/zapret-mirrly-gui&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=joycecurcirt539-dot/zapret-mirrly-gui&type=date&legend=top-left" />
+ </picture>
+</a>
+
+</div>
+
+---
+
+## 15. Хронология развития
+
+| Версия / Дата | Ключевой этап | Основные изменения |
+| :--- | :--- | :--- |
+| **`v1.0.0`** (20.07.2026) | Генезис | Первый публичный релиз. Базовый интерфейс WinUI 3, интеграция `winws`, управление службами Windows. |
+| **`v1.1.0–1.1.4`** | Fluent & Трей | Поддержка тем Mica и Acrylic, разработка интерактивного системного трея (виджет ЛКМ / меню ПКМ). |
+| **`v1.1.5–1.1.7`** | Диагностика и списки | Нативный C# модуль диагностики сети, встроенный редактор списков доменов, автопополнение `autohostlist`. |
+| **`v1.1.8`** (Август 2026) | TgWsProxy & Пул | Полная интеграция C# Telegram WebSocket прокси, аппаратное шифрование AES-NI, пулы `WsPool` и карточка Android-клиента. |
+| **`v1.1.9`** (Август 2026) | Flowseal 1.10.2 | Интеграция базы стратегий Flowseal 1.10.2: пресеты `ALT13`, `EXP`, новые бинарные фейки в `bin/` и авто-распаковка. |
+
+---
+
+## 16. Безопасность и проверка целостности
+
+* **100% открытый исходный код**: в приложении отсутствуют закрытые библиотеки, реклама или аналитические трекеры.
+* **Локальная обработка**: интернет-трафик не передается на сторонние сервера и не покидает пределы вашего ПК.
+
+### Проверка хэш-суммы SHA-256 (PowerShell):
 
 ```powershell
 Get-FileHash -Path "ZapretMirrlyGUI.exe" -Algorithm SHA256
 ```
 
-Сравните полученное значение SHA-256 с контрольной суммой, указанной в описании официального релиза на странице **[Releases](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)**.
+Сравните полученное значение с отпечатком SHA-256 в описании официального релиза на странице **[Releases](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)**.
 
 ---
 
-## Вклад в разработку (Contributing)
+## 17. Благодарности и экосистема Mirrly
 
-Мы приветствуем любой вклад сообщества в развитие **Zapret Mirrly GUI**!
-
-Вы можете помочь проекту следующими способами:
-1. **Тестирование пресетов:** Сообщайте о новых эффективных стратегиях обхода для региональных операторов связи.
-2. **Исправление ошибок:** Отправляйте Pull Request с исправлениями багов и улучшением XAML-верстки.
-3. **Оформление кода:** При отправке PR придерживайтесь гайдлайнов Microsoft C# Coding Conventions и структуры WinUI 3 MVVM.
-
-```bash
-# Создание ветки под новую фичу
-git checkout -b feature/awesome-feature
-
-# Отправка изменений
-git commit -m "feat: add awesome feature"
-git push origin feature/awesome-feature
-```
+* **[bol-van (Vasily Levichev)](https://github.com/bol-van)** — автор и создатель низкоуровневого движка обхода [zapret](https://github.com/bol-van/zapret) и утилиты `winws.exe`.
+* **[Flowseal](https://github.com/Flowseal)** — автор конфигурационных стратегий [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) и концепта проксирования [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy).
+* **[basil00 (WinDivert)](https://reqcrypt.org/windivert.html)** — создатель драйвера ядра Windows Packet Divert.
+* **[ValdikSS (GoodbyeDPI)](https://github.com/ValdikSS)** — пионер исследований алгоритмов глубокой фильтрации пакетов (DPI).
+* **[Mirrly TG Proxy (Android)](https://github.com/joycecurcirt539-dot/Mirrly-TG-Proxy)** — мобильный компаньон для устройств Android на нативном Rust-ядре `mirrlyengine`.
 
 ---
 
-## Часто задаваемые вопросы (FAQ)
-
-<details>
-<summary><strong>YouTube или Discord всё равно тормозит/не работает. Что делать?</strong></summary>
-
-1. Убедитесь, что приложение успешно запустилось с правами Администратора и в логах нет ошибок монтирования драйвера `WinDivert`.
-2. Перейдите на вкладку **Диагностика** и запустите тест. Он покажет, на каком этапе происходит блокировка (DNS, пинг или HTTP-запрос).
-3. Попробуйте выбрать другой пресет на панели управления. Провайдеры связи используют разные конфигурации DPI, поэтому универсального пресета не существует (кому-то подходит `FAKE TLS`, кому-то `SIMPLE FAKE` или `ALT`).
-4. Убедитесь, что в браузере выключен протокол QUIC (`chrome://flags/#enable-quic`).
-5. Убедитесь, что другие DPI-обходчики (GoodbyeDPI и др.) полностью остановлены и их процессы не висят в диспетчере задач.
-
-</details>
-
-<details>
-<summary><strong>Зачем приложению права администратора?</strong></summary>
-
-Низкоуровневая утилита `winws.exe` использует драйвер `WinDivert` для фильтрации и модификации пакетов на уровне сетевых интерфейсов Windows, а также регистрирует службу автозапуска в системе. Подобные операции разрешены только процессам с правами Администратора.
-
-</details>
-
-<details>
-<summary><strong>Это безопасно? Куда уходит мой интернет-трафик?</strong></summary>
-
-Программа работает **полностью локально**. В отличие от VPN, здесь нет внешних серверов, через которые перенаправляется ваш трафик. Утилита лишь перехватывает заголовки пакетов на вашем ПК, модифицирует их для обхода фильтров провайдера и сразу отправляет дальше. Код проекта открыт.
-
-</details>
-
-<details>
-<summary><strong>В чём разница между этим обходом и классическим VPN?</strong></summary>
-
-VPN шифрует весь ваш трафик и передает его через удаленный сервер, что часто приводит к снижению скорости и увеличению пинга. Zapret Mirrly GUI изменяет структуру отправляемых вами пакетов локально, поэтому скорость интернета остается максимальной.
-
-</details>
-
-<details>
-<summary><strong>Почему исполняемый файл весит около 250 МБ?</strong></summary>
-
-Приложение скомпилировано в режиме `Self-Contained`. Внутрь упакована полная среда выполнения .NET 10 Runtime, бинарные файлы `winws.exe` для различных систем, драйвер `WinDivert` и все встроенные ресурсы. Приложение полностью портативно и не требует предварительной установки .NET SDK на компьютере пользователя.
-
-</details>
-
-<details>
-<summary><strong>Как настроить встроенный Telegram-прокси (TgWsProxy) в мессенджере?</strong></summary>
-
-Перейдите на вкладку **Telegram прокси**, нажмите **«Запустить сервер»**, а затем кликните кнопку **«Подключить в Telegram»**. Приложение автоматически сформирует ссылку подключения `tg://proxy?server=127.0.0.1&port=1080` и откроет клиент Telegram с предложением активировать локальный SOCKS5/HTTP прокси.
-
-</details>
-
-<details>
-<summary><strong>Что делать при ошибке «WinDivert error: 1450» или «WinDivert error: 1058»?</strong></summary>
-
-Данные ошибки возникают, если служба WinDivert заблокирована антивирусом, системным античитом (Riot Vanguard, BattlEye, FaceIt) или если в системе параллельно запущен другой DPI-обходчик (GoodbyeDPI, сторонние версии zapret). Закройте конфликтующие приложения и перезапустите Zapret Mirrly GUI от имени Администратора.
-
-</details>
-
-<details>
-<summary><strong>Как работает режим «Автоматическое обучение списка» (Auto Hostlist)?</strong></summary>
-
-В режиме `Auto Hostlist` утилита `winws` не модифицирует соединения со всеми сайтами подряд, а анализирует сетевые сбои (сбросы TCP Reset и ошибки TLS рукопожатия) при обращении к заблокированным доменам. Заблокированный ресурс автоматически заносится в файл `autohostlist.txt` и начинает обрабатываться правилами обхода в режиме реального времени.
-
-</details>
-
-<details>
-<summary><strong>Можно ли использовать Zapret Mirrly GUI одновременно с системным VPN?</strong></summary>
-
-Использовать Zapret одновременно с полноценным системным VPN не рекомендуется. VPN-клиенты создают виртуальный сетевой адаптер (TAP/TUN), перехватывая весь IP-трафик до того, как он попадает на драйвер `WinDivert`. При работе VPN рекомендуется останавливать службу `winws`.
-
-</details>
-
-<details>
-<summary><strong>Как полностью удалить службу автозапуска приложения из Windows?</strong></summary>
-
-В интерфейсе приложения на **Панели управления** нажмите кнопку **«Удалить службу»**. Приложение мгновенно остановит рабочий процесс `winws.exe` и удалит зарегистрированную системную службу Windows без остатка в реестре.
-
-</details>
-
-<details>
-<summary><strong>Сохранятся ли мои списки и настройки при обновлении файла .exe на новую версию?</strong></summary>
-
-Да, все пользовательские настройки, резервные копии списков доменов и конфигурации сохраняются в системной директории `%LOCALAPPDATA%\ZapretMirrlyGUI`. При скачивании новой версии исполняемого файла `ZapretMirrlyGUI.exe` все ваши данные сохраняются в полном объеме.
-
-</details>
-
----
-
-## Обратная связь и репорты об ошибках
-
-Если вы обнаружили баг, столкнулись с проблемой или хотите предложить новую функцию:
-1. Перейдите в раздел **[GitHub Issues](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/issues)**.
-2. Нажмите **New Issue** и опишите возникшую проблему.
-3. По возможности приложите вывод из вкладки **Логи** и результаты работы **Диагностики**.
-
----
-
-## Зависимости и благодарности
-
-Проект создавался на базе фундаментальных открытых разработок мирового сообщества и выражает искреннюю благодарность авторам за их вклад:
-
-* **[bol-van (Vasily Levichev)](https://github.com/bol-van)** — автор и разработчик низкоуровневого движка обхода [zapret](https://github.com/bol-van/zapret) и консольной утилиты `winws.exe`.
-* **[Flowseal](https://github.com/Flowseal)** — автор конфигурационных стратегий обхода [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) и концепта прокси-сервера [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy).
-* **[basil00 (WinDivert)](https://github.com/basil00/Divert)** — создатель драйвера ядра и библиотеки **WinDivert** (Windows Packet Divert) для перехвата сетевого трафика.
-* **[ValdikSS (GoodbyeDPI)](https://github.com/ValdikSS)** — исследователь сетевых блокировок и автор проектов обхода DPI, чьи работы заложили основу для развития средств взаимодействия с WinDivert.
-* **Microsoft Corporation** — авторы фреймворков WinUI 3, .NET Runtime и набора компонентов Windows App SDK & Windows Community Toolkit.
-
----
-
-## Лицензия
-
-Исходный код графической оболочки **Zapret Mirrly GUI** распространяется под свободной лицензией **MIT**. Полный текст доступен в файле [LICENSE](LICENSE).
-
-### Лицензии сторонних компонентов и библиотек:
-* **zapret / winws.exe** — (c) bol-van, распространяется под лицензией **MIT / GPL-3.0**.
-* **WinDivert (WinDivert.dll / WinDivert64.sys)** — (c) basil00, распространяется под лицензиями **LGPL-3.0 / GPL-3.0**.
-* **WinUI 3 & Windows App SDK** — (c) Microsoft Corporation, распространяются под лицензией **MIT**.
-* **CommunityToolkit.WinUI** — (c) Microsoft / Windows Community Toolkit Contributors, лицензия **MIT**.
-
----
-
-##  Руководство: Проксирование Telegram и всего трафика с домашнего ПК на мобильный телефон (через Tailscale + TgWsProxy)
-
-Данный гайд описывает, как превратить ваш домашний компьютер в персональный узел разблокировок. Вы сможете использовать **Zapret (winws)** и **TgWsProxy** с мобильного телефона через 4G/5G/Wi-Fi в любой точке мира.
-
-###  Как это работает (Архитектура):
-1. **Tailscale (Exit Node):** Создает защищенный виртуальный туннель между телефоном и ПК. Весь обычный трафик телефона (YouTube 4K, Discord, сайты) проходит через домашний **Запрет**.
-2. **TgWsProxy:** Запущен внутри приложения на `127.0.0.1:1080` и обходит жесткие блокировки ТСПУ (DPI) для Telegram с помощью WebSocket-маскировки Cloudflare.
-3. **Windows PortProxy (`netsh`):** Принимает входящий запрос с телефона на внешнем порту `1443` и пробрасывает его внутри ПК на `127.0.0.1:1080`. Это предотвращает ошибки сокетов в Windows и сохраняет корректную работу прокси на самом ПК.
-
----
-
-###  ШАГ 1. Настройка TgWsProxy в ZapretMirrlyGUI
-
-1. Запустите **ZapretMirrlyGUI** от имени администратора.
-2. Убедитесь, что основной обход **Запрет** включен и работает.
-3. Перейдите на вкладку **TgWsProxy**:
-   * **Хост (IP):** `127.0.0.1` *(НЕ меняйте на 0.0.0.0, чтобы не было конфликтов сокетов)*.
-   * **Порт:** `1080`.
-   * Нажмите **«Запустить прокси»**.
-   * Скопируйте **Секрет** (Secret) — он пригодится для настройки Telegram на телефоне.
-
----
-
-###  ШАГ 2. Настройка Tailscale на ПК (Exit Node)
-
-1. Скачайте и установите [Tailscale для Windows](https://tailscale.com/download/windows).
-2. Войдите под своим аккаунтом (Google / Microsoft / GitHub).
-3. **Включите Выходной Узел на ПК:**
-   * В трее Windows (возле часов) нажмите правой кнопкой мыши по иконке **Tailscale**.
-   * Зайдите в **Exit Node** ➔ поставьте галочку **`Run as exit node...`**.
-4. **Подтвердите Exit Node в панели управления:**
-   * Перейдите по ссылке [login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines).
-   * Напротив вашего ПК нажмите на три точки **`...`** ➔ **`Edit route settings...`**.
-   * Включите тумблер **`Use as exit node`** (или *Approve exit node*) и нажмите **Save**.
-
----
-
-###  ШАГ 3. Настройка системных служб Windows (PowerShell)
-
-Для того чтобы Windows разрешила передавать трафик с телефона, не блокировала порты брандмауэром и правильно пробрасывала пакеты на `TgWsProxy`, выполните команды:
-
-1. Откройте **Пуск** ➔ найдите **PowerShell** ➔ нажмите правой кнопкой ➔ **Запуск от имени администратора**.
-2. Вставьте и выполните единый блок команд:
-
-```powershell
-# 1. Включаем пересылку сетевых пакетов в Windows (IP Forwarding)
-Set-NetIPInterface -Forwarding Enabled
-
-# 2. Включаем маршрутизатор в реестре Windows
-reg add HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters /v IPEnableRouter /t REG_DWORD /d 1 /f
-
-# 3. Сбрасываем старые правила portproxy (для предотвращения конфликта сокетов)
-netsh interface portproxy reset
-
-# 4. Настраиваем проброс с внешнего порта 1443 на внутренний TgWsProxy 127.0.0.1:1080
-netsh interface portproxy add v4tov4 listenport=1443 listenaddress=0.0.0.0 connectport=1080 connectaddress=127.0.0.1
-
-# 5. Открываем порт 1443 в Брандмауэре Windows
-New-NetFirewallRule -DisplayName "TgWsProxy Tailscale 1443" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 1443
-
-# 6. Перезапускаем службу Tailscale для обновления маршрутов
-net stop tailscaled; net start tailscaled
-```
-
----
-
-###  ШАГ 4. Настройка мобильного телефона (iOS / Android)
-
-#### 1. Подключение к сети (Tailscale):
-1. Скачайте приложение **Tailscale** из App Store или Google Play.
-2. Войдите под **тем же самым аккаунтом**, что и на ПК.
-3. Отключите Wi-Fi на телефоне (останьтесь на мобильном 4G/5G).
-4. Включите главный тумблер в Tailscale ➔ нажмите на **Exit Node** и выберите ваш **домашний ПК**.
-5. Скопируйте **Tailscale IP вашего ПК** (он отображается под именем вашего ПК в Tailscale и имеет вид `100.x.y.z`, например `100.115.80.20`).
-
-#### 2. Настройка Telegram:
-1. Откройте **Telegram** ➔ **Настройки** ➔ **Данные и память** ➔ **Прокси** ➔ **Добавить прокси**.
-2. Выберите тип: **MTProto**.
-3. Заполните параметры:
-   * **Сервер:** `100.x.y.z` *(Tailscale IP вашего ПК)*
-   * **Порт:** `1443` *(Внешний порт перенаправления)*
-   * **Ключ (Секрет):** *(Вставьте секрет, скопированный из TgWsProxy в ШАГЕ 1)*
-4. Сохраните и включите прокси.
-
----
-
-###  ШАГ 5. Проверка работы
-
-1. **Проверка общего трафика:**
-   * Перейдите на [2ip.ru](https://2ip.ru) в браузере телефона. Там должен отображаться **домашний IP-адрес вашего ПК**.
-   * YouTube на телефоне должен проигрывать ролики в 4K через домашний Запрет.
-2. **Проверка Telegram:**
-   * В Telegram статус сменится на «Подключено» (зеленая галочка). Все чаты, каналы и медиафайлы будут загружаться на максимальной скорости через маскированный туннель Cloudflare.
-
----
-
-###  Решение частых проблем (Troubleshooting)
-
-* **Ошибка в логах ПК: `Failed to start TCP Listener... Сделана попытка доступа к сокету методом, запрещенным правами доступа`**
-  * *Причина:* Вы попытались привязать `TgWsProxy` на тот же порт, который уже занят `netsh portproxy` или Hyper-V.
-  * *Решение:* Держите `TgWsProxy` на порту `1080` и хосте `127.0.0.1`, а в `netsh portproxy` используйте `listenport=1443`.
-* **На телефоне все сайты грузятся, но Telegram вечно пишет «Соединение...»**
-  * *Причина:* Забыли прописать прокси MTProto в самом Telegram на телефоне или ввели не тот порт.
-  * *Решение:* Убедитесь, что в Telegram на телефоне указан порт `1443` и скопирован верный секрет без пробелов.
-
+<div align="center">
+  <sub>Создано с ❤️ для свободного и быстрого интернета. Распространяется под лицензией MIT.</sub>
+</div>

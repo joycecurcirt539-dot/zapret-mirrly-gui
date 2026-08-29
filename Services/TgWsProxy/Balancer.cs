@@ -97,6 +97,21 @@ public class Balancer
         }
     }
 
+    public void RecordDomainFailure(string domain)
+    {
+        lock (_lock)
+        {
+            _domains.Remove(domain);
+            foreach (var kvp in _dcToDomain.ToList())
+            {
+                if (kvp.Value == domain && _domains.Count > 0)
+                {
+                    _dcToDomain[kvp.Key] = _domains[Random.Shared.Next(_domains.Count)];
+                }
+            }
+        }
+    }
+
     public List<string> GetDomainsForDc(int dcId)
     {
         var result = new List<string>();

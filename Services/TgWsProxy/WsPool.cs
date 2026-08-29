@@ -12,6 +12,7 @@ public class WsPool
     private const double WS_POOL_MAX_AGE = 120.0;
     private readonly ConcurrentDictionary<(int Dc, bool IsMedia), ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>> _idle = new();
     private readonly ConcurrentDictionary<(int Dc, bool IsMedia), bool> _refilling = new();
+    private readonly ConcurrentDictionary<(int Dc, bool IsMedia), DateTime> _failCooldown = new();
     private readonly Action<string> _logCallback;
 
     public DateTime FrontingUntil { get; set; } = DateTime.MinValue;
@@ -47,6 +48,11 @@ public class WsPool
 
     private void ScheduleRefill((int Dc, bool IsMedia) key, string targetIp, List<string> domains)
     {
+        if (_failCooldown.TryGetValue(key, out var cooldownUntil) && DateTime.UtcNow < cooldownUntil)
+        {
+            return;
+        }
+
         if (_refilling.TryAdd(key, true))
         {
             Task.Run(async () =>
@@ -58,11 +64,6 @@ public class WsPool
                 finally
                 {
                     _refilling.TryRemove(key, out _);
-                    var bucket = _idle.GetOrAdd(key, _ => new ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>());
-                    if (bucket.Count < PoolSize)
-                    {
-                        ScheduleRefill(key, targetIp, domains);
-                    }
                 }
             });
         }
@@ -71,7 +72,8 @@ public class WsPool
     private async Task RefillAsync((int Dc, bool IsMedia) key, string targetIp, List<string> domains)
     {
         var bucket = _idle.GetOrAdd(key, _ => new ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>());
-        int needed = PoolSize - bucket.Count;
+        int targetPool = key.IsMedia ? Math.Max(PoolSize, 6) : PoolSize;
+        int needed = targetPool - bucket.Count;
         if (needed <= 0)
             return;
 
@@ -95,7 +97,12 @@ public class WsPool
 
         if (added > 0)
         {
+            _failCooldown.TryRemove(key, out _);
             _logCallback($"[WsPool] Refilled DC{key.Dc}{(key.IsMedia ? "m" : "")}: {bucket.Count} ready.");
+        }
+        else if (needed > 0)
+        {
+            _failCooldown[key] = DateTime.UtcNow.AddSeconds(20);
         }
     }
 
@@ -130,7 +137,8 @@ public class WsPool
         foreach (var pair in dcRedirects)
         {
             int dc = pair.Key;
-            string targetIp = pair.Value;
+            string configuredIp = pair.Value;
+            string targetIp = IpBenchmarkPool.Instance.GetBestTargetIp(dc, configuredIp, true);
             if (string.IsNullOrEmpty(targetIp)) continue;
 
             foreach (bool isMedia in new[] { false, true })
@@ -152,17 +160,28 @@ public class WsPool
         }
         _idle.Clear();
         _refilling.Clear();
+        _failCooldown.Clear();
         FrontingUntil = DateTime.MinValue;
     }
 
     public static List<string> GetWsDomains(int dc, bool isMedia)
     {
         if (dc == 203) dc = 2;
+        string dcNamed = dc switch
+        {
+            1 => "aurora.web.telegram.org",
+            2 => "venus.web.telegram.org",
+            3 => "vesta.web.telegram.org",
+            4 => "venus.web.telegram.org",
+            5 => "pluto.web.telegram.org",
+            _ => "web.telegram.org"
+        };
+
         if (isMedia)
         {
-            return new List<string> { $"kws{dc}-1.web.telegram.org", $"kws{dc}.web.telegram.org" };
+            return new List<string> { $"kws{dc}-1.web.telegram.org", $"kws{dc}.web.telegram.org", dcNamed };
         }
-        return new List<string> { $"kws{dc}.web.telegram.org", $"kws{dc}-1.web.telegram.org" };
+        return new List<string> { $"kws{dc}.web.telegram.org", $"kws{dc}-1.web.telegram.org", dcNamed };
     }
 }
 
@@ -171,6 +190,7 @@ public class CfWorkerPool
     private const double WS_POOL_MAX_AGE = 100.0;
     private readonly ConcurrentDictionary<(int Dc, string WorkerDomain), ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>> _idle = new();
     private readonly ConcurrentDictionary<(int Dc, string WorkerDomain), bool> _refilling = new();
+    private readonly ConcurrentDictionary<(int Dc, string WorkerDomain), DateTime> _failCooldown = new();
     private readonly Action<string> _logCallback;
 
     public int PoolSize { get; set; } = 4;
@@ -205,6 +225,11 @@ public class CfWorkerPool
 
     private void ScheduleRefill((int Dc, string WorkerDomain) key, string fallbackDst)
     {
+        if (_failCooldown.TryGetValue(key, out var cooldownUntil) && DateTime.UtcNow < cooldownUntil)
+        {
+            return;
+        }
+
         if (_refilling.TryAdd(key, true))
         {
             Task.Run(async () =>
@@ -247,7 +272,12 @@ public class CfWorkerPool
 
         if (added > 0)
         {
+            _failCooldown.TryRemove(key, out _);
             _logCallback($"[CfWorkerPool] Refilled DC{key.Dc} via {key.WorkerDomain}: {bucket.Count} ready.");
+        }
+        else if (needed > 0)
+        {
+            _failCooldown[key] = DateTime.UtcNow.AddSeconds(20);
         }
     }
 
@@ -302,5 +332,6 @@ public class CfWorkerPool
         }
         _idle.Clear();
         _refilling.Clear();
+        _failCooldown.Clear();
     }
 }

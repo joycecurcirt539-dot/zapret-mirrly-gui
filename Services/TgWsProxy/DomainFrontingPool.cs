@@ -8,12 +8,16 @@ public class DomainFrontingPool
     private static readonly string[] FRONTING_SNI_CANDIDATES = new[]
     {
         "sprinthost.ru",
-        "vk.com",
-        "yandex.ru",
-        "sberbank.ru",
-        "tbank.ru",
-        "mail.ru",
-        "ok.ru"
+        "habr.com",
+        "vc.ru",
+        "dtf.ru",
+        "4pda.to",
+        "pikabu.ru",
+        "cdnjs.cloudflare.com",
+        "speed.cloudflare.com",
+        "challenges.cloudflare.com",
+        "pages.dev",
+        "workers.dev"
     };
 
     private static int _currentIndex = 0;

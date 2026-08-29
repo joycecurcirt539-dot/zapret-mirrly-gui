@@ -125,22 +125,30 @@ public static class FakeTls
 
     public static byte[] WrapTlsRecord(byte[] data)
     {
-        using (var ms = new MemoryStream())
+        if (data.Length == 0) return Array.Empty<byte>();
+
+        int numChunks = (data.Length + 16383) / 16384;
+        int totalLen = data.Length + numChunks * 5;
+        byte[] result = new byte[totalLen];
+
+        int srcOffset = 0;
+        int dstOffset = 0;
+
+        while (srcOffset < data.Length)
         {
-            int offset = 0;
-            while (offset < data.Length)
-            {
-                int chunkSize = Math.Min(data.Length - offset, 16384);
-                ms.WriteByte(0x17);
-                ms.WriteByte(0x03);
-                ms.WriteByte(0x03);
-                ms.WriteByte((byte)((chunkSize >> 8) & 0xFF));
-                ms.WriteByte((byte)(chunkSize & 0xFF));
-                ms.Write(data, offset, chunkSize);
-                offset += chunkSize;
-            }
-            return ms.ToArray();
+            int chunkSize = Math.Min(data.Length - srcOffset, 16384);
+            result[dstOffset] = 0x17;
+            result[dstOffset + 1] = 0x03;
+            result[dstOffset + 2] = 0x03;
+            result[dstOffset + 3] = (byte)((chunkSize >> 8) & 0xFF);
+            result[dstOffset + 4] = (byte)(chunkSize & 0xFF);
+            Array.Copy(data, srcOffset, result, dstOffset + 5, chunkSize);
+
+            srcOffset += chunkSize;
+            dstOffset += 5 + chunkSize;
         }
+
+        return result;
     }
 }
 

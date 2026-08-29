@@ -21,6 +21,7 @@
     <Nullable>enable</Nullable>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
     <!-- Single-file clean publish options -->
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
