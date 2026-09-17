@@ -4,6 +4,8 @@
 
 # Zapret Mirrly GUI для Windows
 
+РАЗРАБОТКА ВРЕМЕННО ПРИОСТАНОВЛЕНА, ОСНОВНОЙ УПОР НА Mirrly TG Proxy.
+
 **Современное графическое решение (WinUI 3 / .NET 10) для автоматического обхода DPI-блокировок YouTube, Discord и системного проксирования Telegram (TgWsProxy) в один клик без системного VPN**
 
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011%20(x64)-1E293B?logo=windows&logoColor=0078D6)](https://www.microsoft.com/windows)
