@@ -25,6 +25,9 @@ public partial class TgWsProxyViewModel : ObservableObject
     private string _proxyPortText = "1080";
 
     [ObservableProperty]
+    private bool _autoStartWithApp = true;
+
+    [ObservableProperty]
     private string _proxySecretText = "";
 
     [ObservableProperty]
@@ -88,6 +91,7 @@ public partial class TgWsProxyViewModel : ObservableObject
 
         ProxyPortText = SettingsManager.Instance.TgWsProxyPort.ToString();
         ProxySecretText = SettingsManager.Instance.TgWsProxySecret;
+        AutoStartWithApp = SettingsManager.Instance.TgWsProxyAutoStart;
 
         foreach (var log in TgWsProxyService.GetLogHistory())
         {
@@ -286,6 +290,12 @@ public partial class TgWsProxyViewModel : ObservableObject
         LaunchLogText = string.Empty;
     }
 
+    partial void OnAutoStartWithAppChanged(bool value)
+    {
+        SettingsManager.Instance.TgWsProxyAutoStart = value;
+        SettingsManager.Save();
+    }
+
     public bool SaveCurrentSettings(XamlRoot? xamlRoot)
     {
         if (!int.TryParse(ProxyPortText, out var port) || port <= 0 || port > 65535)
@@ -304,6 +314,7 @@ public partial class TgWsProxyViewModel : ObservableObject
             return false;
         }
 
+        SettingsManager.Instance.TgWsProxyAutoStart = AutoStartWithApp;
         SettingsManager.Instance.TgWsProxyPort = port;
         SettingsManager.Instance.TgWsProxySecret = ProxySecretText.Trim();
         SettingsManager.Save();

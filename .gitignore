@@ -44,8 +44,15 @@ GITIGNORE/
 *-user.txt
 
 
+# Build and publish directories
+publish/
+release/
+builds/
+release_build/
+publish_v*/
+
 # Screenshots & temporary images
 screenshot/
+docs/screenshots_raw/
 iconmirrlyzapret.png
-publish_v118/
-release_build/
+

@@ -13,10 +13,10 @@
 [![C# 13](https://img.shields.io/badge/C%23-13.0-1E293B?logo=csharp&logoColor=239120)](https://docs.microsoft.com/dotnet/csharp/)
 [![WinUI 3](https://img.shields.io/badge/UI-WinUI%203%20(Fluent)-1E293B?logo=windows&logoColor=005A9E)](https://learn.microsoft.com/windows/apps/winui/winui3/)
 [![WinDivert](https://img.shields.io/badge/Kernel-WinDivert-1E293B?logo=cplusplus&logoColor=00599C)](https://reqcrypt.org/windivert.html)
-[![Zapret Engine](https://img.shields.io/badge/zapret-Flowseal%20v1.10.2-1E293B?logo=github&logoColor=F5A623)](https://github.com/Flowseal/zapret-discord-youtube)
+[![Zapret Engine](https://img.shields.io/badge/zapret-Flowseal%20v1.10.3-1E293B?logo=github&logoColor=F5A623)](https://github.com/Flowseal/zapret-discord-youtube)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-Anycast%20CDN-1E293B?logo=cloudflare&logoColor=F38020)](https://cloudflare.com)
 <br/>
-[![Version](https://img.shields.io/badge/Релиз-v1.1.9-1E293B?logo=github&logoColor=00E676)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)
+[![Version](https://img.shields.io/badge/Релиз-v1.2.0-1E293B?logo=github&logoColor=00E676)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)
 [![Genesis](https://img.shields.io/badge/Генезис-20.07.2026-1E293B?logo=git&logoColor=00E676)](CHANGELOG.md)
 [![Downloads](https://img.shields.io/github/downloads/joycecurcirt539-dot/zapret-mirrly-gui/total?color=1E293B&logo=github&logoColor=0088CC)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/releases)
 [![Stars](https://img.shields.io/github/stars/joycecurcirt539-dot/zapret-mirrly-gui?color=1E293B&logo=github&logoColor=F5A623)](https://github.com/joycecurcirt539-dot/zapret-mirrly-gui/stargazers)
@@ -28,7 +28,7 @@
 [![Changelog](https://img.shields.io/badge/CHANGELOG-1E293B)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/MIT-1E293B)](LICENSE)
 
-*Интеллектуальная маршрутизация и десинхронизация пакетов DPI (zapret winws), нативный движок TgWsProxy (.NET 10 / AES-NI / WsPool) и интеграция со стратегиями Flowseal 1.10.2. Полная автономность (Self-Contained) без необходимости установки сторонних рантаймов и без перенаправления пользовательского трафика на внешние VPN-серверы.*
+*Интеллектуальная маршрутизация и десинхронизация пакетов DPI (zapret winws), нативный движок TgWsProxy (.NET 10 / AES-NI / WsPool) и интеграция со стратегиями Flowseal 1.10.3. Полная автономность (Self-Contained) без необходимости установки сторонних рантаймов и без перенаправления пользовательского трафика на внешние VPN-серверы.*
 
 <br/>
 
@@ -49,7 +49,7 @@
 3. [Технический принцип работы](#2-технический-принцип-работы)
 4. [Архитектура системы](#3-архитектура-системы)
 5. [Ключевые возможности и модули](#4-ключевые-возможности-и-модули)
-6. [Обзор пресетов и стратегий обхода (v1.10.2)](#5-обзор-пресетов-и-стратегий-обхода-v1102)
+6. [Обзор пресетов и стратегий обхода (v1.10.3)](#5-обзор-пресетов-и-стратегий-обхода-v1103)
 7. [Галерея интерфейса](#6-галерея-интерфейса)
 8. [Быстрый старт и установка](#7-быстрый-старт-и-установка)
 9. [Конфигурация и параметры](#8-конфигурация-и-параметры)
@@ -84,7 +84,7 @@
 
 ## 1. Что такое Zapret Mirrly GUI
 
-**Zapret Mirrly GUI** — мощное и удобное Windows-приложение на базе WinUI 3, объединяющее передовые возможности низкоуровневого DPI-обходчика `zapret` (актуальные стратегии Flowseal v1.10.2) и высокопроизводительного C# WebSocket-прокси для Telegram.
+**Zapret Mirrly GUI** — мощное и удобное Windows-приложение на базе WinUI 3, объединяющее передовые возможности низкоуровневого DPI-обходчика `zapret` (актуальные стратегии Flowseal v1.10.3) и высокопроизводительного C# WebSocket-прокси для Telegram.
 
 Вместо запуска разрозненных `.bat` файлов и ручной правки списков, пользователь получает готовую экосистему с управлением службой автозапуска Windows, интеллектуальной диагностикой, редактором доменов и информативным треем.
 
@@ -93,7 +93,7 @@
 * **Полный обход DPI для YouTube и Discord**: десинхронизация пакетов, FakeTLS, multisplit и обход блокировок видеопотоков (GVT/Googlevideo) и голосовых серверов Discord (UDP/STUN).
 * **Встроенный Telegram WS Proxy (TgWsProxy)**: локальный MTProto/SOCKS5 прокси-сервер на чистом C# (.NET 10) с поддержкой Anycast пулов (20 узлов), ротацией Cloudflare Workers и аппаратным шифрованием AES-NI.
 * **Управление службой Windows в 1 клик**: установка, запуск, остановка и чистое удаление системной службы `winws` через нативные Win32 Service API без `sc.exe`.
-* **Актуальная база пресетов Flowseal 1.10.2**: полная поддержка новых стратегий `ALT13`, `general (EXP)`, `ALT1`–`ALT12`, `FAKE TLS AUTO`, `SIMPLE FAKE`, `GameFilter`.
+* **Актуальная база пресетов Flowseal 1.10.3**: полная поддержка стратегий `ALT13`, `general (EXP)`, `ALT1`–`ALT12`, `FAKE TLS AUTO`, `SIMPLE FAKE`, а также кастомных диапазонов портов `GameFilter`.
 * **Интерактивная диагностика**: автоматическая проверка драйвера WinDivert, сетевых служб (BFE, DNS), доступности ключевых веб-ресурсов и выявление типа DPI-блокировки.
 * **Трей-менеджер нового поколения**: быстрое меню по левому клику (виджет статуса) и расширенное контекстное меню по правому клику.
 * **Полная портативность (Single-File EXE)**: все компоненты (среда .NET 10, драйвер `WinDivert`, бинарники `winws.exe`, списки) упакованы в один файл.
@@ -160,7 +160,7 @@ flowchart TD
 
     subgraph ServiceLayer ["2. Сервисный слой (.NET 10 MVVM)"]
         ZapretSvc["ZapretService<br/>Управление процессами и мониторинг winws"]
-        PresetMgr["PresetManager<br/>Парсер аргументов .bat Flowseal 1.10.2"]
+        PresetMgr["PresetManager<br/>Парсер аргументов .bat Flowseal 1.10.3"]
         Win32Svc["Win32ServiceManager<br/>Нативный контроль служб Windows"]
         DiagEngine["DiagnosticEngine<br/>Асинхронная проверка TCP/TLS/DNS"]
         TgWsSvc["TgWsProxyService<br/>Оркестратор Telegram WebSocket сервера"]
@@ -174,7 +174,7 @@ flowchart TD
     end
 
     subgraph KernelLayer ["4. Низкоуровневый контур обхода DPI"]
-        WinwsProc["winws.exe (Flowseal Release v1.10.2)"]
+        WinwsProc["winws.exe (Flowseal Release v1.10.3)"]
         WinDivertDrv["WinDivert.dll / WinDivert64.sys"]
         WindowsBFE["Base Filtering Engine (BFE) & TCP Timestamps"]
     end
@@ -222,10 +222,10 @@ flowchart TD
 * **Балансировка и Failover (`SmartFailoverPool`)**: автоматический мониторинг задержек (RTT ping) к DC2 и DC4, детектирование ошибок HTTP 429 и прозрачное переключение узлов.
 * **Поддержка личных Cloudflare Workers**: возможность использования персонального домена для 100% изоляции квоты и максимальной конфиденциальности.
 
-### ⚡ Полная интеграция с Flowseal Zapret v1.10.2
+### ⚡ Полная интеграция с Flowseal Zapret v1.10.3
 * **Новейшая стратегия `ALT13`**: стандартный `ip_id` режим для сервисов Google и оптимизированные фейки для Discord и стриминга.
 * **Экспериментальный профиль `general (EXP)`**: расширенный multisplit с сегментацией ClientHello.
-* **Game Filter (Игровой фильтр)**: исключение портов популярных онлайн-игр (CS2, Dota 2, Valorant, Apex Legends) для исключения скачков пинга.
+* **Game Filter (Игровой фильтр с кастомными портами)**: исключение портов популярных онлайн-игр (CS2, Dota 2, Valorant, Apex Legends) и поддержка пользовательских диапазонов портов (например, `1024-1934,1936-65535` для исключения RTMP-стримов).
 * **Режим автообучения (`autohostlist`)**: динамический перехват заблокированных сайтов «на лету» без модификации остального трафика.
 
 ### 🔍 Комплексная диагностика сети
@@ -234,7 +234,7 @@ flowchart TD
 
 ---
 
-## 5. Обзор пресетов и стратегий обхода (v1.10.2)
+## 5. Обзор пресетов и стратегий обхода (v1.10.3)
 
 | Пресет | Метод десинхронизации | Основное назначение |
 | :--- | :--- | :--- |
@@ -356,22 +356,44 @@ flowchart LR
 
 ```text
 ZapretMirrlyGUI/
-├── Assets/                 # Графические ресурсы, иконки и встроенный zapret.zip
-├── Pages/                  # Страницы WinUI 3 (Dashboard, TgWsProxy, Diagnostics, Lists, Logs, Settings)
-├── Services/               # Сервисный слой MVVM
-│   ├── TgWsProxy/          # Ядро прокси: WsPool, Balancer, AesCtr, FakeTls, RawWebSocket
-│   ├── AppUpdateService.cs # Проверка обновлений через GitHub API
-│   ├── AssetsExtractor.cs  # Распаковка и обновление встроенного бандла zapret
-│   ├── DiagnosticEngine.cs # Асинхронное тестирование сетевых протоколов
-│   ├── PresetManager.cs    # Парсинг и приоритизация пресетов Flowseal
-│   ├── SettingsManager.cs  # Сериализация настроек в JSON
-│   ├── Win32ServiceManager # Нативное управление службами Windows API
-│   └── ZapretService.cs    # Запуск и мониторинг winws.exe
-├── ViewModels/             # Модели представлений CommunityToolkit.Mvvm
-├── zapret/                 # Бандл Flowseal v1.10.2 (bin, lists, utils, .bat пресеты)
-├── MainWindow.xaml         # Корневое окно приложения с нативным DWM-обрамлением
-├── TrayWindow.xaml         # Всплывающее окно быстрого управления в системном трее
-└── ZapretMirrlyGUI.csproj  # Конфигурация проекта .NET 10 / WindowsAppSDK
+├── .service/                   # Служебные файлы удалённых обновлений (hosts, ipset, version)
+├── Assets/                     # Встроенные ассеты приложения (иконки, логотипы, zapret.zip)
+├── docs/                       # Документация и графические материалы
+│   ├── images/                 # Брендовая графика и полноразмерные логотипы
+│   └── screenshots/            # Официальные скриншоты интерфейса
+├── Pages/                      # Экраны интерфейса WinUI 3 (Fluent Design / XAML)
+│   ├── DashboardPage           # Главный экран: выбор пресета, запуск/остановка winws
+│   ├── TgWsProxyPage           # Управление нативным WebSocket-прокси для Telegram
+│   ├── DiagnosticsPage         # Модуль параллельного тестирования стратегий (curl)
+│   ├── ListsPage               # Редактор списков доменов и баз IPSet
+│   ├── LogsPage                # Консоль событий winws и TgWsProxy в реальном времени
+│   ├── SettingsPage            # Системные настройки, чистка hosts, автообновления
+│   ├── GuidePage               # Справочник и документация по настройке
+│   └── SupportPage             # Информация о проекте и донаты
+├── scripts/                    # Скрипты автоматизации и утилиты обслуживания
+│   └── build.bat               # Быстрая сборка проекта в один клик
+├── Services/                   # Сервисный слой и бизнес-логика (MVVM)
+│   ├── TgWsProxy/              # Высокопроизводительный движок проксирования Telegram
+│   ├── AppUpdateService.cs     # Проверка и установка обновлений GUI через GitHub API
+│   ├── AssetsExtractor.cs      # Автораспаковка и валидация встроенного архива zapret
+│   ├── DiagnosticEngine.cs     # Асинхронный движок сетевой диагностики
+│   ├── PresetManager.cs        # Парсер, приоритизация и оптимизация пресетов Flowseal
+│   ├── SettingsManager.cs      # Хранилище настроек приложения (settings.json)
+│   ├── Win32ServiceManager.cs  # Управление службами Windows через Win32 API
+│   └── ZapretService.cs        # Жизненный цикл процесса winws.exe и работа с hosts
+├── ViewModels/                 # Модели представлений (CommunityToolkit.Mvvm)
+├── zapret/                     # Бандл Flowseal v1.10.3 (bin, lists, utils, 22 .bat пресета)
+│   ├── bin/                    # winws.exe, WinDivert64.sys, бинарные фейки (.bin)
+│   ├── lists/                  # Списки доменов и IPSet-исключения
+│   └── utils/                  # Утилиты проверки обновлений и цели диагностики
+├── MainWindow.xaml / .cs       # Главное окно с акриловым размытием и навигацией
+├── TrayWindow.xaml / .cs       # Всплывающее быстрое меню в системном трее Windows
+├── OverlayNotificationWindow   # Всплывающие HUD-уведомления поверх всех окон
+├── Program.cs                  # Точка входа WinUI 3 приложения
+├── ZapretMirrlyGUI.csproj      # Конфигурация проекта .NET 10 / Windows App SDK
+├── CHANGELOG.md                # Детальная история версий и изменений
+├── CONTRIBUTING.md             # Руководство по участию в разработке
+└── README.md                   # Главная документация проекта
 ```
 
 ### Сборка из исходного кода
@@ -444,6 +466,7 @@ dotnet publish ZapretMirrlyGUI.csproj -c Release -r win-x64 --self-contained tru
 | **`v1.1.5–1.1.7`** | Диагностика и списки | Нативный C# модуль диагностики сети, встроенный редактор списков доменов, автопополнение `autohostlist`. |
 | **`v1.1.8`** (Август 2026) | TgWsProxy & Пул | Полная интеграция C# Telegram WebSocket прокси, аппаратное шифрование AES-NI, пулы `WsPool` и карточка Android-клиента. |
 | **`v1.1.9`** (Август 2026) | Flowseal 1.10.2 | Интеграция базы стратегий Flowseal 1.10.2: пресеты `ALT13`, `EXP`, новые бинарные фейки в `bin/` и авто-распаковка. |
+| **`v1.2.0`** (Сентябрь 2026) | Flowseal 1.10.3 | Интеграция базы Flowseal 1.10.3: кастомные порты GameFilter (RTMP exclusion), актуализация `list-google.txt` и CDN Anycast IP для GitHub. |
 
 ---
 

@@ -172,6 +172,11 @@ public class TgWsProxyServer
         client.NoDelay = true;
         client.ReceiveBufferSize = 2 * 1024 * 1024;
         client.SendBufferSize = 2 * 1024 * 1024;
+        try
+        {
+            client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+        }
+        catch { }
 
         Stream clientStream = client.GetStream();
         CryptoContext? cryptoCtx = null;
@@ -272,59 +277,68 @@ public class TgWsProxyServer
             cryptoCtx = BuildCryptoContext(clientDecPrekeyIv, _secretBytes, relayInit);
 
             string dcKey = $"{dc}{(isMedia ? "m" : "")}";
-            string configuredIp = _dcRedirects.TryGetValue(dc, out string? ip) ? ip : "";
-            string targetIp = IpBenchmarkPool.Instance.GetBestTargetIp(dc, configuredIp);
-
-            if (string.IsNullOrEmpty(targetIp))
-            {
-                SafeLog($"[{clientLabel}] DC{dc} не настроен целевой IP.");
-                return;
-            }
-
-            double wsTimeout = (_dcFailUntil.TryGetValue(dcKey, out DateTime failTime) && DateTime.UtcNow < failTime) ? WS_FAIL_TIMEOUT : 5.0;
-
+            var candidateIps = IpBenchmarkPool.Instance.GetCandidateIps(dc);
             var domains = WsPool.GetWsDomains(dc, isMedia);
             RawWebSocket? ws = null;
+
+            string targetIp = candidateIps.FirstOrDefault() ?? "104.16.51.111";
 
             // Try Pool Hit
             ws = await _wsPool.GetAsync(dc, isMedia, targetIp, domains, token);
             if (ws != null)
             {
                 SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> pool hit via {targetIp}");
-            }
-            else
-            {
-                // Connect to WebSocket domains via Anycast target IP
-                foreach (string domain in domains)
+                try
                 {
-                    if (_isStopped || token.IsCancellationRequested) break;
+                    await ws.SendAsync(relayInit, token);
+                }
+                catch (Exception ex)
+                {
+                    SafeLog($"[{clientLabel}] Pool socket failed on relayInit ({ex.Message}), connecting fresh WS...");
+                    try { await ws.CloseAsync(); } catch { }
+                    ws = null;
+                }
+            }
 
-                    string url = $"wss://{domain}/apiws";
-                    SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> {url} via {targetIp}");
+            if (ws == null)
+            {
+                // Resilient connect: iterate across candidate IPs and domains without abrupt aborts
+                foreach (string ip in candidateIps)
+                {
+                    if (_isStopped || token.IsCancellationRequested || ws != null) break;
 
-                    try
-                    {
-                        using var wsCts = new CancellationTokenSource(TimeSpan.FromSeconds(wsTimeout));
-                        using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, wsCts.Token);
-                        ws = await RawWebSocket.ConnectAsync(targetIp, domain, "/apiws", null, linked.Token);
-                        break;
-                    }
-                    catch (WsHandshakeException ex)
-                    {
-                        SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS handshake error: {ex.Message}");
-                    }
-                    catch (OperationCanceledException)
+                    foreach (string domain in domains)
                     {
                         if (_isStopped || token.IsCancellationRequested) break;
-                        IpBenchmarkPool.Instance.RecordFailure(targetIp);
-                        SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS connect timed out via {domain}");
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        if (_isStopped || token.IsCancellationRequested) break;
-                        IpBenchmarkPool.Instance.RecordFailure(targetIp);
-                        SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS connect failed ({domain}): {ex.Message}");
+
+                        string url = $"wss://{domain}/apiws";
+                        SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} -> {url} via {ip}");
+
+                        try
+                        {
+                            using var wsCts = new CancellationTokenSource(TimeSpan.FromSeconds(3.0));
+                            using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, wsCts.Token);
+                            ws = await RawWebSocket.ConnectAsync(ip, domain, "/apiws", null, linked.Token);
+                            targetIp = ip;
+                            await ws.SendAsync(relayInit, token);
+                            break;
+                        }
+                        catch (WsHandshakeException ex)
+                        {
+                            SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS handshake error ({domain}): {ex.Message}");
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            if (_isStopped || token.IsCancellationRequested) break;
+                            IpBenchmarkPool.Instance.RecordFailure(ip);
+                            SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS connect timed out via {domain} ({ip})");
+                        }
+                        catch (Exception ex)
+                        {
+                            if (_isStopped || token.IsCancellationRequested) break;
+                            IpBenchmarkPool.Instance.RecordFailure(ip);
+                            SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} WS connect failed ({domain} / {ip}): {ex.Message}");
+                        }
                     }
                 }
             }
@@ -332,19 +346,11 @@ public class TgWsProxyServer
             // If WebSocket failed -> Clean close (NO FALLBACK)
             if (ws == null)
             {
-                _dcFailUntil[dcKey] = DateTime.UtcNow.AddSeconds(DC_FAIL_COOLDOWN);
                 SafeLog($"[{clientLabel}] DC{dc}{(isMedia ? " media" : "")} не удалось подключиться к Telegram Anycast WSS.");
                 return;
             }
 
-            // Remove failures on success
-            _dcFailUntil.TryRemove(dcKey, out _);
-            _ipFailUntil.TryRemove(targetIp, out _);
-
-            try { splitter = new MsgSplitter(relayInit, protoInt); } catch {}
-
-            // Send handshake
-            await ws.SendAsync(relayInit, token);
+            try { splitter = new MsgSplitter(protoInt); } catch {}
 
             // Bridge session
             await BridgeWsReencryptAsync(clientStream, ws, cryptoCtx, splitter, clientLabel, dcKey, token);
@@ -610,36 +616,6 @@ public class TgWsProxyServer
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
         long lastActivity = Environment.TickCount64;
 
-        var pingTask = Task.Run(async () =>
-        {
-            try
-            {
-                while (!cts.Token.IsCancellationRequested)
-                {
-                    await Task.Delay(15000, cts.Token);
-                    if (cts.Token.IsCancellationRequested) break;
-
-                    long idleMs = Environment.TickCount64 - Volatile.Read(ref lastActivity);
-                    if (idleMs >= 15000)
-                    {
-                        try
-                        {
-                            await ws.SendPingAsync(cts.Token);
-                        }
-                        catch
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            catch { }
-            finally
-            {
-                cts.Cancel();
-            }
-        });
-
         var uploadTask = Task.Run(async () =>
         {
             byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(65536);
@@ -652,7 +628,7 @@ public class TgWsProxyServer
                     {
                         if (splitter != null)
                         {
-                            var tail = splitter.Flush();
+                            var tail = splitter.FlushAndEncrypt(ctx.TgEncrypt);
                             if (tail.Count > 0)
                             {
                                 await ws.SendAsync(tail[0], cts.Token);
@@ -665,11 +641,10 @@ public class TgWsProxyServer
 
                     Span<byte> chunkSpan = buffer.AsSpan(0, read);
                     ctx.ClientDecrypt.Transform(chunkSpan, chunkSpan);
-                    ctx.TgEncrypt.Transform(chunkSpan, chunkSpan);
 
                     if (splitter != null)
                     {
-                        var parts = splitter.Split(chunkSpan.ToArray());
+                        var parts = splitter.ProcessAndEncrypt(chunkSpan, ctx.TgEncrypt);
                         if (parts.Count == 0) continue;
                         if (parts.Count > 1)
                         {
@@ -682,6 +657,7 @@ public class TgWsProxyServer
                     }
                     else
                     {
+                        ctx.TgEncrypt.Transform(chunkSpan, chunkSpan);
                         await ws.SendAsync(chunkSpan.ToArray(), cts.Token);
                     }
                 }
@@ -749,9 +725,9 @@ public class TgWsProxyServer
             }
         });
 
-        await Task.WhenAny(uploadTask, downloadTask, pingTask);
+        await Task.WhenAny(uploadTask, downloadTask);
         cts.Cancel();
-        try { await Task.WhenAll(uploadTask, downloadTask, pingTask); } catch { }
+        try { await Task.WhenAll(uploadTask, downloadTask); } catch { }
     }
 }
 

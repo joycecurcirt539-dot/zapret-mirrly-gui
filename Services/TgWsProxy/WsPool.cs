@@ -9,7 +9,7 @@ namespace ZapretMirrlyGUI.Services.TgWsProxy;
 
 public class WsPool
 {
-    private const double WS_POOL_MAX_AGE = 120.0;
+    private const double WS_POOL_MAX_AGE = 35.0;
     private readonly ConcurrentDictionary<(int Dc, bool IsMedia), ConcurrentQueue<(RawWebSocket Ws, DateTime Created)>> _idle = new();
     private readonly ConcurrentDictionary<(int Dc, bool IsMedia), bool> _refilling = new();
     private readonly ConcurrentDictionary<(int Dc, bool IsMedia), DateTime> _failCooldown = new();
@@ -34,7 +34,7 @@ public class WsPool
         while (bucket.TryDequeue(out var item))
         {
             double age = (DateTime.UtcNow - item.Created).TotalSeconds;
-            if (age > WS_POOL_MAX_AGE || item.Ws.IsClosed)
+            if (age > WS_POOL_MAX_AGE || item.Ws.IsClosed || !item.Ws.IsConnected)
             {
                 _ = QuietCloseAsync(item.Ws);
                 continue;
@@ -93,11 +93,17 @@ public class WsPool
         if (needed <= 0)
             return;
 
+        var candidateIps = IpBenchmarkPool.Instance.GetCandidateIps(key.Dc);
+        if (!string.IsNullOrEmpty(targetIp) && !candidateIps.Contains(targetIp))
+        {
+            candidateIps.Insert(0, targetIp);
+        }
+
         var tasks = new List<Task<RawWebSocket?>>();
         bool isFronting = DateTime.UtcNow < FrontingUntil;
         for (int i = 0; i < needed; i++)
         {
-            tasks.Add(ConnectOneAsync(targetIp, domains, isFronting, token));
+            tasks.Add(ConnectOneAsync(candidateIps, domains, isFronting, token));
         }
 
         var results = await Task.WhenAll(tasks);
@@ -113,10 +119,14 @@ public class WsPool
         int added = 0;
         foreach (var ws in results)
         {
-            if (ws != null)
+            if (ws != null && ws.IsConnected)
             {
                 bucket.Enqueue((ws, DateTime.UtcNow));
                 added++;
+            }
+            else if (ws != null)
+            {
+                _ = QuietCloseAsync(ws);
             }
         }
 
@@ -127,24 +137,29 @@ public class WsPool
         }
         else if (needed > 0 && !token.IsCancellationRequested)
         {
-            _failCooldown[key] = DateTime.UtcNow.AddSeconds(20);
+            _failCooldown[key] = DateTime.UtcNow.AddSeconds(5);
         }
     }
 
-    private async Task<RawWebSocket?> ConnectOneAsync(string targetIp, List<string> domains, bool isFronting, CancellationToken token)
+    private async Task<RawWebSocket?> ConnectOneAsync(List<string> candidateIps, List<string> domains, bool isFronting, CancellationToken token)
     {
-        foreach (var domain in domains)
+        foreach (var ip in candidateIps)
         {
             if (token.IsCancellationRequested) break;
-            try
+
+            foreach (var domain in domains)
             {
-                string? sni = isFronting ? "sprinthost.ru" : domain;
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, cts.Token);
-                return await RawWebSocket.ConnectAsync(targetIp, domain, "/apiws", sni, linked.Token);
-            }
-            catch
-            {
+                if (token.IsCancellationRequested) break;
+                try
+                {
+                    string? sni = isFronting ? "sprinthost.ru" : domain;
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(6));
+                    using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, cts.Token);
+                    return await RawWebSocket.ConnectAsync(ip, domain, "/apiws", sni, linked.Token);
+                }
+                catch
+                {
+                }
             }
         }
         return null;

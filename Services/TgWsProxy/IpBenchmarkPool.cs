@@ -15,7 +15,8 @@ public class IpBenchmarkPool
     private static readonly string[] CF_CANDIDATE_IPS = new[]
     {
         "104.16.51.111", "104.16.52.111", "104.16.132.229", "104.16.133.229",
-        "162.159.134.42", "162.159.135.42", "172.67.74.129", "172.67.182.190"
+        "104.16.134.229", "104.16.135.229", "162.159.134.42", "162.159.135.42",
+        "172.67.74.129", "172.67.182.190", "104.26.12.31", "104.26.13.31"
     };
 
     private static readonly Dictionary<int, string[]> DC_DIRECT_IPS = new()
@@ -29,6 +30,7 @@ public class IpBenchmarkPool
     };
 
     private readonly ConcurrentDictionary<string, IpMetric> _metrics = new();
+    private readonly ConcurrentDictionary<string, DateTime> _ipCooldowns = new();
     private Action<string> _logCallback;
     private CancellationTokenSource? _cts;
 
@@ -95,51 +97,42 @@ public class IpBenchmarkPool
     {
         if (!string.IsNullOrEmpty(ip))
         {
-            _metrics[ip] = new IpMetric(ip, 99999, DateTime.UtcNow, false);
+            _ipCooldowns[ip] = DateTime.UtcNow.AddSeconds(30);
+            if (_metrics.TryGetValue(ip, out var m))
+            {
+                _metrics[ip] = m with { PingMs = m.PingMs + 400 };
+            }
         }
+    }
+
+    public List<string> GetCandidateIps(int dc)
+    {
+        var now = DateTime.UtcNow;
+
+        // 1. Available CF IPs not on active cooldown, sorted by latency
+        var active = CF_CANDIDATE_IPS
+            .Where(ip => !_ipCooldowns.TryGetValue(ip, out var cd) || now >= cd)
+            .OrderBy(ip => _metrics.TryGetValue(ip, out var m) ? m.PingMs : 100)
+            .ToList();
+
+        if (active.Count >= 2)
+            return active;
+
+        // 2. If most are in cooldown, include all CF candidates sorted by ping
+        return CF_CANDIDATE_IPS
+            .OrderBy(ip => _metrics.TryGetValue(ip, out var m) ? m.PingMs : 100)
+            .ToList();
     }
 
     public string GetBestTargetIp(int dc, string configuredIp, bool preferCf = true)
     {
-        if (preferCf)
+        var candidates = GetCandidateIps(dc);
+        if (candidates.Count > 0)
         {
-            var bestCfIp = CF_CANDIDATE_IPS
-                .Where(ip => _metrics.TryGetValue(ip, out var metric) && metric.IsSuccess)
-                .OrderBy(ip => _metrics[ip].PingMs)
-                .FirstOrDefault();
-
-            if (bestCfIp != null)
-                return bestCfIp;
+            return candidates[0];
         }
 
-        if (!string.IsNullOrEmpty(configuredIp))
-        {
-            if (_metrics.TryGetValue(configuredIp, out var m) && m.IsSuccess)
-            {
-                return configuredIp;
-            }
-        }
-
-        if (DC_DIRECT_IPS.TryGetValue(dc, out var candidateIps))
-        {
-            var bestDcIp = candidateIps
-                .Where(ip => _metrics.TryGetValue(ip, out var metric) && metric.IsSuccess)
-                .OrderBy(ip => _metrics[ip].PingMs)
-                .FirstOrDefault();
-
-            if (bestDcIp != null)
-                return bestDcIp;
-        }
-
-        var anyAvailable = CF_CANDIDATE_IPS
-            .Where(ip => _metrics.TryGetValue(ip, out var metric) && metric.IsSuccess)
-            .OrderBy(ip => _metrics[ip].PingMs)
-            .FirstOrDefault();
-
-        if (anyAvailable != null)
-            return anyAvailable;
-
-        return !string.IsNullOrEmpty(configuredIp) ? configuredIp : "104.16.51.111";
+        return "104.16.51.111";
     }
 
     public async Task RunBenchmarkCycleAsync(CancellationToken token)

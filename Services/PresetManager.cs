@@ -53,11 +53,7 @@ public static class PresetManager
             var serviceBatPath = Path.Combine(root, "service.bat");
             if (!File.Exists(serviceBatPath))
             {
-                var flowsealBackup = Path.Combine(root, "..", "GITIGNORE", "zapret-discord-youtube-flowseal", "service.bat");
-                if (File.Exists(flowsealBackup))
-                {
-                    File.Copy(flowsealBackup, serviceBatPath, overwrite: true);
-                }
+                AssetsExtractor.ExtractEverythingIfNeeded(force: true);
             }
         }
         catch { }
@@ -242,22 +238,30 @@ public static class PresetManager
         var baseArgs = ParsePresetArguments(batchFilename);
         if (string.IsNullOrWhiteSpace(baseArgs)) return "";
 
+        var settings = SettingsManager.Instance;
+        string defaultTcp = string.IsNullOrWhiteSpace(settings.GameFilterCustomTcpPorts)
+            ? "1024-65535"
+            : settings.GameFilterCustomTcpPorts.Trim();
+        string defaultUdp = string.IsNullOrWhiteSpace(settings.GameFilterCustomUdpPorts)
+            ? "1024-65535"
+            : settings.GameFilterCustomUdpPorts.Trim();
+
         string gameFilterTCP = "12";
         string gameFilterUDP = "12";
         if (gameFilterMode == "all")
         {
-            gameFilterTCP = "1024-65535";
-            gameFilterUDP = "1024-65535";
+            gameFilterTCP = defaultTcp;
+            gameFilterUDP = defaultUdp;
         }
         else if (gameFilterMode == "tcp")
         {
-            gameFilterTCP = "1024-65535";
+            gameFilterTCP = defaultTcp;
             gameFilterUDP = "12";
         }
         else if (gameFilterMode == "udp")
         {
             gameFilterTCP = "12";
-            gameFilterUDP = "1024-65535";
+            gameFilterUDP = defaultUdp;
         }
 
         baseArgs = Regex.Replace(baseArgs, @"%GameFilterTCP%", gameFilterTCP, RegexOptions.IgnoreCase);
@@ -265,7 +269,20 @@ public static class PresetManager
         baseArgs = Regex.Replace(baseArgs, @"%%GameFilterTCP%%", gameFilterTCP, RegexOptions.IgnoreCase);
         baseArgs = Regex.Replace(baseArgs, @"%%GameFilterUDP%%", gameFilterUDP, RegexOptions.IgnoreCase);
 
-        var settings = SettingsManager.Instance;
+        // ── Discord Voice Enhancements ──────────────────────────────────────────
+        // 1. Expand narrow UDP port range 50000-50100 to full 50000-65535
+        // (Discord media servers dynamically assign voice/RTC ports anywhere in 50000-65535)
+        baseArgs = baseArgs.Replace("50000-50100", "50000-65535");
+
+        // 2. Enhance L7 filter to avoid dropping encrypted WebRTC voice packets:
+        // By allowing unknown UDP on voice ports with --dpi-desync-any-protocol=1,
+        // winws reliably desyncs voice packets that TSPU otherwise blocks.
+        if (baseArgs.Contains("--filter-l7=discord,stun", StringComparison.OrdinalIgnoreCase) &&
+            !baseArgs.Contains("--filter-l7=discord,stun,unknown", StringComparison.OrdinalIgnoreCase))
+        {
+            baseArgs = baseArgs.Replace("--filter-l7=discord,stun", "--filter-l7=discord,stun,unknown --dpi-desync-any-protocol=1");
+        }
+
         var argsBuilder = new StringBuilder(baseArgs);
 
         // Network Interface binding

@@ -165,6 +165,19 @@ public sealed partial class MainWindow : Window
                 });
             }
         });
+
+        // Auto-start Telegram Proxy on application launch if it was enabled
+        if (SettingsManager.Instance.TgWsProxyEnabled && SettingsManager.Instance.TgWsProxyAutoStart)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                try
+                {
+                    TgWsProxyService.StartProxy();
+                }
+                catch { }
+            });
+        }
     }
 
     private IntPtr WindowSubclassCallback(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, uint uIdSubclass, IntPtr dwRefData)
@@ -716,19 +729,20 @@ public sealed partial class MainWindow : Window
         var changelog = AppUpdateService.LastCheckResult?.Changelog;
         if (string.IsNullOrWhiteSpace(changelog))
         {
-            changelog = @"### Zapret Mirrly GUI v1.1.9 — Flowseal v1.10.2 & Telegram WS Proxy Overhaul:
+            changelog = @"### Zapret Mirrly GUI v1.2.0 — Flowseal v1.10.3 & GameFilter Ports Overhaul:
 
-• **Оптимизация Telegram WS Proxy**:
-  - Чистый прямой Anycast MTProto пайплайн без лишних фоллбеков и спама в логах.
-  - Мгновенная остановка и гарантированное прерывание фоновых задач (CancellationToken).
-  - Аппаратное ускорение AES-NI и SIMD-демаскирование WebSocket фреймов (15–20 ГБ/с).
-  - Авто-определение рукопожатия (FakeTLS 0x16 и прямой MTProto).
+• **Интеграция базы Flowseal Zapret v1.10.3**:
+  - Обновлены списки доменов Google и сервисов (list-google.txt).
+  - Актуализированы IP-адреса Anycast CDN для стабильной работы с GitHub и ассетами.
+  - Синхронизированы контрольные списки и шаблоны обхода.
 
-• **Обновление ядра Zapret (Flowseal v1.10.2)**:
-  - Добавлены новые пресеты DPI-обхода (ALT13, EXP) и обновлены бинарные модули winws.exe, windivert.dll.
+• **GameFilter — пользовательские порты (Flowseal 1.10.3)**:
+  - Добавлена возможность кастомной смены диапазонов портов TCP/UDP в настройках.
+  - Поддержка исключения RTMP-портов (1935) для стримеров (OBS / Twitch): 1024-1934,1936-65535.
 
-• **Витрина приложения Mirrly TG Proxy для Android**:
-  - Добавлен интерактивный хаб с возможностью быстрой загрузки официального клиента.";
+• **Улучшения сетевого стека и Hosts**:
+  - Встроен инструмент автоматической очистки сторонних записей Discord из hosts, восстанавливающий голосовые вызовы.
+  - Дополнительные оптимизации пула сокетов WsPool для Telegram WS Proxy.";
         }
 
         ShowVersionModal(

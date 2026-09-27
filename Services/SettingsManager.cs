@@ -18,6 +18,7 @@ public class AppSettings
 
     // TgWsProxy settings
     public bool TgWsProxyEnabled { get; set; } = false;
+    public bool TgWsProxyAutoStart { get; set; } = true;
     public int TgWsProxyPort { get; set; } = 1443;
     public string TgWsProxyHost { get; set; } = "127.0.0.1";
     public string TgWsProxySecret { get; set; } = "2924fc12c2c0e18a00cd7ddf5a5e5db6";
@@ -39,6 +40,8 @@ public class AppSettings
     public bool AutoHostlist { get; set; } = false;
     public string BindInterface { get; set; } = "default";
     public string IpProtocolMode { get; set; } = "ipv4";
+    public string GameFilterCustomTcpPorts { get; set; } = "";
+    public string GameFilterCustomUdpPorts { get; set; } = "";
 
     // Folders & Files settings
     public bool UseAutoPaths { get; set; } = true;

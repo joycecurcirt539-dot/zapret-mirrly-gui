@@ -294,6 +294,22 @@
                                             <TextBlock Text="Обход DPI применяется только для UDP-пакетов (WebRTC/Discord Voice)." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
                                         </StackPanel>
                                     </RadioButton>
+
+                                    <Border Height="1" Background="{ThemeResource CardBorderBrush}" />
+
+                                    <!-- Flowseal 1.10.3 Custom Ports -->
+                                    <StackPanel Spacing="6" Margin="8,2,0,0">
+                                        <TextBlock Text="Пользовательские диапазоны портов (Flowseal 1.10.3)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.9" />
+                                        <TextBlock Text="Опционально. Например, для исключения RTMP-стримов (1935): 1024-1934,1936-65535" Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.65" TextWrapping="Wrap" />
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="GameCustomTcpPortsBox" PlaceholderText="TCP: 1024-65535" Style="{StaticResource MirrlyTextBoxStyle}" />
+                                            <TextBox Grid.Column="1" x:Name="GameCustomUdpPortsBox" PlaceholderText="UDP: 1024-65535" Style="{StaticResource MirrlyTextBoxStyle}" />
+                                        </Grid>
+                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -624,7 +640,7 @@
 
                         <!-- CARD 4: Hosts File -->
                         <Border Style="{StaticResource GlassCardStyle}">
-                            <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="12">
+                            <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto" ColumnSpacing="12">
                                 <!-- Icon Circle -->
                                 <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="{ThemeResource BrandAlphaBackground}" BorderBrush="{ThemeResource BrandAlphaBorder}" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <FontIcon Glyph="&#xE7C1;" FontSize="16" Foreground="#FAFAFA" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -642,13 +658,21 @@
                                 </Border>
 
                                 <!-- Primary Button -->
-                                <Button x:Name="CheckHostsBtn" Grid.Column="3" Click="CheckHostsBtn_Click" Width="135" VerticalAlignment="Center">
+                                <Button x:Name="CheckHostsBtn" Grid.Column="3" Click="CheckHostsBtn_Click" Width="120" VerticalAlignment="Center">
                                     <TextBlock Text="Проверить" HorizontalAlignment="Center" />
                                 </Button>
 
                                 <!-- Secondary Button -->
-                                <Button x:Name="ApplyHostsUpdateBtn" Grid.Column="4" Click="ApplyHostsUpdateBtn_Click" Width="135" Style="{StaticResource PremiumAccentButtonStyle}" Visibility="Collapsed" VerticalAlignment="Center">
+                                <Button x:Name="ApplyHostsUpdateBtn" Grid.Column="4" Click="ApplyHostsUpdateBtn_Click" Width="120" Style="{StaticResource PremiumAccentButtonStyle}" Visibility="Collapsed" VerticalAlignment="Center">
                                     <TextBlock Text="Применить" HorizontalAlignment="Center" />
+                                </Button>
+
+                                <!-- Clean Hosts Button -->
+                                <Button x:Name="CleanHostsDiscordBtn" Grid.Column="5" Click="CleanHostsDiscordBtn_Click" Width="150" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="12" />
+                                        <TextBlock Text="Очистить Discord" />
+                                    </StackPanel>
                                 </Button>
                             </Grid>
                         </Border>
@@ -740,6 +764,16 @@
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Параметры локального прокси-сервера" FontSize="14" FontWeight="Bold" Foreground="#FAFAFA" />
                                 
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,16,0">
+                                        <TextBlock Text="Автозапуск прокси вместе с приложением" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />
+                                        <TextBlock Text="Автоматически включать TgWsProxy при старте программы, если прокси был активен." Style="{StaticResource MirrlyTextSmallStyle}" Opacity="0.75" />
+                                    </StackPanel>
+                                    <ToggleSwitch Grid.Column="1" x:Name="SettingsProxyAutoStartToggle" OnContent="Вкл" OffContent="Выкл" VerticalAlignment="Center" />
+                                </Grid>
+
+                                <Border Height="1" Background="{ThemeResource CardBorderBrush}" />
+
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                                     <StackPanel Grid.Column="0" Spacing="4">
                                         <TextBlock Text="Интерфейс прослушивания (Хост)" FontWeight="SemiBold" Style="{StaticResource MirrlyTextMediumStyle}" />

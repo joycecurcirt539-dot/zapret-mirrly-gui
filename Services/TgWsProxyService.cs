@@ -64,6 +64,8 @@ public static class TgWsProxyService
             };
 
             _server.Start();
+            SettingsManager.Instance.TgWsProxyEnabled = true;
+            SettingsManager.Save();
             OnStatusChanged?.Invoke(true);
             Log("[TG_SERVICE] TgWsProxy успешно запущен в основном процессе GUI.");
         }
@@ -77,6 +79,9 @@ public static class TgWsProxyService
 
     public static void StopProxy()
     {
+        SettingsManager.Instance.TgWsProxyEnabled = false;
+        SettingsManager.Save();
+
         if (_server != null)
         {
             var serverToStop = _server;

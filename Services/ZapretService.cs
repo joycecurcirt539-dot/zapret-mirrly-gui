@@ -31,8 +31,20 @@ public static class ZapretService
         var tmpOut = Path.GetTempFileName();
         try
         {
-            // Wrap in cmd /c so we can redirect output to a temp file
-            var cmdArgs = $"/c \"{fileName}\" {arguments} > \"{tmpOut}\" 2>&1";
+            string cmdArgs;
+            if (string.Equals(fileName, "cmd.exe", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(fileName, "cmd", StringComparison.OrdinalIgnoreCase))
+            {
+                var inner = arguments.Trim();
+                if (inner.StartsWith("/c ", StringComparison.OrdinalIgnoreCase))
+                    inner = inner.Substring(3).Trim();
+                cmdArgs = $"/c ({inner}) > \"{tmpOut}\" 2>&1";
+            }
+            else
+            {
+                cmdArgs = $"/c (\"{fileName}\" {arguments}) > \"{tmpOut}\" 2>&1";
+            }
+
             var psi = new ProcessStartInfo
             {
                 FileName = "cmd.exe",
@@ -534,6 +546,12 @@ public static class ZapretService
 
             var localContent = await File.ReadAllTextAsync(hostsFile, Encoding.UTF8);
 
+            // Check if there are rogue/stale Discord entries in hosts breaking voice calls
+            if (localContent.Contains("discord", StringComparison.OrdinalIgnoreCase))
+            {
+                return (true, "Внимание: в hosts найдены записи Discord, блокирующие звонки!", remoteContent);
+            }
+
             bool hasFirst = localContent.Contains(firstLine, StringComparison.OrdinalIgnoreCase);
             bool hasLast = localContent.Contains(lastLine, StringComparison.OrdinalIgnoreCase);
 
@@ -549,6 +567,46 @@ public static class ZapretService
         catch (Exception ex)
         {
             return (false, $"Ошибка проверки hosts: {ex.Message}", null);
+        }
+    }
+
+    public static async Task<(bool Success, int RemovedCount)> CleanHostsDiscordEntriesAsync()
+    {
+        var hostsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "drivers", "etc", "hosts");
+        try
+        {
+            Log("[SERVICE] Очистка файла hosts от сторонних записей Discord...");
+            if (!File.Exists(hostsFile)) return (true, 0);
+
+            var localContent = await File.ReadAllTextAsync(hostsFile, Encoding.UTF8);
+            var lines = localContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            
+            var cleanLines = lines.Where(l => 
+                !l.Contains("discord", StringComparison.OrdinalIgnoreCase) &&
+                !l.Contains("zapret-tracker", StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+
+            int removed = lines.Length - cleanLines.Count;
+            if (removed <= 0)
+            {
+                Log("[SERVICE] В файле hosts нет записей Discord для удаления.");
+                return (true, 0);
+            }
+
+            var tempFile = Path.GetTempFileName();
+            await File.WriteAllLinesAsync(tempFile, cleanLines, Encoding.UTF8);
+
+            var arguments = $"/c copy /y \"{tempFile}\" \"{hostsFile}\" & ipconfig /flushdns";
+            var res = RunElevated("cmd.exe", arguments);
+
+            try { File.Delete(tempFile); } catch { }
+            Log($"[SERVICE] Удалено {removed} записей Discord из hosts. Результат: {res}");
+            return (true, removed);
+        }
+        catch (Exception ex)
+        {
+            Log($"[SERVICE ERROR] Ошибка при очистке hosts: {ex.Message}");
+            return (false, 0);
         }
     }
 

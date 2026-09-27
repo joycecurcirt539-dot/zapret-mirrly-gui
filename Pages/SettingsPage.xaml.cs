@@ -18,6 +18,7 @@ public sealed partial class SettingsPage : Page
     private bool _originalMinimizeToTrayOnMinimize = false;
     private bool _originalAutoCheckGuiUpdates = true;
     private bool _originalAutoUpdateDatabase = false;
+    private bool _originalTgWsProxyAutoStart = true;
     private string _originalTgWsProxyHost = "127.0.0.1";
     private int _originalTgWsProxyPoolSize = 4;
     private string _originalTgWsProxyWorkerDomains = "";
@@ -85,6 +86,9 @@ public sealed partial class SettingsPage : Page
                 GameUdpRadio.IsChecked = true;
             else
                 GameDisabledRadio.IsChecked = true;
+
+            GameCustomTcpPortsBox.Text = SettingsManager.Instance.GameFilterCustomTcpPorts ?? "";
+            GameCustomUdpPortsBox.Text = SettingsManager.Instance.GameFilterCustomUdpPorts ?? "";
 
             // 3. IPSet settings
             _originalIPSet = LoadIPSetSettings();
@@ -184,6 +188,9 @@ public sealed partial class SettingsPage : Page
             }
 
             // 8. TgWsProxy advanced settings
+            _originalTgWsProxyAutoStart = SettingsManager.Instance.TgWsProxyAutoStart;
+            SettingsProxyAutoStartToggle.IsOn = _originalTgWsProxyAutoStart;
+
             _originalTgWsProxyHost = SettingsManager.Instance.TgWsProxyHost;
             SettingsProxyHostTextBox.Text = _originalTgWsProxyHost;
 
@@ -829,6 +836,9 @@ public sealed partial class SettingsPage : Page
                 _originalGameFilter = val;
             }
 
+            SettingsManager.Instance.GameFilterCustomTcpPorts = GameCustomTcpPortsBox.Text.Trim();
+            SettingsManager.Instance.GameFilterCustomUdpPorts = GameCustomUdpPortsBox.Text.Trim();
+
             // 3. Save IPSet settings
             var ipsetFile = Path.Combine(ZapretService.FindListsDirectory(), "ipset-all.txt");
             var backupFile = ipsetFile + ".backup";
@@ -906,6 +916,9 @@ public sealed partial class SettingsPage : Page
             _originalAutoUpdateDatabase = AutoUpdateDatabaseToggle.IsOn;
 
             // 8. Save TgWsProxy advanced settings
+            SettingsManager.Instance.TgWsProxyAutoStart = SettingsProxyAutoStartToggle.IsOn;
+            _originalTgWsProxyAutoStart = SettingsProxyAutoStartToggle.IsOn;
+
             var proxyHost = SettingsProxyHostTextBox.Text.Trim();
             if (string.IsNullOrEmpty(proxyHost)) proxyHost = "127.0.0.1";
             SettingsManager.Instance.TgWsProxyHost = proxyHost;
@@ -1134,6 +1147,28 @@ public sealed partial class SettingsPage : Page
             ApplyHostsUpdateBtn.IsEnabled = true;
             SetBadgeError(HostsVersionBadge, HostsVersionBadgeText);
         }
+    }
+
+    private async void CleanHostsDiscordBtn_Click(object sender, RoutedEventArgs e)
+    {
+        CleanHostsDiscordBtn.IsEnabled = false;
+        HostsUpdateStatusText.Text = "Очистка записей Discord из hosts...";
+        SetBadgeChecking(HostsVersionBadge, HostsVersionBadgeText);
+
+        var (success, removed) = await ZapretService.CleanHostsDiscordEntriesAsync();
+        if (success)
+        {
+            HostsUpdateStatusText.Text = removed > 0
+                ? $"Удалено {removed} записей Discord из hosts в {DateTime.Now:HH:mm:ss}, DNS сброшен!"
+                : $"Записей Discord в hosts не найдено (проверено в {DateTime.Now:HH:mm:ss})";
+            SetBadgeUpToDate(HostsVersionBadge, HostsVersionBadgeText);
+        }
+        else
+        {
+            HostsUpdateStatusText.Text = "Ошибка очистки hosts (требуются права Администратора).";
+            SetBadgeError(HostsVersionBadge, HostsVersionBadgeText);
+        }
+        CleanHostsDiscordBtn.IsEnabled = true;
     }
 
     private void SetBadgeChecking(Border badge, TextBlock badgeText)

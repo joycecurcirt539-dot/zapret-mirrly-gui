@@ -18,6 +18,31 @@ public class RawWebSocket : IDisposable
     private readonly SslStream _sslStream;
     public bool IsClosed { get; private set; }
 
+    public bool IsConnected
+    {
+        get
+        {
+            if (IsClosed) return false;
+            try
+            {
+                var socket = _tcpClient?.Client;
+                if (socket == null || !socket.Connected) return false;
+
+                if (socket.Poll(0, SelectMode.SelectError))
+                    return false;
+
+                if (socket.Poll(0, SelectMode.SelectRead))
+                    return socket.Available > 0; // If readable with 0 bytes available, peer sent FIN/EOF
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+
     public const byte OP_BINARY = 0x2;
     public const byte OP_CLOSE = 0x8;
     public const byte OP_PING = 0x9;
@@ -37,6 +62,12 @@ public class RawWebSocket : IDisposable
         tcpClient.NoDelay = true;
         tcpClient.ReceiveBufferSize = 2 * 1024 * 1024;
         tcpClient.SendBufferSize = 2 * 1024 * 1024;
+
+        try
+        {
+            tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+        }
+        catch { }
 
         await tcpClient.ConnectAsync(host, 443, cancellationToken);
 
@@ -424,6 +455,11 @@ public class RawWebSocket : IDisposable
                 if (r == 0) return null;
                 read += r;
             }
+        }
+
+        if (length > 16 * 1024 * 1024 || length < 0)
+        {
+            throw new InvalidOperationException($"WebSocket frame payload too large: {length} bytes");
         }
 
         byte[] payload = new byte[length];
